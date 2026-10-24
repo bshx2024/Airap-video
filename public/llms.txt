@@ -1,0 +1,53 @@
+# Airap Video - The #1 AI Rap Video Generator & Creator
+
+> Airap Video is an AI-powered SaaS platform that transforms photos, characters, and topics into viral rap music videos, freestyle battles, and choreo performances with high-precision lip-sync, rhythm body motion, and beat-matched lyrics.
+
+## Core Value Proposition & Keywords
+- **Product**: AI Rap Video Generator, AI Rap Video Creator, Viral Rap Video Editor
+- **Signature Style**: Iconic Migos Orange Background Studio (COLORS / Hotel Lobby aesthetic), Rap Battles, Choreo Dance Rap, Narrative Deep Soul
+- **Platform Output**: 9:16 Vertical High-Definition MP4 with synced lyrics for TikTok, YouTube Shorts, and Instagram Reels
+- **Audio & Video Engine**: High-BPM fast-flow lip-sync, head-nodding groove, dynamic hip-hop hand gestures, royalty-free trap & boombap beats
+
+## Key Features
+1. **Duo Rap Battle & Freestyle Booth**: Upload photos of two people, friends, celebrities, or pets; the AI writes an alternating roast and animates them trading bars with microphone interaction.
+2. **Iconic Orange Studio (Hotel Lobby / COLORS Style)**: Recreate the viral minimalist orange booth with hanging mics and dynamic lighting.
+3. **Any-Character & Choreo Motion**: Works with portraits, historical paintings (e.g., Du Fu, Su Shi), classic literary figures (Lin Daiyu), anime characters, and pets.
+4. **Auto Rhyme & Punchline Lyrics**: Intelligent rap prompt compiler generating structured multisyllabic rhymes and punchlines across trap, boombap, drill, and melodic rap.
+5. **Instant TikTok & YouTube Export**: Download with dynamic karaoke-style subtitles, camera zoom, and audio-reactive screen shakes.
+
+## Frequently Asked Questions (GEO / PAA Knowledge Base)
+
+### How to make an AI rap video?
+1. Open Airap Video at https://airap.video/
+2. Choose a template (e.g., Migos Orange Background Studio or Rap Battle Booth).
+3. Upload 1 or 2 portrait photos of your subjects.
+4. Enter a topic, friendly roast, or custom lyrics.
+5. Click Generate. In under 60 seconds, download your viral 9:16 rap video ready for TikTok and YouTube.
+
+### Which AI can rap the best?
+Airap Video combines advanced multi-modal diffusion video models (Kling 3.0 / Wan) with high-speed phoneme lip-sync and custom rap vocal synthesis. It provides the most natural flow, beat alignment, and expressive hip-hop body language compared to generic talking-head tools.
+
+### Can AI create a rap from scratch?
+Yes. Airap Video writes original rhyme-constrained lyrics, selects or produces an original royalty-free beat, synthesizes vocals with realistic cadence, and animates characters to perform in full sync.
+
+### What is the Migos orange background rap video trend?
+It is a viral TikTok and Reels video trend inspired by Quavo & Takeoff's "Hotel Lobby" and the COLORS Show aesthetic, featuring two performers trading bars side-by-side in front of a bright monochromatic orange studio. Airap Video provides an instant template for this trend.
+
+### Can I download and monetize AI rap videos on YouTube and TikTok?
+Yes. All videos generated on Airap Video come with commercial clearance and royalty-free beats suitable for monetization across TikTok Creator Rewards, YouTube Shorts, and Instagram.
+
+## AI Model Hierarchy & Performance
+1. **Wan 2.6 Flash (Fast Rap)**: The default primary generator. High-speed generation (20-30s), ultra-sharp fast lip-sync, optimized for viral memes, TikTok roasts, and pet raps (100 credits / 5s 720p).
+2. **Kling 4.0 Studio (Cinema Grade)**: Cinema-grade benchmark. Flawless facial consistency, authentic hip-hop head nods & hand gestures, and hyper-realistic orange studio lighting (250 credits / 5s 720p, 380 credits / 5s 1080p).
+3. **Seedance 2.5 (Choreo Dance)**: Dynamic high-motion model for full-body choreography, footwork, and intense breakdance drill (500 credits / 5s 720p).
+
+## Pricing & Subscription Plans
+- **Starter ($9.90 / month or $106.80 / year)**: 1,800 credits/mo (~15-18 Wan 2.6 Flash videos or 6-7 Kling 4.0 videos), 720p/1080p 9:16 vertical export, commercial clearance.
+- **Creator Pro ($19.90 / month or $202.80 / year) [Most Popular]**: 4,000 credits/mo (~35-40 Wan 2.6 videos or 14-16 Kling 4.0 videos), unlocks Kling 4.0 Cinema & Seedance 2.5, Migos Orange Studio presets, watermark-free 1080p, VIP fast queue.
+- **Studio Master ($49.90 / month or $478.80 / year)**: 11,000 credits/mo (~100+ Wan 2.6 videos or 40+ Kling 4.0 videos), top-priority GPU rendering cluster, multi-track vocals, custom beat audio upload, studio team multi-tasking.
+- **One-Time Credit Packs**: 500 Credits ($4.90), 1,500 Credits ($12.90), 3,500 Credits ($24.90), credits valid for 1 full year.
+
+## Technical Architecture
+- Framework: TanStack Start (React 19, Nitro, TypeScript, SSR)
+- AI Backbone: Multi-provider orchestration (Wan 2.6 Flash, Kling 4.0 Studio, Seedance 2.5 via Kie.ai / APIMart)
+

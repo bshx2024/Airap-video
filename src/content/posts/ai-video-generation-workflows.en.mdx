@@ -1,0 +1,100 @@
+export const meta = {
+  title:
+    'Text, First Frame, or Reference: Which AI Video Workflow Do You Need?',
+  description:
+    'Understand when to use text-to-video, image-to-video, first-and-last-frame animation, or reference media—and what each input actually controls.',
+  created_at: '2026-08-01',
+  author_name: 'Video Lite Editorial',
+  author_image: '/logo.svg',
+  image: '/imgs/generated/cineo-hero-frame-1785487176800.png',
+};
+
+The input is not just something the model consumes. It is the contract for what the model is allowed to invent. Text gives it freedom; a first frame gives it a starting composition; reference media gives it a visual or rhythmic rule.
+
+Choose the workflow by asking one question: **what already exists that must survive the generation?**
+
+## Text-to-video: when the shot does not exist yet
+
+Start with text when you are exploring a scene and no exact visual element needs to remain fixed. This is the fastest route to an establishing shot, an impossible environment, or several alternative directions.
+
+Text-to-video works best when the prompt defines one shot rather than an entire sequence:
+
+> Low aerial shot above a black-sand beach at dawn. A translucent tidal library rises slowly from the retreating water as pages flutter inside its glass walls. The camera advances in a straight line, quiet ocean ambience, pale gold horizon.
+
+The model decides the architecture, layout, and details. That freedom is useful during exploration, but it is not the right choice when a specific character or product must match an approved design.
+
+## Image-to-video: when the opening frame matters
+
+Use a first frame when the scene already looks right and motion is the missing piece. The image anchors subject identity, wardrobe, palette, lens, and composition.
+
+The prompt should describe what happens after the uploaded frame:
+
+> She turns slowly toward the window as the curtain lifts in a light breeze. Her expression remains calm; the camera holds position and only the daylight changes across her face.
+
+Avoid asking for a radical change that the duration cannot physically support. A close-up portrait cannot naturally become a city-wide aerial view in six seconds without turning into a transformation effect.
+
+### Add a last frame when the destination matters too
+
+First-and-last-frame generation is useful for product reveals, environmental transitions, and controlled before-and-after movement. The first frame establishes the departure; the last frame establishes the arrival.
+
+The prompt still needs to explain the path between them. “Transition smoothly” is not enough. Name the visible mechanism: the camera passes behind a column, fog fills the frame, the object unfolds, or daylight fades into neon night.
+
+## Reference-to-video: when the rule matters more than the first frame
+
+A reference image does not have to become the opening composition. It can define character identity, material, costume, palette, or art direction while the generated shot begins somewhere else.
+
+Reference audio and video work the same way at a different level:
+
+- **Reference image:** preserve identity, design, or visual language.
+- **Reference audio:** follow beat, timing, vocal quality, or sound texture.
+- **Reference video:** borrow motion cadence, choreography, or camera rhythm.
+
+State each role in the prompt. “Use this as reference” is vague; “keep the creature’s two horns and orange fur, but place it in a bright subway carriage” tells the model what to preserve and what it may change.
+
+## Do not mix workflows accidentally
+
+First-frame generation and reference-to-video solve different problems. The first frame says **start here**. A reference says **remember this**.
+
+If you upload a first frame and then add several unrelated references, the model has to decide which composition and identity has priority. Video Lite separates these input modes so a shot begins with a clear contract. Choose the mode first, then attach only the assets that belong to it.
+
+## A practical decision tree
+
+Use **text-to-video** if:
+
+- you can describe the shot but cannot point to an existing image;
+- variation is welcome;
+- you are still exploring composition.
+
+Use **a first frame** if:
+
+- the opening composition is approved;
+- a face, product, or environment must stay recognizable;
+- you mainly need natural movement from a still image.
+
+Add **a last frame** if:
+
+- the shot must arrive at a specific composition;
+- you are designing a transition between two known states.
+
+Use **reference media** if:
+
+- identity, style, rhythm, or choreography must carry into a new shot;
+- the generated clip should not be forced to start on the reference frame.
+
+## Prepare references before uploading
+
+A strong reference is easy to read. Crop out irrelevant UI, avoid tiny subjects, and use a frame where the important identity is visible. For a character, choose a clear face and silhouette. For motion, choose a short clip whose rhythm is obvious. For audio, remove long silence before the useful beat.
+
+More references do not automatically mean more control. Two assets with conflicting lighting, proportions, or costumes can reduce consistency. Start with one strong reference and add another only when it supplies a different, necessary constraint.
+
+## Move between workflows instead of choosing only once
+
+The most reliable production loop uses all three modes at different stages:
+
+1. Explore the scene with text-to-video.
+2. Save the strongest frame from the best direction.
+3. Use that frame as the start of a more controlled image-to-video shot.
+4. Reuse the resulting character or motion as reference material for the next shot.
+5. Keep each result in [My Creations](/my-creations) so the prompt and source material remain traceable.
+
+You are not choosing one permanent mode. You are deciding what the model may invent on this shot. [Start with the generator](/#generator) and give every reference one clear job.
