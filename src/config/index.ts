@@ -159,25 +159,44 @@ export const envConfigs: Record<string, string> = {
   },
 
   get storage_endpoint() {
-    return secretEnv('STORAGE_ENDPOINT');
+    return secretEnv('STORAGE_ENDPOINT') || secretEnv('R2_ENDPOINT');
   },
   get storage_region() {
     return secretEnv('STORAGE_REGION') || 'auto';
   },
   get storage_access_key() {
-    return secretEnv('STORAGE_ACCESS_KEY');
+    return secretEnv('STORAGE_ACCESS_KEY') || secretEnv('R2_ACCESS_KEY');
   },
   get storage_secret_key() {
-    return secretEnv('STORAGE_SECRET_KEY');
+    return secretEnv('STORAGE_SECRET_KEY') || secretEnv('R2_SECRET_KEY');
   },
   get storage_bucket() {
-    return secretEnv('STORAGE_BUCKET');
+    return secretEnv('STORAGE_BUCKET') || secretEnv('R2_BUCKET_NAME');
   },
   get storage_public_domain() {
-    return secretEnv('STORAGE_PUBLIC_DOMAIN');
+    return secretEnv('STORAGE_PUBLIC_DOMAIN') || secretEnv('R2_DOMAIN');
   },
   get inline_image_max_kb() {
     return secretEnv('INLINE_IMAGE_MAX_KB') || '2048';
+  },
+
+  get r2_account_id() {
+    return secretEnv('R2_ACCOUNT_ID');
+  },
+  get r2_access_key() {
+    return secretEnv('R2_ACCESS_KEY');
+  },
+  get r2_secret_key() {
+    return secretEnv('R2_SECRET_KEY');
+  },
+  get r2_bucket_name() {
+    return secretEnv('R2_BUCKET_NAME');
+  },
+  get r2_domain() {
+    return secretEnv('R2_DOMAIN');
+  },
+  get r2_endpoint() {
+    return secretEnv('R2_ENDPOINT');
   },
 
   // AI
