@@ -17,10 +17,8 @@
 src/routeTree.gen.ts
 src/paraglide/
 
-# cloudflare — wrangler.jsonc is your working copy (real D1 id, URLs);
-# the committed template is wrangler.example.jsonc
+# cloudflare
 /.wrangler/
-wrangler.jsonc
 
 # claude code local state
 .claude/scheduled_tasks.lock
@@ -57,7 +55,6 @@ yarn-error.log*
 
 # database
 /data/
-/drizzle/
 src/config/db/schema.ts
 
 # npm (project uses pnpm)

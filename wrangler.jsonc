@@ -1,0 +1,39 @@
+// Cloudflare Workers deploy config — working copy.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "airap-video",
+  "compatibility_date": "2026-09-15",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": {
+    "enabled": true
+  },
+  "vars": {
+    "DATABASE_PROVIDER": "d1",
+    "VITE_APP_NAME": "Airap Video"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "airap-video-db",
+      "database_id": "de3a1a0e-96fa-44f2-a233-afceba54f8cc",
+      "migrations_dir": "drizzle"
+    }
+  ],
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "PROVIDER_GENERATE_RATE_LIMITER",
+        "class_name": "ProviderGenerateRateLimiter"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "provider-generate-rate-limiter-v1",
+      "new_sqlite_classes": ["ProviderGenerateRateLimiter"]
+    }
+  ],
+  "triggers": {
+    "crons": ["0 16 * * *"]
+  }
+}
