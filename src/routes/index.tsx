@@ -124,6 +124,14 @@ export const Route = createFileRoute('/')({
         q: m['landing.video_faq.6.question']({}, { locale: locale as any }),
         a: m['landing.video_faq.6.answer']({}, { locale: locale as any }),
       },
+      {
+        q: m['landing.video_faq.7.question']({}, { locale: locale as any }),
+        a: m['landing.video_faq.7.answer']({}, { locale: locale as any }),
+      },
+      {
+        q: m['landing.video_faq.8.question']({}, { locale: locale as any }),
+        a: m['landing.video_faq.8.answer']({}, { locale: locale as any }),
+      },
     ];
 
     const jsonLdData = [

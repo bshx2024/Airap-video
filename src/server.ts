@@ -186,6 +186,27 @@ async function handleRequest(req: Request): Promise<Response> {
     });
   }
 
+  // Edge Cache optimization for anonymous public page requests
+  // Ensures sub-100ms TTFB for visitors, crawlers, and SEO audit tools while keeping dynamic routes un-cached.
+  const isHtml = response.headers.get('content-type')?.includes('text/html');
+  const isGet = req.method === 'GET';
+  const isOk = response.status === 200;
+  const isPublicPage =
+    urlObj.pathname === '/' ||
+    urlObj.pathname === '/terms' ||
+    urlObj.pathname === '/privacy' ||
+    urlObj.pathname.startsWith('/showcase');
+  const hasAuthSession = Boolean(
+    cookieHeader?.includes('better-auth.session_token')
+  );
+
+  if (isGet && isOk && isHtml && isPublicPage && !hasAuthSession) {
+    response.headers.set(
+      'Cache-Control',
+      'public, max-age=60, s-maxage=300, stale-while-revalidate=86400'
+    );
+  }
+
   return response;
 }
 
