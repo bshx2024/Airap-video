@@ -1,5 +1,7 @@
 'use client';
 
+import { Sparkles } from 'lucide-react';
+
 import { tDynamic } from '@/core/i18n/dynamic';
 import { m } from '@/paraglide/messages.js';
 
@@ -18,7 +20,7 @@ const USE_CASE_DATA: UseCaseItem[] = [
     badgeKey: 'landing.use_cases.1.badge',
     titleKey: 'landing.use_cases.1.title',
     descKey: 'landing.use_cases.1.desc',
-    video: '/videos/showcase/generated/airglide-remake.mp4',
+    video: '/videos/showcase/generated/web-acrobat.mp4',
     reverse: false,
   },
   {
@@ -26,7 +28,7 @@ const USE_CASE_DATA: UseCaseItem[] = [
     badgeKey: 'landing.use_cases.2.badge',
     titleKey: 'landing.use_cases.2.title',
     descKey: 'landing.use_cases.2.desc',
-    video: '/videos/showcase/generated/web-acrobat.mp4',
+    video: '/videos/showcase/generated/glacier-titan.mp4',
     reverse: true,
   },
   {
@@ -34,7 +36,7 @@ const USE_CASE_DATA: UseCaseItem[] = [
     badgeKey: 'landing.use_cases.3.badge',
     titleKey: 'landing.use_cases.3.title',
     descKey: 'landing.use_cases.3.desc',
-    video: '/videos/showcase/generated/monster-bakery.mp4',
+    video: '/videos/showcase/generated/airglide-remake.mp4',
     reverse: false,
   },
 ];
@@ -66,23 +68,51 @@ export function VideoUseCases() {
             }`}
           >
             <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 px-6 py-12 md:grid-cols-2 md:gap-20 md:py-20 lg:gap-28">
+              {/* 9:16 Vertical Video Preview Stage */}
               <div
-                className={`${
+                className={`relative flex items-center justify-center ${
                   item.reverse ? 'md:order-2' : ''
-                } aspect-video overflow-hidden rounded-[28px] border-4 border-slate-200 shadow-[0_22px_60px_rgba(2,6,23,0.1)] dark:border-[#172033] dark:shadow-[0_22px_60px_rgba(2,6,23,0.34)]`}
+                }`}
               >
-                <video
+                {/* Backlight Ambient Glow */}
+                <div
                   aria-hidden="true"
-                  className="size-full object-cover"
-                  src={item.video}
-                  autoPlay
-                  loop
-                  muted
-                  playsInline
-                  preload="metadata"
+                  className="pointer-events-none absolute h-64 w-64 rounded-full bg-amber-500/15 blur-[90px]"
                 />
+
+                {/* 9:16 Vertical Mobile Stage Frame */}
+                <figure className="group relative aspect-[9/16] w-full max-w-[260px] sm:max-w-[290px] overflow-hidden rounded-[24px] border border-slate-200/80 bg-black shadow-[0_22px_60px_rgba(2,6,23,0.2)] ring-1 ring-slate-900/5 transition-transform duration-300 hover:scale-[1.02] dark:border-white/15 dark:shadow-[0_22px_60px_rgba(2,6,23,0.6)] dark:ring-white/10">
+                  <video
+                    aria-hidden="true"
+                    className="size-full object-cover"
+                    src={item.video}
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    preload="metadata"
+                  />
+                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30" />
+
+                  {/* Top Badge: 9:16 Vertical */}
+                  <div className="absolute top-3 left-3 flex items-center gap-1.5 rounded-full border border-white/20 bg-black/60 px-2.5 py-0.5 text-[10px] font-semibold text-amber-300 backdrop-blur-md">
+                    <Sparkles className="size-3 text-amber-400" />
+                    <span>9:16 Vertical</span>
+                  </div>
+
+                  {/* Bottom Stage Pill */}
+                  <figcaption className="absolute inset-x-3 bottom-3 flex items-center justify-between gap-2 rounded-xl border border-white/15 bg-black/75 p-2 backdrop-blur-md">
+                    <span className="truncate text-xs font-semibold text-white">
+                      {tDynamic(item.badgeKey)}
+                    </span>
+                    <span className="rounded bg-amber-400 px-1.5 py-0.5 text-[9px] font-bold text-slate-950">
+                      TikTok / Shorts
+                    </span>
+                  </figcaption>
+                </figure>
               </div>
 
+              {/* Text Description */}
               <div className={item.reverse ? 'md:order-1' : ''}>
                 <div className="flex items-center gap-3">
                   <span
