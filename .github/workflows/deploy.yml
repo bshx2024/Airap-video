@@ -30,6 +30,7 @@ jobs:
         env:
           DATABASE_PROVIDER: d1
           VITE_APP_NAME: 'Airap Video'
+          VITE_APP_URL: 'https://airap-video.net'
 
       - name: Apply D1 database migrations
         run: npx wrangler d1 migrations apply airap-video-db --remote

@@ -1,6 +1,9 @@
 import handler from '@tanstack/react-start/server-entry';
 
 import { envConfigs } from './config';
+import { db } from './core/db';
+import { crawlerLog } from './config/db/schema';
+import { getUuid } from './lib/hash';
 import { runWithDbScope } from './core/db/request-scope';
 import {
   getCookieFromHeader,
@@ -60,6 +63,7 @@ const UTM_COOKIE_KEYS = [
   'utm_content',
 ];
 const ATTRIBUTION_COOKIE_ATTRS = 'Max-Age=2592000; Path=/; SameSite=Lax';
+const FT_COOKIE_ATTRS = 'Max-Age=31536000; Path=/; SameSite=Lax';
 
 // Behind a proxy req.url can carry an internal host, so also treat the public
 // app URL as "self" when filtering referrers.
@@ -87,22 +91,29 @@ async function handleRequest(req: Request): Promise<Response> {
   const response = await paraglideMiddleware(req, () => handler.fetch(req));
   // First-touch attribution: remember UTM params for 30 days so sign-up can
   // stamp them onto the user row. Never overwrite an existing cookie.
-  const params = new URL(req.url).searchParams;
+  const urlObj = new URL(req.url);
+  const params = urlObj.searchParams;
   const cookieHeader = req.headers.get('cookie');
+  let hasNewUtm = false;
+  const capturedUtms: Record<string, string> = {};
+
   for (const key of UTM_COOKIE_KEYS) {
     const value = params.get(key);
     if (!value || getCookieFromHeader(cookieHeader, key)) continue;
     const sanitized = sanitizeUtm(value);
     if (sanitized) {
+      hasNewUtm = true;
+      capturedUtms[key] = sanitized;
       response.headers.append(
         'Set-Cookie',
         `${key}=${encodeURIComponent(sanitized)}; ${ATTRIBUTION_COOKIE_ATTRS}`
       );
     }
   }
+
   // First-touch referrer: only page navigations arriving from another site.
-  // Browsers usually trim cross-site referrers to the origin, which is fine.
   const referer = req.headers.get('referer');
+  let capturedReferrer = '';
   if (
     referer &&
     req.method === 'GET' &&
@@ -110,15 +121,88 @@ async function handleRequest(req: Request): Promise<Response> {
     !getCookieFromHeader(cookieHeader, REFERRER_COOKIE)
   ) {
     const sanitized = sanitizeReferrer(referer, [
-      new URL(req.url).host,
+      urlObj.host,
       appHost(),
     ]);
     if (sanitized) {
+      capturedReferrer = sanitized;
       response.headers.append(
         'Set-Cookie',
         `${REFERRER_COOKIE}=${encodeURIComponent(sanitized)}; ${ATTRIBUTION_COOKIE_ATTRS}`
       );
     }
   }
+
+  // Structured First-Touch (attr_ft) cookie for robust cross-environment attribution
+  if (!getCookieFromHeader(cookieHeader, 'attr_ft') && (hasNewUtm || capturedReferrer)) {
+    const ftPayload = {
+      source: capturedUtms.utm_source || (capturedReferrer ? new URL(capturedReferrer.startsWith('http') ? capturedReferrer : `https://${capturedReferrer}`).hostname : 'direct'),
+      medium: capturedUtms.utm_medium || (capturedReferrer ? 'referral' : 'none'),
+      campaign: capturedUtms.utm_campaign || '',
+      term: capturedUtms.utm_term || '',
+      content: capturedUtms.utm_content || '',
+      referrer: capturedReferrer || referer || '',
+      landing: `${urlObj.pathname}${urlObj.search}`,
+      timestamp: Date.now(),
+    };
+    response.headers.append(
+      'Set-Cookie',
+      `attr_ft=${encodeURIComponent(JSON.stringify(ftPayload))}; ${FT_COOKIE_ATTRS}`
+    );
+  }
+
+  // Detect and persist crawler & scanner requests to database for admin review
+  const ua = req.headers.get('user-agent') || '';
+  const botType = detectBotType(ua, urlObj.pathname);
+
+  if (botType) {
+    const clientIp =
+      req.headers.get('cf-connecting-ip') ||
+      req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+      '';
+    const country = (req.headers.get('cf-ipcountry') || '').toUpperCase().trim();
+
+    console.log(
+      `[CRAWLER][${botType}] ${req.method} ${urlObj.pathname}${urlObj.search} | ${response.status} | IP: ${clientIp} (${country || 'Unknown'}) | UA: ${ua}`
+    );
+
+    // Asynchronously insert into database without blocking client response
+    Promise.resolve().then(async () => {
+      try {
+        await db().insert(crawlerLog).values({
+          id: getUuid(),
+          ip: clientIp.slice(0, 45),
+          country: country.slice(0, 10),
+          method: req.method.slice(0, 10),
+          path: `${urlObj.pathname}${urlObj.search}`.slice(0, 500),
+          statusCode: response.status,
+          botType,
+          userAgent: ua.slice(0, 1000),
+          createdAt: new Date(),
+        });
+      } catch (err) {
+        // Silently catch to prevent unhandled rejections during background insert
+      }
+    });
+  }
+
   return response;
+}
+
+function detectBotType(ua: string, path: string): string | null {
+  const lPath = path.toLowerCase();
+  if (['.php', '.env', 'wp-admin', 'shell', 'backup', '.git', 'composer.json', 'xmlrpc', 'setup.cgi'].some((s) => lPath.includes(s))) {
+    return 'scanner';
+  }
+  const lUa = ua.toLowerCase();
+  if (lUa.includes('googlebot')) return 'googlebot';
+  if (lUa.includes('bingbot')) return 'bingbot';
+  if (lUa.includes('ahrefs')) return 'ahrefs';
+  if (lUa.includes('semrush')) return 'semrush';
+  if (lUa.includes('bytespider')) return 'bytespider';
+  if (lUa.includes('yandex')) return 'yandex';
+  if (lUa.includes('duckduckbot') || lUa.includes('duckduckgo')) return 'duckduckgo';
+  if (lUa.includes('baiduspider')) return 'baidu';
+  if (lUa.includes('bot') || lUa.includes('spider') || lUa.includes('crawler') || lUa.includes('slurp')) return 'other_bot';
+  return null;
 }

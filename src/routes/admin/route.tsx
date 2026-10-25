@@ -6,6 +6,7 @@ import {
   Home,
   LayoutDashboard,
   Megaphone,
+  Radar,
   Settings,
   Shield,
   Video,
@@ -87,6 +88,12 @@ function AdminLayout() {
         { href: '/admin/posts', label: m['admin.nav.posts']() },
         { href: '/admin/tickets', label: m['admin.nav.tickets']() },
       ],
+    },
+    {
+      href: '/admin/crawler-logs',
+      label: '爬虫与蜘蛛',
+      icon: Radar,
+      group,
     },
   ];
 

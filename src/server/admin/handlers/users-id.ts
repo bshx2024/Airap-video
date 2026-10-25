@@ -30,6 +30,14 @@ export async function GET({ params }: AdminHandlerContext) {
         ip: user.ip,
         country: user.country,
         locale: user.locale,
+        firstLanding: user.firstLanding,
+        firstTouchAt: user.firstTouchAt,
+        lastSource: user.lastSource,
+        lastMedium: user.lastMedium,
+        lastCampaign: user.lastCampaign,
+        device: user.device,
+        os: user.os,
+        browser: user.browser,
       })
       .from(user)
       .where(eq(user.id, id))

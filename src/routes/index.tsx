@@ -189,7 +189,7 @@ export const Route = createFileRoute('/')({
         {
           name: 'keywords',
           content:
-            'ai rap video generator, ai rap battle, migos orange background, ai rap creator, ai rap video editor, rap ai generator, viral ai rap video, tiktok rap video, rap lyrics ai',
+            'ai rap video generator, ai rap battle, migos orange background, ai rap video trend, ai rap video creator, ai rap video editor, ai rap video download, viral ai rap video, tiktok rap video, ai rap video song, rap lyrics ai',
         },
         { property: 'og:site_name', content: appName },
         { property: 'og:title', content: title },

@@ -9,7 +9,8 @@
   },
   "vars": {
     "DATABASE_PROVIDER": "d1",
-    "VITE_APP_NAME": "Airap Video"
+    "VITE_APP_NAME": "Airap Video",
+    "VITE_APP_URL": "https://airap-video.net"
   },
   "d1_databases": [
     {

@@ -23,6 +23,7 @@ import {
   getHeaderValue,
   guessLocaleFromAcceptLanguage,
 } from '@/lib/cookie';
+import { extractClientEnv } from '@/lib/client-env';
 import { getUuid } from '@/lib/hash';
 import {
   PASSWORD_RESET_TOKEN_EXPIRES_IN_SECONDS,
@@ -210,39 +211,99 @@ export function getAuth(configs?: Record<string, string>) {
     },
     user: {
       additionalFields: {
-        utmSource: {
-          type: 'string',
-          input: false,
-          required: false,
-          defaultValue: '',
-        },
+        utmSource: { type: 'string', input: false, required: false, defaultValue: '' },
+        utmMedium: { type: 'string', input: false, required: false, defaultValue: '' },
+        utmCampaign: { type: 'string', input: false, required: false, defaultValue: '' },
+        utmTerm: { type: 'string', input: false, required: false, defaultValue: '' },
+        utmContent: { type: 'string', input: false, required: false, defaultValue: '' },
+        referrer: { type: 'string', input: false, required: false, defaultValue: '' },
+        country: { type: 'string', input: false, required: false, defaultValue: '' },
+        firstLanding: { type: 'string', input: false, required: false, defaultValue: '' },
+        firstTouchAt: { type: 'date', input: false, required: false },
+        lastSource: { type: 'string', input: false, required: false, defaultValue: '' },
+        lastMedium: { type: 'string', input: false, required: false, defaultValue: '' },
+        lastCampaign: { type: 'string', input: false, required: false, defaultValue: '' },
+        device: { type: 'string', input: false, required: false, defaultValue: '' },
+        os: { type: 'string', input: false, required: false, defaultValue: '' },
+        browser: { type: 'string', input: false, required: false, defaultValue: '' },
         ip: { type: 'string', input: false, required: false, defaultValue: '' },
-        locale: {
-          type: 'string',
-          input: false,
-          required: false,
-          defaultValue: '',
-        },
+        locale: { type: 'string', input: false, required: false, defaultValue: '' },
       },
     },
     databaseHooks: {
       user: {
         create: {
           before: async (userData: any, ctx: any) => {
-            let utmSource = getCookieFromCtx(ctx, 'utm_source') || '';
-            try {
-              utmSource = decodeURIComponent(utmSource);
-            } catch {}
+            // 1. Client Environment & Geolocation
+            const clientEnv = extractClientEnv({
+              'cf-ipcountry': getHeaderValue(ctx, 'cf-ipcountry'),
+              'x-country-code': getHeaderValue(ctx, 'x-country-code'),
+              'user-agent': getHeaderValue(ctx, 'user-agent'),
+              'accept-language': getHeaderValue(ctx, 'accept-language'),
+              'cf-connecting-ip': getHeaderValue(ctx, 'cf-connecting-ip'),
+              'x-forwarded-for': getHeaderValue(ctx, 'x-forwarded-for'),
+              'x-real-ip': getClientIpFromCtx(ctx),
+            });
+
+            // 2. Parse First Touch from attr_ft cookie (JSON payload)
+            let ft: any = null;
+            const ftCookie = getCookieFromCtx(ctx, 'attr_ft');
+            if (ftCookie) {
+              try {
+                ft = JSON.parse(decodeURIComponent(ftCookie));
+              } catch {}
+            }
+
+            // 3. Parse Last Touch from attr_lt cookie
+            let lt: any = null;
+            const ltCookie = getCookieFromCtx(ctx, 'attr_lt');
+            if (ltCookie) {
+              try {
+                lt = JSON.parse(decodeURIComponent(ltCookie));
+              } catch {}
+            }
+
+            // Fallback to legacy individual cookies if attr_ft not found
+            let utmSource = (ft?.source || getCookieFromCtx(ctx, 'utm_source') || '').slice(0, 100);
+            try { utmSource = decodeURIComponent(utmSource); } catch {}
             utmSource = utmSource.replace(/[^\w.\-]/g, '').slice(0, 100);
+
+            let utmMedium = (ft?.medium || getCookieFromCtx(ctx, 'utm_medium') || '').slice(0, 100);
+            let utmCampaign = (ft?.campaign || getCookieFromCtx(ctx, 'utm_campaign') || '').slice(0, 100);
+            let utmTerm = (ft?.term || getCookieFromCtx(ctx, 'utm_term') || '').slice(0, 100);
+            let utmContent = (ft?.content || getCookieFromCtx(ctx, 'utm_content') || '').slice(0, 100);
+            let referrer = (ft?.referrer || getCookieFromCtx(ctx, 'ref') || '').slice(0, 500);
+            let firstLanding = (ft?.landing || '').slice(0, 500);
+            let firstTouchAt = ft?.timestamp ? new Date(ft.timestamp) : new Date();
+
+            let lastSource = (lt?.source || utmSource || '').slice(0, 100);
+            let lastMedium = (lt?.medium || utmMedium || '').slice(0, 100);
+            let lastCampaign = (lt?.campaign || utmCampaign || '').slice(0, 100);
+
+            const locale =
+              clientEnv.locale ||
+              guessLocaleFromAcceptLanguage(getHeaderValue(ctx, 'accept-language'));
 
             return {
               data: {
                 ...userData,
                 utmSource,
-                ip: getClientIpFromCtx(ctx).slice(0, 100),
-                locale: guessLocaleFromAcceptLanguage(
-                  getHeaderValue(ctx, 'accept-language')
-                ),
+                utmMedium,
+                utmCampaign,
+                utmTerm,
+                utmContent,
+                referrer,
+                country: clientEnv.country,
+                firstLanding,
+                firstTouchAt,
+                lastSource,
+                lastMedium,
+                lastCampaign,
+                device: clientEnv.device,
+                os: clientEnv.os,
+                browser: clientEnv.browser,
+                ip: (clientEnv.ip || getClientIpFromCtx(ctx)).slice(0, 100),
+                locale,
               },
             };
           },

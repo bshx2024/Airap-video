@@ -1,6 +1,7 @@
 import * as analytics_funnel from './handlers/analytics-funnel';
 import * as analytics_overview from './handlers/analytics-overview';
 import * as analytics_report from './handlers/analytics-report';
+import * as crawler_logs from './handlers/crawler-logs';
 import * as categories from './handlers/categories';
 import * as config from './handlers/config';
 import * as config_custom from './handlers/config-custom';
@@ -43,6 +44,7 @@ export const handlers: Record<
   analytics_funnel: analytics_funnel.GET,
   analytics_overview: analytics_overview.GET,
   analytics_report: analytics_report.GET,
+  crawler_logs_list: crawler_logs.GET,
   credits_list: credits.GET,
   categories_list: categories.GET,
   categories_create: categories.POST,

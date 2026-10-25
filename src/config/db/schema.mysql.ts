@@ -43,6 +43,14 @@ export const user = table(
     utmContent: varchar('utm_content', { length: 100 }).notNull().default(''),
     referrer: varchar('referrer', { length: 500 }).notNull().default(''),
     country: varchar('country', { length: 10 }).notNull().default(''),
+    firstLanding: varchar('first_landing', { length: 500 }).notNull().default(''),
+    firstTouchAt: timestamp('first_touch_at'),
+    lastSource: varchar('last_source', { length: 100 }).notNull().default(''),
+    lastMedium: varchar('last_medium', { length: 100 }).notNull().default(''),
+    lastCampaign: varchar('last_campaign', { length: 100 }).notNull().default(''),
+    device: varchar('device', { length: 20 }).notNull().default(''),
+    os: varchar('os', { length: 20 }).notNull().default(''),
+    browser: varchar('browser', { length: 20 }).notNull().default(''),
     // 'user' = a person; 'api' = an agent/service account (no login, keys only).
     type: varchar('type', { length: 20 }).notNull().default('user'),
   },
@@ -659,3 +667,25 @@ export const userEvent = table(
 
 export type UserEvent = typeof userEvent.$inferSelect;
 export type NewUserEvent = typeof userEvent.$inferInsert;
+
+export const crawlerLog = table(
+  'crawler_log',
+  {
+    id: varchar191('id').primaryKey(),
+    ip: varchar('ip', { length: 45 }).notNull().default(''),
+    country: varchar('country', { length: 10 }).notNull().default(''),
+    method: varchar('method', { length: 10 }).notNull().default('GET'),
+    path: varchar('path', { length: 500 }).notNull().default(''),
+    statusCode: int('status_code').notNull().default(200),
+    botType: varchar('bot_type', { length: 30 }).notNull().default('other'),
+    userAgent: text('user_agent').notNull(),
+    createdAt: timestamp('created_at', { fsp: 3 }).defaultNow().notNull(),
+  },
+  (t) => [
+    index('idx_crawler_log_created_at').on(t.createdAt),
+    index('idx_crawler_log_bot_type').on(t.botType),
+  ]
+);
+
+export type CrawlerLog = typeof crawlerLog.$inferSelect;
+export type NewCrawlerLog = typeof crawlerLog.$inferInsert;

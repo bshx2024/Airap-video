@@ -49,6 +49,14 @@ interface UserDetail {
     ip: string;
     country: string;
     locale: string;
+    firstLanding?: string;
+    firstTouchAt?: string | null;
+    lastSource?: string;
+    lastMedium?: string;
+    lastCampaign?: string;
+    device?: string;
+    os?: string;
+    browser?: string;
   };
   roles: { roleId: string; roleName: string; roleTitle: string }[];
   stats: {
@@ -317,6 +325,33 @@ function UserDetailPage() {
               </Field>
               <Field label={m['admin.user_detail.locale']()}>
                 {user.locale || <Empty />}
+              </Field>
+              <Field label="First Landing">
+                {user.firstLanding ? (
+                  <span className="font-mono text-xs text-muted-foreground block truncate max-w-[280px]" title={user.firstLanding}>
+                    {user.firstLanding}
+                  </span>
+                ) : (
+                  <Empty />
+                )}
+              </Field>
+              <Field label="Last Touch">
+                {user.lastSource ? (
+                  <span className="bg-primary/10 text-primary border border-primary/20 inline-flex rounded-md px-2 py-0.5 text-xs font-medium">
+                    {user.lastSource} {user.lastMedium ? `(${user.lastMedium})` : ''}
+                  </span>
+                ) : (
+                  <Empty />
+                )}
+              </Field>
+              <Field label="Device / OS / Browser">
+                {user.device || user.os || user.browser ? (
+                  <span className="font-mono text-xs">
+                    {[user.device, user.os, user.browser].filter(Boolean).join(' · ')}
+                  </span>
+                ) : (
+                  <Empty />
+                )}
               </Field>
               <Field label={m['admin.user_detail.roles']()}>
                 {roles.length > 0 ? (

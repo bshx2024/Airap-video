@@ -14,14 +14,14 @@ zh['common.metadata.title'] = 'Airap Video - #1 AI 说唱视频生成器与创�
 zh['common.metadata.description'] = '上传照片一键生成爆款 AI 说唱视频！支持经典 Migos 橙色录音棚双人互怼、抖音走红热梗说唱与叙事音乐短片。';
 
 // Landing Meta
-en['landing.meta.title'] = 'AI Rap Video Generator: Create Viral Rap Videos, Battles & Memes Free | Airap Video';
-en['landing.meta.description'] = 'Create viral AI rap videos in seconds. Upload photos to generate Migos orange studio rap battles, TikTok meme tracks, and high-BPM flow with auto lyrics and beat-sync.';
+en['landing.meta.title'] = 'AI Rap Video Generator - Create Viral Rap Videos | Airap';
+en['landing.meta.description'] = 'Best AI rap video generator to create viral rap battles, meme tracks, and music videos in seconds. Generate Migos orange studio clips with beat-sync.';
 
-zh['landing.meta.title'] = 'AI 说唱视频生成器：免费制作爆款双人互怼、橙色录音棚与热门说唱 MV | Airap Video';
-zh['landing.meta.description'] = '一键生成爆款 AI 说唱视频！上传照片即可生成经典 Migos 橙色录音棚互怼、抖音热门说唱神曲与走心叙事短片，精准对口型与律动卡点。';
+zh['landing.meta.title'] = 'AI 说唱视频生成器：制作爆款说唱对决与热门 MV | Airap';
+zh['landing.meta.description'] = '专业的 AI 说唱视频生成器：数秒内将照片转化为经典 Migos 橙色录音棚互怼、TikTok 热门神曲与叙事说唱 MV，精准对口型与律动卡点。';
 
 // Landing Hero
-en['landing.hero.title'] = 'Free AI Rap Video Generator';
+en['landing.hero.title'] = 'AI Rap Video Generator';
 en['landing.hero.desc'] = 'Turn photos into viral rap music videos, Migos-style orange studio battles, and high-BPM flow with auto lyrics and beat sync.';
 en['landing.hero.headline'] = 'AI Rap Video Generator & Creator';
 en['landing.hero.subheadline'] = 'Turn any photo into a viral AI rap battle in seconds. Pick the iconic Migos orange studio, auto-generate hard-hitting bars, and export for TikTok & YouTube.';
@@ -29,7 +29,7 @@ en['landing.hero.placeholder_text'] = 'Enter a topic, friendly roast, or lyrics 
 en['landing.hero.tab_text'] = 'Rap Prompt';
 en['landing.hero.tab_image'] = 'Photo to Rap';
 
-zh['landing.hero.title'] = '免费 AI 说唱视频生成器';
+zh['landing.hero.title'] = 'AI 说唱视频生成器';
 zh['landing.hero.desc'] = '上传照片，一键生成爆款说唱 MV、Migos 风格橙色录音棚互怼视频，高密度吐字、精准对口型与骨骼律动卡点。';
 zh['landing.hero.headline'] = 'AI 说唱视频生成与创作平台';
 zh['landing.hero.subheadline'] = '数秒内将照片转化为刷屏级说唱视频。经典橙色录音棚双人开麦、自写押韵 Punchline 歌词，一键导出 9:16 竖屏格式。';
@@ -106,29 +106,29 @@ zh['landing.how_to.step_4_desc'] = '点击生成，数十秒内获取带卡点�
 
 // FAQ (PAA Questions from Google Trends)
 en['landing.video_faq.title'] = 'Frequently Asked Questions about AI Rap Videos';
-en['landing.video_faq.1.question'] = 'How to make an AI rap video?';
-en['landing.video_faq.1.answer'] = 'To make an AI rap video, select a style like the iconic Migos Orange Studio, upload 1 or 2 photos of your subjects, and type a topic or friendly roast. Airap Video automatically writes rhyming bars, pairs them with an 808 beat, and animates the characters with synchronized lip-sync and head nods in under 60 seconds.';
-en['landing.video_faq.2.question'] = 'Which AI can rap the best?';
-en['landing.video_faq.2.answer'] = 'Airap Video offers the most authentic performance by combining specialized rap vocal synthesis with diffusion video models like Kling 3.0 Turbo and Wan 3.0. It captures hip-hop cadence, fast chopper flow, and genuine body groove far better than generic avatar generators.';
-en['landing.video_faq.3.question'] = 'Can AI create a rap from scratch?';
-en['landing.video_faq.3.answer'] = 'Yes! Airap Video generates the entire rap from scratch: original lyrics with multisyllabic rhyme schemes, royalty-free trap and boombap beats, expressive rap vocals, and dynamic performance videos with karaoke subtitles.';
+en['landing.video_faq.1.question'] = 'How to create an AI rap video?';
+en['landing.video_faq.1.answer'] = 'To create an AI rap video, select a style like the iconic Migos Orange Studio, upload 1 or 2 photos of your subjects, and type a topic or friendly roast. Airap Video automatically writes rhyming bars, pairs them with an 808 beat, and animates the characters with synchronized lip-sync and head nods in under 60 seconds.';
+en['landing.video_faq.2.question'] = 'How does an AI rap video generator work?';
+en['landing.video_faq.2.answer'] = 'Airap Video combines specialized rap vocal synthesis with diffusion video models like Kling 3.0 Turbo and Wan 3.0. It analyzes your photos, writes rhyming lyrics with multi-syllabic flow, and renders dynamic lip-sync, head bobs, and authentic hip-hop hand gestures.';
+en['landing.video_faq.3.question'] = 'Can AI create a rap from photos?';
+en['landing.video_faq.3.answer'] = 'Yes! Airap Video generates the entire rap from photos: original lyrics with multisyllabic rhyme schemes, royalty-free trap and boombap beats, expressive rap vocals, and dynamic performance videos with animated karaoke subtitles.';
 en['landing.video_faq.4.question'] = 'How do I create the viral Migos orange background rap video?';
 en['landing.video_faq.4.answer'] = 'Simply select our "Iconic Orange Studio" preset. Upload photos of the two people you want to feature, and type what they should argue or rap about. The AI positions them in the signature bright orange booth with a hanging mic and generates alternating verses.';
-en['landing.video_faq.5.question'] = 'Can I download and share AI rap videos on TikTok, YouTube, and Reels?';
-en['landing.video_faq.5.answer'] = 'Yes. Every generated video is formatted in 9:16 vertical resolution with crisp audio and animated lyrics, ready for one-click downloading and posting directly to TikTok, YouTube Shorts, and Instagram.';
+en['landing.video_faq.5.question'] = 'Can I download and share AI rap videos on TikTok and YouTube?';
+en['landing.video_faq.5.answer'] = 'Yes. Every generated video is formatted in 9:16 vertical resolution with crisp audio and animated lyrics, ready for one-click MP4 downloading and posting directly to TikTok, YouTube Shorts, and Instagram.';
 en['landing.video_faq.6.question'] = 'Can AI rap videos be used commercially, and what if generation fails?';
 en['landing.video_faq.6.answer'] = 'All generated beats and music are 100% royalty-free for commercial use across social media platforms. If a generation ever fails due to server load or network issues, all consumed credits are immediately refunded to your balance.';
 
 zh['landing.video_faq.title'] = '关于 AI 说唱视频的常见问题';
 zh['landing.video_faq.1.question'] = '如何制作一条 AI 说唱视频？';
 zh['landing.video_faq.1.answer'] = '在 Airap Video 首页选择“经典橙色录音棚”或“双人对战”模板，上传 1 到 2 张人物照片，输入吐槽主题或提示词，点击生成即可。系统会在 60 秒内全自动完成写词、编曲、唇形对齐与身体律动渲染，输出带字幕的高清成片。';
-zh['landing.video_faq.2.question'] = '哪个 AI 做说唱效果最好？';
+zh['landing.video_faq.2.question'] = 'AI 说唱视频生成器的工作原理是什么？';
 zh['landing.video_faq.2.answer'] = 'Airap Video 是专为说唱视听定制的一站式平台。相比普通数字人只动嘴唇，Airap 融合了快节奏说唱声乐模型与 Kling 3.0 / Wan 3.0 视频扩散引擎，兼具高密度押韵吐字、808 鼓点律动点头和专业 Hip-hop 手势。';
-zh['landing.video_faq.3.question'] = 'AI 能从零完整创作一首说唱吗？';
+zh['landing.video_faq.3.question'] = 'AI 能仅凭照片创作出完整说唱吗？';
 zh['landing.video_faq.3.answer'] = '完全可以！Airap Video 涵盖从词、曲、唱到演的全流程：原创多音节押韵歌词、免版税 Trap/Boombap 节拍、拟真说唱声线以及音画同步的高清 MV 视频。';
 zh['landing.video_faq.4.question'] = '如何制作近期全网爆火的 Migos 橙色背景说唱视频？';
 zh['landing.video_faq.4.answer'] = '在首页模板栏直接选择【经典橙色录音棚（Orange Studio）】，上传两位主角的照片并填写互怼话题，系统会自动生成置身于标志性明亮橙色背景与单只吊麦前的双人轮流开麦视频。';
-zh['landing.video_faq.5.question'] = '生成的视频可以下载并发到抖音、TikTok 和视频号吗？';
+zh['landing.video_faq.5.question'] = '生成的说唱视频可以直接下载并分享到抖音、TikTok 和 YouTube 吗？';
 zh['landing.video_faq.5.answer'] = '可以！成片默认按 9:16 竖屏高清标准渲染，并内嵌酷炫动态卡点字幕与鼓点微震特效，支持一键下载 MP4，无缝发布至抖音、TikTok、快手、小红书与 YouTube Shorts。';
 zh['landing.video_faq.6.question'] = '生成的视频可以商用吗？如果生成失败怎么办？';
 zh['landing.video_faq.6.answer'] = '平台提供的所有背景伴奏与生成音频均为原创免版税授权，支持自媒体做号商用。若因网络或队列原因导致生成任务失败，系统会自动将扣除的算力点数秒级全额退回账户。';
@@ -158,19 +158,19 @@ zh['landing.use_cases.3.desc'] = '利用说唱的高能量开场黄金 3 秒与�
 
 // CTA
 en['landing.cta.headline'] = 'Drop Your First Viral AI Rap Video Today';
-en['landing.cta.subheadline'] = 'Select the iconic orange studio or freestyle battle, upload photos, and watch AI spit fire in seconds. Free credits included.';
-en['landing.cta.button'] = 'Create AI Rap Video Free';
+en['landing.cta.subheadline'] = 'Select the iconic orange studio or freestyle battle, upload photos, and watch AI spit fire in seconds.';
+en['landing.cta.button'] = 'Create AI Rap Video Now';
 en['landing.cta.title'] = 'Ready to Make Your First AI Rap Video?';
 en['landing.cta.desc'] = 'Join thousands of creators, meme makers, and hip-hop fans producing viral rap videos in one click.';
-en['landing.cta.btn_generate'] = 'Start Generating Free';
+en['landing.cta.btn_generate'] = 'Start Creating Rap Videos';
 en['landing.cta.btn_examples'] = 'Explore Rap Showcase';
 
 zh['landing.cta.headline'] = '立即生成你的第一支爆款 AI 说唱视频';
-zh['landing.cta.subheadline'] = '选择经典橙色录音棚或自由对战，上传照片，数十秒见证 AI 开麦炸场。注册即送免费体验额度。';
-zh['landing.cta.button'] = '免费制作 AI 说唱视频';
+zh['landing.cta.subheadline'] = '选择经典橙色录音棚或自由对战，上传照片，数十秒见证 AI 开麦炸场。';
+zh['landing.cta.button'] = '立即制作 AI 说唱视频';
 zh['landing.cta.title'] = '准备好开启你的 AI 说唱创作了吗？';
 zh['landing.cta.desc'] = '加入数万名创作者与幽默爱好者的行列，一键生成席卷各大社交平台的爆款说唱短片。';
-zh['landing.cta.btn_generate'] = '立即免费生成';
+zh['landing.cta.btn_generate'] = '立即开始生成';
 zh['landing.cta.btn_examples'] = '浏览精选作品库';
 
 fs.writeFileSync(enPath, JSON.stringify(en, null, 2), 'utf8');

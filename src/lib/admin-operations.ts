@@ -185,6 +185,19 @@ export const adminOperations: AdminOperation[] = [
       .strict()
   ),
   op(
+    'crawler_logs_list',
+    'List and filter crawler, spider, and scanner access logs with statistical breakdown.',
+    'system.read',
+    'GET',
+    'crawler-logs',
+    z
+      .object({
+        ...search,
+        botType: short.optional(),
+      })
+      .strict()
+  ),
+  op(
     'analytics_overview',
     'Admin overview KPIs: total and 24h-new users, last-30-day net revenue per currency (renewals included, refunds subtracted, minor units), live subscriptions, open tickets.',
     'payments.read',

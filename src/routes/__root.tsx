@@ -26,6 +26,7 @@ import { Plausible } from '@/components/analytics/plausible';
 import { CustomerService } from '@/components/customer-service';
 import { GoogleOneTap } from '@/components/google-one-tap';
 import { SandboxPreviewBridge } from '@/components/sandbox-preview-bridge';
+import { AttributionTracker } from '@/components/attribution-tracker';
 import { TopBanner } from '@/components/top-banner';
 import { Toaster } from '@/components/ui/sonner';
 
@@ -324,6 +325,7 @@ function RootComponent() {
           disableTransitionOnChange
         >
           <TopBanner />
+          <AttributionTracker />
           <Outlet />
           <SandboxPreviewBridge />
           <Toaster position="top-center" richColors />

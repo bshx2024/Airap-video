@@ -42,6 +42,14 @@ export const user = table(
     utmContent: text('utm_content').notNull().default(''),
     referrer: text('referrer').notNull().default(''),
     country: text('country').notNull().default(''),
+    firstLanding: text('first_landing').notNull().default(''),
+    firstTouchAt: timestamp('first_touch_at'),
+    lastSource: text('last_source').notNull().default(''),
+    lastMedium: text('last_medium').notNull().default(''),
+    lastCampaign: text('last_campaign').notNull().default(''),
+    device: text('device').notNull().default(''),
+    os: text('os').notNull().default(''),
+    browser: text('browser').notNull().default(''),
     // 'user' = a person; 'api' = an agent/service account (no login, keys only).
     type: text('type').notNull().default('user'),
   },
@@ -739,3 +747,25 @@ export const userEvent = table(
 
 export type UserEvent = typeof userEvent.$inferSelect;
 export type NewUserEvent = typeof userEvent.$inferInsert;
+
+export const crawlerLog = table(
+  'crawler_log',
+  {
+    id: text('id').primaryKey(),
+    ip: text('ip').notNull().default(''),
+    country: text('country').notNull().default(''),
+    method: text('method').notNull().default('GET'),
+    path: text('path').notNull().default(''),
+    statusCode: integer('status_code').notNull().default(200),
+    botType: text('bot_type').notNull().default('other'),
+    userAgent: text('user_agent').notNull().default(''),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+  },
+  (t) => [
+    index('idx_crawler_log_created_at').on(t.createdAt),
+    index('idx_crawler_log_bot_type').on(t.botType),
+  ]
+);
+
+export type CrawlerLog = typeof crawlerLog.$inferSelect;
+export type NewCrawlerLog = typeof crawlerLog.$inferInsert;
