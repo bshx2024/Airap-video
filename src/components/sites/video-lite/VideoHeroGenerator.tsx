@@ -9,7 +9,6 @@ import {
   type VideoHeroExternalPrompt,
 } from '@/components/sites/video-lite/useVideoHeroGenerator';
 import { VideoHeroComposer } from '@/components/sites/video-lite/VideoHeroComposer';
-import { VideoHeroPresetStrip } from '@/components/sites/video-lite/VideoHeroPresetStrip';
 import { VideoHeroResultPanel } from '@/components/sites/video-lite/VideoHeroResultPanel';
 
 export function VideoHeroGenerator({
@@ -27,14 +26,14 @@ export function VideoHeroGenerator({
   return (
     <section
       id="generator"
-      className="relative min-h-[100svh] overflow-hidden bg-[#020617] text-white"
+      className="relative overflow-hidden bg-[#020617] text-white"
     >
       <div
         className={cn(
-          'relative z-10 mx-auto w-full px-5 pt-[17svh] text-center sm:px-8 sm:pt-[19svh]',
+          'relative z-10 mx-auto w-full px-5 pt-[16svh] text-center sm:px-8 sm:pt-[18svh]',
           hero.generationResult
             ? 'min-h-0 pb-6 sm:pb-8'
-            : 'min-h-[100svh] pb-[max(12rem,env(safe-area-inset-bottom))] sm:pb-52'
+            : 'min-h-0 pb-14 sm:pb-16'
         )}
       >
         <div className="pointer-events-none relative z-30 mx-auto flex max-w-5xl flex-col items-center">
@@ -150,14 +149,6 @@ export function VideoHeroGenerator({
             onSetImages={hero.handleSetImages}
           />
         </div>
-
-        {!hero.generationResult && (
-          <VideoHeroPresetStrip
-            activePresetIndex={hero.activePresetIndex}
-            onSelectPreset={hero.handleSelectPreset}
-            onRandomSelect={hero.handleRandomSelect}
-          />
-        )}
       </div>
 
       {hero.generationResult && (
