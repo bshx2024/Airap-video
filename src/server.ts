@@ -79,11 +79,62 @@ function appHost(): string {
 // request on Workers, see core/db/request-scope.ts) and Paraglide's middleware
 // so getLocale() resolves per-request (AsyncLocalStorage) during SSR.
 export default {
-  async fetch(req: Request): Promise<Response> {
+  async fetch(req: Request, env?: any, ctx?: any): Promise<Response> {
     await ensureCloudflareEnv();
+
+    const isGetOrHead = req.method === 'GET' || req.method === 'HEAD';
+    const urlObj = new URL(req.url);
+    const isPublicPage =
+      urlObj.pathname === '/' ||
+      urlObj.pathname === '/terms' ||
+      urlObj.pathname === '/privacy' ||
+      urlObj.pathname.startsWith('/showcase');
+    const cookieHeader = req.headers.get('cookie');
+    const hasAuth = Boolean(
+      cookieHeader?.includes('better-auth.session_token')
+    );
+    const hasUtms = UTM_COOKIE_KEYS.some((k) => urlObj.searchParams.has(k));
+
+    // Fast-path: check Cloudflare Edge Cache API for public pages without session/UTMs
+    const cache =
+      typeof caches !== 'undefined' ? (caches as any).default : null;
+    let cacheKey: Request | null = null;
+    if (cache && isGetOrHead && isPublicPage && !hasAuth && !hasUtms) {
+      cacheKey = new Request(req.url, req);
+      try {
+        const cachedResponse = await cache.match(cacheKey);
+        if (cachedResponse) {
+          return cachedResponse;
+        }
+      } catch {
+        // Fallback to SSR handler on cache miss
+      }
+    }
+
     // Wrap the whole request so anything before/after the handler shares
     // the same db client too.
-    return runWithDbScope(() => handleRequest(req));
+    const response = await runWithDbScope(() => handleRequest(req));
+
+    // Cache valid public HTML responses without Set-Cookie on Cloudflare Edge
+    if (
+      cache &&
+      cacheKey &&
+      response.status === 200 &&
+      !response.headers.has('set-cookie') &&
+      response.headers.get('content-type')?.includes('text/html')
+    ) {
+      try {
+        if (ctx?.waitUntil) {
+          ctx.waitUntil(cache.put(cacheKey, response.clone()));
+        } else {
+          await cache.put(cacheKey, response.clone());
+        }
+      } catch {
+        // Silently continue if cache.put encounters errors
+      }
+    }
+
+    return response;
   },
 };
 
@@ -189,7 +240,7 @@ async function handleRequest(req: Request): Promise<Response> {
   // Edge Cache optimization for anonymous public page requests
   // Ensures sub-100ms TTFB for visitors, crawlers, and SEO audit tools while keeping dynamic routes un-cached.
   const isHtml = response.headers.get('content-type')?.includes('text/html');
-  const isGet = req.method === 'GET';
+  const isGetOrHead = req.method === 'GET' || req.method === 'HEAD';
   const isOk = response.status === 200;
   const isPublicPage =
     urlObj.pathname === '/' ||
@@ -200,7 +251,7 @@ async function handleRequest(req: Request): Promise<Response> {
     cookieHeader?.includes('better-auth.session_token')
   );
 
-  if (isGet && isOk && isHtml && isPublicPage && !hasAuthSession) {
+  if (isGetOrHead && isOk && isHtml && isPublicPage && !hasAuthSession) {
     response.headers.set(
       'Cache-Control',
       'public, max-age=60, s-maxage=300, stale-while-revalidate=86400'
