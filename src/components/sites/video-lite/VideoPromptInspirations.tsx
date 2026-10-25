@@ -70,7 +70,7 @@ function InspirationCard({
           video.pause();
         }
       },
-      { rootMargin: '120px', threshold: 0.05 }
+      { rootMargin: '120px', threshold: 0.1 }
     );
 
     observer.observe(container);
@@ -78,50 +78,51 @@ function InspirationCard({
   }, []);
 
   return (
-    <button
-      type="button"
-      data-prompt-card="true"
-      aria-label={`${m['showcase.dialog.play']()}: ${title}`}
-      onClick={onClick}
-      className="group focus-visible:ring-primary w-[85vw] max-w-[960px] shrink-0 cursor-pointer snap-start overflow-hidden rounded-[24px] border border-[#1e293b] bg-[#0f172a] text-left shadow-[0_18px_55px_rgba(2,6,23,0.24)] focus-visible:ring-2 focus-visible:outline-none"
+    <div
+      ref={containerRef}
+      className="group relative w-[240px] sm:w-[280px] shrink-0 aspect-[9/16] snap-start overflow-hidden rounded-2xl border border-slate-200/80 bg-slate-900 shadow-xl transition-all duration-300 hover:-translate-y-1 hover:border-amber-500/50 hover:shadow-2xl hover:shadow-amber-500/10 dark:border-white/10 dark:bg-[#0a0f1d]"
     >
-      <div
-        ref={containerRef}
-        className="relative aspect-video w-full overflow-hidden bg-[#171717]"
-      >
-        <video
-          ref={videoRef}
-          autoPlay
-          loop
-          muted
-          playsInline
-          preload="metadata"
-          className="pointer-events-none absolute inset-0 size-full object-cover transition-transform duration-500 ease-out md:group-hover:scale-[1.03]"
-          src={`${item.video}#t=0.001`}
-        />
-        <div className="pointer-events-none absolute inset-0 hidden bg-gradient-to-b from-transparent via-black/10 to-black/60 transition-opacity duration-300 group-hover:opacity-0 md:block" />
-        <h3 className="pointer-events-none absolute right-6 bottom-5 left-6 hidden text-lg leading-[1.25] font-medium text-white transition-opacity duration-300 group-hover:opacity-0 md:block lg:text-xl">
-          {title}
-        </h3>
-        <div className="pointer-events-none absolute inset-0 hidden flex-col justify-end bg-gradient-to-b from-black/25 via-black/55 to-black/90 p-6 opacity-0 transition-opacity duration-300 group-hover:opacity-100 md:flex">
-          <p className="text-xs font-semibold tracking-[0.16em] text-white/50 uppercase">
-            {m['video.clone.prompts.eyebrow']()}
-          </p>
-          <p className="mt-2 line-clamp-9 text-sm leading-[1.6] text-white/90 lg:text-base">
-            {prompt}
-          </p>
-        </div>
+      {/* 9:16 Video Background */}
+      <video
+        ref={videoRef}
+        autoPlay
+        loop
+        muted
+        playsInline
+        preload="metadata"
+        className="pointer-events-none absolute inset-0 size-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+        src={`${item.video}#t=0.001`}
+      />
+
+      {/* Top 9:16 Vertical badge */}
+      <div className="absolute top-3 left-3 z-10 flex items-center gap-1.5 rounded-full border border-white/20 bg-black/60 px-2.5 py-1 text-[11px] font-medium text-amber-300 backdrop-blur-md shadow-sm">
+        <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
+        <span>9:16 Short</span>
       </div>
 
-      <div className="p-5 md:hidden">
-        <h3 className="text-lg leading-[1.25] font-medium text-white">
+      {/* Ambient gradient overlay */}
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-black/95 via-black/60 to-transparent transition-opacity duration-300" />
+
+      {/* Bottom Info & Action */}
+      <div className="absolute inset-x-0 bottom-0 p-4 transition-transform duration-300 group-hover:translate-y-[-2px]">
+        <h3 className="text-base font-bold leading-tight text-white line-clamp-1 drop-shadow-md">
           {title}
         </h3>
-        <p className="mt-2 line-clamp-4 text-sm leading-[1.6] text-[#94a3b8]">
+        <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-slate-300/90 group-hover:line-clamp-4 transition-all">
           {prompt}
         </p>
+
+        {/* Action Button */}
+        <button
+          type="button"
+          onClick={onClick}
+          className="mt-3 inline-flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 px-3.5 py-2 text-xs font-bold text-slate-950 shadow-md transition-all hover:brightness-110 active:scale-95"
+        >
+          <span>🎤</span>
+          <span>Use This Prompt</span>
+        </button>
       </div>
-    </button>
+    </div>
   );
 }
 
@@ -149,7 +150,7 @@ export function VideoPromptInspirations({
   const scrollByDirection = (direction: 'left' | 'right') => {
     const el = scrollRef.current;
     if (el) {
-      const scrollAmount = el.clientWidth * 0.75;
+      const scrollAmount = Math.min(el.clientWidth * 0.8, 600);
       el.scrollBy({
         left: direction === 'left' ? -scrollAmount : scrollAmount,
         behavior: 'smooth',
