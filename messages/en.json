@@ -2918,6 +2918,8 @@
   "video.clone.prompts.freestyle_battle_text": "Raw underground hip-hop cypher, two MCs trading bar-for-bar in a neon alleyway, crowd reacting in background, aggressive delivery, precise phoneme lip-sync, high energy.",
   "video.clone.prompts.meme_pet_rap": "Meme Pet Chopper Rap",
   "video.clone.prompts.meme_pet_rap_text": "Cute cat wearing heavy gold chain and sunglasses, spitting fast chopper flow to a booming trap beat, perfectly synced mouth movements, head bounce, comedic contrast, viral short-form aesthetic.",
+  "video.clone.prompts.neon_freestyle": "Neon Street Freestyle",
+  "video.clone.prompts.neon_freestyle_text": "Solo rapper flowing effortlessly in a rain-slicked cyberpunk alley with neon reflections, handheld mic, relaxed head nods, vintage warm tube lighting, lo-fi boombap chill beat, 9:16 vertical cinema.",
   "landing.hero.today_free_credits": "Today's Free Credits: {remaining}/{total}",
   "landing.hero.login_to_claim": "Sign in to claim",
   "landing.hero.cost_per_gen": "Cost: {credits} credits / gen",

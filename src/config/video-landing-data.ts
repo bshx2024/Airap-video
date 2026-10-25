@@ -44,6 +44,13 @@ export const HERO_PRESETS: HeroPreset[] = [
     model: 'Wan 2.7',
     params: '1080p · 9:16 · Fast Flow',
   },
+  {
+    id: 'neon-freestyle',
+    key: 'neon_freestyle',
+    video: '/videos/showcase/generated/night-conservatory.mp4',
+    model: 'Kling 3.0 Turbo',
+    params: '1080p · 9:16 · Cyberpunk Lo-Fi',
+  },
 ];
 
 export interface ShowcaseItem {
@@ -96,6 +103,14 @@ export const SHOWCASE_ITEMS: ShowcaseItem[] = [
     aspectRatio: '9 / 16',
     model: 'Wan 2.7',
     badge: 'Meme Rap',
+  },
+  {
+    id: 'neon-freestyle',
+    key: 'neon_freestyle',
+    video: '/videos/showcase/generated/night-conservatory.mp4',
+    aspectRatio: '9 / 16',
+    model: 'Kling 3.0 Turbo',
+    badge: 'Neon Freestyle',
   },
 ];
 

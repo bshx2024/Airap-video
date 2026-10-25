@@ -2918,6 +2918,8 @@
   "video.clone.prompts.freestyle_battle_text": "纯正地下说唱 Cypher 对决，霓虹小巷中两位 MC 针锋相对，背景人群呼应，凶狠的吐字爆发力与毫秒级唇形对齐。",
   "video.clone.prompts.meme_pet_rap": "魔性萌宠快嘴说唱",
   "video.clone.prompts.meme_pet_rap_text": "戴大金链子与墨镜的萌宠，伴随爆炸 Trap 鼓点吐出极速快嘴，精准对嘴型与搞笑点头，反差萌爆棚的短视频病毒式审美。",
+  "video.clone.prompts.neon_freestyle": "霓虹夜市街头 Freestyle",
+  "video.clone.prompts.neon_freestyle_text": "赛博霓虹雨夜街头，反光积水与暖光招牌下，主唱手持动圈麦克风即兴说唱，松弛律动与微醺光影，经典 Lo-Fi Boombap 节奏，9:16 沉浸式电影质感。",
   "landing.hero.today_free_credits": "今日免费额度 {remaining}/{total} 积分",
   "landing.hero.login_to_claim": "登录即领",
   "landing.hero.cost_per_gen": "本次消耗：{credits} 积分 / 次",

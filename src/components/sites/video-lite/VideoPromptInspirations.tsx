@@ -38,6 +38,11 @@ const INSPIRATION_ITEMS: PromptCardItem[] = [
     key: 'meme_pet_rap',
     video: '/videos/showcase/generated/monster-bakery.mp4',
   },
+  {
+    id: 'neon-freestyle',
+    key: 'neon_freestyle',
+    video: '/videos/showcase/generated/night-conservatory.mp4',
+  },
 ];
 
 function InspirationCard({
@@ -80,7 +85,7 @@ function InspirationCard({
   return (
     <div
       ref={containerRef}
-      className="group relative w-[240px] sm:w-[280px] shrink-0 aspect-[9/16] snap-start overflow-hidden rounded-2xl border border-slate-200/80 bg-slate-900 shadow-xl transition-all duration-300 hover:-translate-y-1 hover:border-amber-500/50 hover:shadow-2xl hover:shadow-amber-500/10 dark:border-white/10 dark:bg-[#0a0f1d]"
+      className="group relative w-[240px] sm:w-[260px] 2xl:w-[275px] shrink-0 aspect-[9/16] snap-start overflow-hidden rounded-2xl border border-slate-200/80 bg-slate-900 shadow-xl transition-all duration-300 hover:-translate-y-1 hover:border-amber-500/50 hover:shadow-2xl hover:shadow-amber-500/10 dark:border-white/10 dark:bg-[#0a0f1d]"
     >
       {/* 9:16 Video Background */}
       <video
@@ -196,22 +201,24 @@ export function VideoPromptInspirations({
           ref={scrollRef}
           onScroll={updateScrollButtons}
           aria-busy="false"
-          className="flex w-full snap-x snap-mandatory [scroll-padding:0_1.5rem] gap-5 overflow-x-auto px-6 py-4 opacity-100 transition-opacity duration-150 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="flex w-full snap-x snap-mandatory gap-5 overflow-x-auto px-4 py-4 sm:px-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
-          {INSPIRATION_ITEMS.map((item) => {
-            const title = tDynamic(`video.clone.prompts.${item.key}`);
-            const prompt = tDynamic(`video.clone.prompts.${item.key}_text`);
+          <div className="flex min-w-full items-center justify-start xl:justify-center gap-5">
+            {INSPIRATION_ITEMS.map((item) => {
+              const title = tDynamic(`video.clone.prompts.${item.key}`);
+              const prompt = tDynamic(`video.clone.prompts.${item.key}_text`);
 
-            return (
-              <InspirationCard
-                key={item.id}
-                item={item}
-                title={title}
-                prompt={prompt}
-                onClick={() => handleCardClick(prompt)}
-              />
-            );
-          })}
+              return (
+                <InspirationCard
+                  key={item.id}
+                  item={item}
+                  title={title}
+                  prompt={prompt}
+                  onClick={() => handleCardClick(prompt)}
+                />
+              );
+            })}
+          </div>
         </div>
 
         {canScrollRight && (
