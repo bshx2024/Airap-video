@@ -146,6 +146,8 @@ export function VideoHeroGenerator({
             )}
             referenceMode={hero.referenceMode}
             userBalance={hero.userBalance}
+            onSwapImages={hero.handleSwapImages}
+            onSetImages={hero.handleSetImages}
           />
         </div>
 

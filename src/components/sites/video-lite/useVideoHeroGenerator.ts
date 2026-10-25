@@ -565,33 +565,40 @@ export function useVideoHeroGenerator({
         throw new Error(data?.message || m['landing.hero.upload_failed']());
       }
 
+      if (slot === 'last' && (!selectedModel?.supportsFirstLastFrame || frameLimit < 2)) {
+        const duoModel = VIDEO_MODELS.find(
+          (m) => m.supportsFirstLastFrame && (m.maxImages ?? 1) >= 2
+        );
+        if (duoModel) {
+          applyModel(duoModel.id);
+        }
+      }
+
       setImageUrls((prev) => {
         const next = [...prev];
         if (slot === 'first' || slot === 'reference') {
           next[0] = remoteUrl;
         } else if (slot === 'last') {
-          if (!selectedModel?.supportsFirstLastFrame || frameLimit < 2) {
+          if (!next[0]) {
             next[0] = remoteUrl;
           } else {
-            if (!next[0]) next[0] = remoteUrl;
-            else next[1] = remoteUrl;
+            next[1] = remoteUrl;
           }
         }
-        return next.filter(Boolean).slice(0, frameLimit);
+        return next.filter(Boolean).slice(0, 2);
       });
       setImageNames((prev) => {
         const next = [...prev];
         if (slot === 'first' || slot === 'reference') {
           next[0] = file.name;
         } else if (slot === 'last') {
-          if (!selectedModel?.supportsFirstLastFrame || frameLimit < 2) {
+          if (!next[0]) {
             next[0] = file.name;
           } else {
-            if (!next[0]) next[0] = file.name;
-            else next[1] = file.name;
+            next[1] = file.name;
           }
         }
-        return next.filter(Boolean).slice(0, frameLimit);
+        return next.filter(Boolean).slice(0, 2);
       });
       toast.success(m['landing.hero.toast_media_attached']());
     } catch (err: any) {
@@ -691,6 +698,24 @@ export function useVideoHeroGenerator({
     setImageNames((prev) => prev.filter((_, i) => i !== index));
   };
 
+  const handleSwapImages = () => {
+    setImageUrls((prev) => {
+      if (prev.length < 2) return prev;
+      return [prev[1], prev[0], ...prev.slice(2)];
+    });
+    setImageNames((prev) => {
+      if (prev.length < 2) return prev;
+      return [prev[1], prev[0], ...prev.slice(2)];
+    });
+    toast.success('Rapper roles swapped! ⇄');
+  };
+
+  const handleSetImages = (urls: string[], names: string[]) => {
+    setImageUrls(urls);
+    setImageNames(names);
+    toast.success('Sample duo photos loaded!');
+  };
+
   return {
     session,
     userBalance,
@@ -741,5 +766,7 @@ export function useVideoHeroGenerator({
     libraryMaxSelect,
     handleAddFromLibrary,
     handleRemoveImage,
+    handleSwapImages,
+    handleSetImages,
   };
 }

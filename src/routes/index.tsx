@@ -13,6 +13,7 @@ import { VideoFeatures } from '@/components/sites/video-lite/VideoFeatures';
 import { VideoFooter } from '@/components/sites/video-lite/VideoFooter';
 import { VideoHeader } from '@/components/sites/video-lite/VideoHeader';
 import { VideoHeroGenerator } from '@/components/sites/video-lite/VideoHeroGenerator';
+import { VideoMarquee } from '@/components/sites/video-lite/VideoMarquee';
 import { VideoHowItWorks } from '@/components/sites/video-lite/VideoHowItWorks';
 import { VideoPromptInspirations } from '@/components/sites/video-lite/VideoPromptInspirations';
 import { VideoShowcase } from '@/components/sites/video-lite/VideoShowcase';
@@ -54,6 +55,15 @@ function HomePage() {
         <VideoHeroGenerator
           externalPrompt={selectedPrompt}
           onClearExternalPrompt={() => setSelectedPrompt(null)}
+        />
+        <VideoMarquee
+          onSelectPrompt={(prompt, videoUrl) => {
+            handleUseVideo(prompt, 'sora-2', videoUrl);
+            const el = document.getElementById('generator');
+            if (el) {
+              el.scrollIntoView({ behavior: 'smooth' });
+            }
+          }}
         />
         <WhatIsVideoGenerator />
         <VideoHowItWorks />
