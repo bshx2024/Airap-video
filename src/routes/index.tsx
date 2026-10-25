@@ -16,7 +16,6 @@ import { VideoHeroGenerator } from '@/components/sites/video-lite/VideoHeroGener
 import { VideoMarquee } from '@/components/sites/video-lite/VideoMarquee';
 import { VideoHowItWorks } from '@/components/sites/video-lite/VideoHowItWorks';
 import { VideoPromptInspirations } from '@/components/sites/video-lite/VideoPromptInspirations';
-import { VideoShowcase } from '@/components/sites/video-lite/VideoShowcase';
 import { VideoUseCases } from '@/components/sites/video-lite/VideoUseCases';
 import { WhatIsVideoGenerator } from '@/components/sites/video-lite/WhatIsVideoGenerator';
 
@@ -67,10 +66,6 @@ function HomePage() {
         />
         <WhatIsVideoGenerator />
         <VideoHowItWorks />
-        <VideoShowcase
-          onUsePrompt={handleUsePrompt}
-          onUseVideo={handleUseVideo}
-        />
         <VideoFeatures />
         <VideoUseCases />
         <VideoPromptInspirations onUsePrompt={handleUsePrompt} />

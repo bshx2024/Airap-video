@@ -74,7 +74,7 @@ export function VideoMarquee({
   const displayClips = [...MARQUEE_CLIPS, ...MARQUEE_CLIPS];
 
   return (
-    <section className="relative overflow-hidden border-y border-white/10 bg-[#060a13] py-14 text-white sm:py-20">
+    <section id="showcase" className="relative overflow-hidden border-y border-white/10 bg-[#060a13] py-14 text-white sm:py-20">
       {/* Background Glow */}
       <div
         aria-hidden="true"
