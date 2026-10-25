@@ -5,7 +5,6 @@ import { House } from 'lucide-react';
 
 import { Link } from '@/core/i18n/navigation';
 import { m } from '@/paraglide/messages.js';
-import { BuiltWithShipAny } from '@/components/built-with-shipany';
 import { LocaleSelector } from '@/components/locale-selector';
 
 function GithubIcon(props: SVGProps<SVGSVGElement>) {
@@ -120,7 +119,6 @@ export function VideoFooter() {
         </div>
 
         <div className="mt-6 flex flex-col gap-3 border-t border-slate-200 pt-5 sm:flex-row sm:items-center sm:justify-between dark:border-[#1e293b]">
-          <BuiltWithShipAny />
           <span className="text-sm text-slate-500 dark:text-[#94a3b8]">
             {m['landing.footer.copyright']()}
           </span>
