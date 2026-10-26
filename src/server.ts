@@ -258,6 +258,11 @@ async function handleRequest(req: Request): Promise<Response> {
     );
   }
 
+  // Debugging Mode: Block crawlers & AI bots via HTTP header
+  if (isHtml) {
+    response.headers.set('X-Robots-Tag', 'noindex, nofollow, noarchive, nosnippet');
+  }
+
   return response;
 }
 
