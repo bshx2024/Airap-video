@@ -18,6 +18,8 @@ import {
   Upload,
   User,
   Users,
+  Volume2,
+  VolumeX,
   WandSparkles,
   X,
 } from 'lucide-react';
@@ -57,42 +59,76 @@ type MediaAction = {
 
 type StudioMode = 'duo' | 'group' | 'solo';
 
-const OCCASION_CHIPS = [
+export interface OccasionChipItem {
+  id: string;
+  label: string;
+  tag: string;
+  title: string;
+  desc: string;
+  video: string;
+  prompt: string;
+}
+
+const OCCASION_CHIPS: OccasionChipItem[] = [
   {
+    id: 'orange-studio',
     label: '🔥 Migos Orange Studio',
     tag: 'Viral TikTok',
+    title: 'Migos Orange Studio Stage',
+    desc: 'Two rappers trading aggressive roast bars on the hanging mic, 808 Trap beat, 9:16 vertical framing.',
+    video: '/videos/showcase/generated/web-acrobat.mp4',
     prompt:
       'Two rappers in an iconic bright orange background studio with a single hanging microphone, trading aggressive roast bars, heavy 808 trap beat, rhythmic head nods, hip-hop hand gestures, 9:16 vertical TikTok style',
   },
   {
-    label: '🎂 Birthday Roast & Hype',
-    tag: 'Gift & Surprise',
-    prompt:
-      'Two friends celebrating a milestone birthday in a golden hip-hop studio, hilarious witty birthday roast verses, concert-level hype, confetti and gold chains, high-energy delivery',
-  },
-  {
+    id: 'friends-roast',
     label: '🥊 Friends Roast Battle',
     tag: 'Cypher Battle',
+    title: 'Underground Cypher Battle',
+    desc: 'Two best friends roasting bar-for-bar in neon street alleyway, fast witty punchlines, crowd hype.',
+    video: '/videos/showcase/generated/monster-commuter.mp4',
     prompt:
       'Two best friends roasting each other about always being late and ordering too much takeout, fast witty punchlines, underground cypher lighting, hyping crowd in background',
   },
   {
-    label: '💍 Couples Melodic Duet',
-    tag: 'Love & Romance',
+    id: 'birthday-hype',
+    label: '🎂 Birthday Roast & Hype',
+    tag: 'Party Hype',
+    title: 'Birthday Concert Hype Stage',
+    desc: 'Custom milestone birthday lyrics, golden studio setup, confetti, gold chains, and high-energy flow.',
+    video: '/videos/showcase/generated/glacier-titan.mp4',
     prompt:
-      'A romantic duo trading melodic hip-hop verses in a moody neon city lounge, warm ambient lighting, expressive eyes, harmonized ad-libs, cinematic bokeh',
+      'Two friends celebrating a milestone birthday in a golden hip-hop studio, hilarious witty birthday roast verses, concert-level hype, confetti and gold chains, high-energy delivery',
   },
   {
+    id: 'pet-rap',
     label: '🐶 Cute Pet Chopper Flow',
     tag: 'Meme Rap',
+    title: 'Gold Chain Pet Rap Flow',
+    desc: 'Cute pet wearing sunglasses and heavy chain spitting hypersonic chopper flow to bouncy trap drums.',
+    video: '/videos/showcase/generated/monster-bakery.mp4',
     prompt:
-      'Wearing iced-out gold chains and dark sunglasses, spitting hypersonic chopper rap flow, head-bobbing rhythm, flashing studio lasers, meme humor',
+      'Cute cat wearing heavy gold chain and sunglasses, spitting fast chopper flow to upbeat trap drums, energetic head-bobbing, hilarious contrast with viral social media aesthetics',
   },
   {
-    label: '💼 Monday Work Vent',
-    tag: 'Office Comedy',
+    id: 'choreo-drill',
+    label: '⚡ Choreo & Drill Dance',
+    tag: 'High Energy',
+    title: 'Drill & Choreo Duet Stage',
+    desc: 'Full-body choreography, sharp beat-synced isolations, matching heavy UK drill sliding 808 bass.',
+    video: '/videos/showcase/generated/airglide-remake.mp4',
     prompt:
-      'Relatable comedy rap roasting endless Monday 9AM meetings, reply-all emails, and spreadsheet dread, expressive theatrical flow, viral meme cadence',
+      'Full-body hip-hop choreography and energetic dance moves, sharp isolations matching heavy UK drill sliding bass, expressive facial confidence, fluid dynamic motion with spotlight tracking',
+  },
+  {
+    id: 'neon-freestyle',
+    label: '🌃 Neon Street Freestyle',
+    tag: 'Cyberpunk Lo-Fi',
+    title: 'Neon Street Session Stage',
+    desc: 'Rain-slicked cyberpunk alley with neon reflections, handheld mic, relaxed head nods, chill boombap beat.',
+    video: '/videos/showcase/generated/night-conservatory.mp4',
+    prompt:
+      'Solo rapper flowing effortlessly in a rain-slicked cyberpunk alley with neon reflections, handheld mic, relaxed head nods, vintage warm tube lighting, lo-fi boombap chill beat, 9:16 vertical cinema',
   },
 ];
 
@@ -191,7 +227,13 @@ export function VideoHeroComposer({
   onSetImages?: (urls: string[], names: string[]) => void;
 }) {
   const [studioMode, setStudioMode] = useState<StudioMode>('duo');
-  const [activeChip, setActiveChip] = useState<string | null>(OCCASION_CHIPS[0].label);
+  const [activeChip, setActiveChip] = useState<string | null>(
+    OCCASION_CHIPS[0].label
+  );
+  const [currentChip, setCurrentChip] = useState<OccasionChipItem>(
+    OCCASION_CHIPS[0]
+  );
+  const [previewMuted, setPreviewMuted] = useState(true);
 
   const currentCredits = getVideoModelCredits(
     selectedModelId,
@@ -199,8 +241,9 @@ export function VideoHeroComposer({
     resolution
   );
 
-  const handleApplyChip = (chip: typeof OCCASION_CHIPS[number]) => {
+  const handleApplyChip = (chip: OccasionChipItem) => {
     setActiveChip(chip.label);
+    setCurrentChip(chip);
     onPromptChange(chip.prompt);
   };
 
@@ -210,6 +253,7 @@ export function VideoHeroComposer({
         DEMO_DUO_PHOTOS.map((p) => p.url),
         DEMO_DUO_PHOTOS.map((p) => p.name)
       );
+      toast.success('Sample duo photos loaded! Ready to direct.');
     }
   };
 
@@ -226,7 +270,7 @@ export function VideoHeroComposer({
   const photo2 = imageUrls[1];
 
   return (
-    <div className="w-full max-w-5xl" id="generator">
+    <div className="w-full max-w-5xl xl:max-w-6xl 2xl:max-w-7xl" id="generator">
       {/* Studio Workbench Container */}
       <div className="pointer-events-auto relative rounded-3xl border border-white/12 bg-[#0d1527]/95 p-3.5 text-left shadow-[0_24px_80px_rgba(2,6,23,0.65)] backdrop-blur-2xl transition-all duration-200 hover:border-amber-400/20 sm:p-5">
         
@@ -241,6 +285,12 @@ export function VideoHeroComposer({
             if (file) onUploadFile(file, uploadSlot);
           }}
         />
+
+        {/* Dual-Column Responsive Grid: Form on Left, Live Stage Monitor on Right (借鉴方案一大片质感) */}
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_330px] xl:grid-cols-[1fr_370px] 2xl:grid-cols-[1fr_400px] gap-6 items-stretch">
+          
+          {/* Left Column: Interactive Rap Composer */}
+          <div className="flex flex-col justify-between min-w-0">
 
         {/* 1. Mode Selector Tabs */}
         <div className="mb-4 flex flex-wrap items-center justify-between gap-2 border-b border-white/10 pb-3">
@@ -755,7 +805,98 @@ export function VideoHeroComposer({
             </button>
           </div>
         </div>
+
+        {/* Mobile Vibe Indicator */}
+        <div className="mt-2.5 flex items-center justify-between rounded-lg bg-white/[0.02] px-2.5 py-1 text-[11px] text-white/50 lg:hidden">
+          <span className="flex items-center gap-1.5 text-amber-300">
+            <Sparkles className="size-3" />
+            <span>{currentChip.title}</span>
+          </span>
+          <span className="text-[10px] text-white/40">9:16 Vertical · Beat-synced</span>
+        </div>
       </div>
+      {/* End of Left Column */}
+
+      {/* Right Column: Live Studio Stage Preview Monitor (借鉴方案一的大片监看质感) */}
+      <div className="hidden lg:flex flex-col min-w-0">
+        <div className="relative flex flex-col h-full overflow-hidden rounded-2xl border border-white/12 bg-[#060a14] p-3 shadow-2xl">
+          {/* Top Bar: Live status & Audio toggle */}
+          <div className="mb-2.5 flex items-center justify-between gap-2 px-1">
+            <div className="flex items-center gap-1.5">
+              <span className="flex size-2 rounded-full bg-rose-500 animate-pulse" />
+              <span className="text-[10px] font-bold tracking-widest text-white/90 uppercase">
+                Studio Stage Monitor
+              </span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="rounded-full bg-amber-400/15 px-2 py-0.5 text-[10px] font-semibold text-amber-300 border border-amber-400/25">
+                {currentChip.tag}
+              </span>
+              <button
+                type="button"
+                aria-label={previewMuted ? 'Unmute 808 audio preview' : 'Mute audio preview'}
+                title={previewMuted ? 'Unmute 808 audio preview' : 'Mute audio preview'}
+                onClick={() => setPreviewMuted(!previewMuted)}
+                className="flex size-7 cursor-pointer items-center justify-center rounded-lg border border-white/15 bg-white/5 text-white/80 transition hover:bg-white/15 hover:text-white"
+              >
+                {previewMuted ? (
+                  <VolumeX className="size-3.5" />
+                ) : (
+                  <Volume2 className="size-3.5 text-amber-400" />
+                )}
+              </button>
+            </div>
+          </div>
+
+          {/* 9:16 Video Display Area */}
+          <div className="group/stage relative flex-1 min-h-[360px] aspect-[9/16] w-full overflow-hidden rounded-xl border border-white/10 bg-black shadow-inner">
+            <video
+              key={currentChip.video}
+              src={currentChip.video}
+              autoPlay
+              loop
+              muted={previewMuted}
+              playsInline
+              preload="auto"
+              className="size-full object-cover transition-transform duration-700 ease-out group-hover/stage:scale-105"
+            />
+
+            {/* Cinematic Vignette Overlay */}
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/95 via-transparent to-black/30" />
+
+            {/* Floating Badge */}
+            <div className="pointer-events-none absolute top-3 left-3 flex items-center gap-1.5 rounded-full border border-white/20 bg-black/60 px-2.5 py-0.5 text-[10px] font-semibold text-amber-300 backdrop-blur-md">
+              <Sparkles className="size-3 text-amber-400" />
+              <span>9:16 Authentic Output</span>
+            </div>
+
+            {/* Bottom Stage Details */}
+            <div className="pointer-events-none absolute inset-x-3 bottom-3 rounded-xl border border-white/15 bg-black/85 p-2.5 backdrop-blur-md">
+              <p className="truncate text-xs font-bold text-white">
+                {currentChip.title}
+              </p>
+              <p className="mt-0.5 line-clamp-2 text-[10px] leading-relaxed text-white/70">
+                {currentChip.desc}
+              </p>
+              <div className="mt-1.5 flex items-center justify-between border-t border-white/10 pt-1.5 text-[9px] text-amber-300/80">
+                <span>Photos in → Viral Rap Video out</span>
+                <span className="font-mono text-white/40">1080P · 9:16</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Micro Caption Footer */}
+          <p className="mt-2 text-center text-[10px] text-white/45">
+            Select any Vibe on the left to preview scene & beat
+          </p>
+        </div>
+      </div>
+      {/* End of Right Column */}
+
+    </div>
+    {/* End of Dual-Column Grid */}
+  </div>
+  {/* End of Studio Workbench Container */}
 
       {/* 6. Psychology Risk Reversal & De-Risking Footer Bar */}
       <div className="mt-3 grid grid-cols-2 gap-2 px-2 text-xs sm:grid-cols-4 sm:gap-3">
