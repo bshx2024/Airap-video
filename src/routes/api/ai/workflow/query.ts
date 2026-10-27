@@ -54,10 +54,12 @@ async function GET({ request }: { request: Request }) {
       const taskStatus = taskOutput.task_status;
 
       if (taskStatus === 'SUCCEEDED') {
+        const audioUrl = taskOutput.audio?.url || taskOutput.audio_url || null;
         return respData({
           taskId,
           status: 'success',
           videoUrl: taskOutput.video_url || null,
+          audioUrl,
           taskInfo: taskOutput,
           raw: json,
         });

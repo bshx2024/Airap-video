@@ -37,8 +37,81 @@ async function POST({ request }: { request: Request }) {
     }
 
     const provider = await getAIProvider();
+
+    // Check if Alibaba Cloud Model Studio should handle music (Fun-Music model or fallback)
+    const { getAllConfigs } = await import('@/modules/config/service');
+    const configs = await getAllConfigs();
+    const alibabaApiKey = configs.alibaba_api_key || envConfigs.alibaba_api_key;
+    const alibabaBaseUrl = configs.alibaba_base_url || envConfigs.alibaba_base_url;
+
+    const isAlibabaModel =
+      model.toLowerCase().includes('fun-music') ||
+      model.toLowerCase().includes('alibaba');
+    const shouldUseAlibaba = (isAlibabaModel || !provider) && Boolean(alibabaApiKey);
+
+    if (shouldUseAlibaba && alibabaApiKey) {
+      const origin = new URL(
+        alibabaBaseUrl || 'https://ws-2txa9apyfxruykae.us-east-1.maas.aliyuncs.com'
+      ).origin;
+      const endpoint = `${origin}/api/v1/services/audio/music/generation`;
+
+      const resp = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${alibabaApiKey.trim()}`,
+        },
+        body: JSON.stringify({
+          model: 'fun-music-v1',
+          input: {
+            prompt: style || 'heavy 808 bass, 140 bpm, hiphop flow, rap beat',
+            lyrics: lyrics || undefined,
+            is_instrumental: Boolean(instrumental),
+            gender: 'male',
+          },
+        }),
+      });
+
+      const json: any = await resp.json().catch(() => ({}));
+      if (!resp.ok) {
+        throw new Error(
+          json?.message ||
+          json?.output?.message ||
+          `阿里百炼 Fun-Music 编曲接口调用失败 (${resp.status})`
+        );
+      }
+
+      // Check if output returned direct audio URL
+      const directAudioUrl = json?.output?.audio?.url || json?.output?.audio_url;
+      if (directAudioUrl) {
+        return respData({
+          taskId: json.request_id || `ali_music_${Date.now()}`,
+          status: 'success',
+          audioUrl: directAudioUrl,
+          mock: false,
+          message: '阿里百炼 Fun-Music 编曲完成',
+        });
+      }
+
+      // Check if async task
+      const asyncTaskId = json?.output?.task_id || json?.request_id;
+      if (asyncTaskId) {
+        return respData({
+          taskId: asyncTaskId,
+          status: 'processing',
+          provider: 'alibaba',
+          mock: false,
+          message: '已成功向阿里百炼 Fun-Music 提交编曲任务',
+        });
+      }
+
+      throw new Error('阿里百炼 Fun-Music 未返回音频地址或任务ID');
+    }
+
     if (!provider) {
-      return respErr('No AI Provider (APIMart / KIE) configured for Suno music.');
+      return respErr(
+        '未检测到 Suno 音乐渠道配置。若需使用 Suno v4，请在后台设置 [Settings -> AI -> KIE] 中填入 KIE API Key；或使用阿里百炼 Fun-Music 编曲。'
+      );
     }
 
     const callbackUrl = `${envConfigs.app_url || 'https://airap.video'}/api/ai/task`;

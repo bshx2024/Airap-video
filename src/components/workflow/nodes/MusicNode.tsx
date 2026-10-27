@@ -59,7 +59,7 @@ export function MusicNode({ data }: { data: MusicNodeData }) {
           </div>
           <div>
             <div className="text-xs font-bold text-rose-400 uppercase tracking-wider">Music Engine</div>
-            <div className="text-sm font-semibold">Suno 编曲与伴奏</div>
+            <div className="text-sm font-semibold">AI 编曲与伴奏</div>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -84,14 +84,15 @@ export function MusicNode({ data }: { data: MusicNodeData }) {
       <div className="mt-3 space-y-3 text-xs">
         {/* Model Select */}
         <div>
-          <label className="mb-1 block font-medium text-slate-300">Suno 音乐版本</label>
+          <label className="mb-1 block font-medium text-slate-300">编曲伴奏模型</label>
           <select
-            value={data.musicModel}
+            value={data.musicModel || 'fun-music-v1'}
             onChange={(e) => data.onChange({ musicModel: e.target.value })}
             className="w-full rounded-lg border border-white/15 bg-slate-900 px-2.5 py-1.5 text-xs text-white focus:border-rose-400 focus:outline-none"
           >
-            <option value="suno-v4">Suno v4 (重低音 808 与卡点说唱)</option>
-            <option value="suno-v3.5">Suno v3.5 (旋律嘻哈标准版)</option>
+            <option value="fun-music-v1">Fun-Music v1 (阿里百炼·说唱谱曲与伴奏)</option>
+            <option value="suno-v4">Suno v4 (高燃 808 与卡点说唱·需 KIE 密钥)</option>
+            <option value="suno-v3.5">Suno v3.5 (旋律嘻哈标准版·需 KIE 密钥)</option>
           </select>
         </div>
 
@@ -106,12 +107,12 @@ export function MusicNode({ data }: { data: MusicNodeData }) {
             {isRunning ? (
               <>
                 <Loader2 className="size-3.5 animate-spin" />
-                <span>Suno 正在生成 808 鼓点与伴奏...</span>
+                <span>正在生成 808 鼓点与伴奏...</span>
               </>
             ) : (
               <>
                 <Sparkles className="size-3.5 text-amber-300" />
-                <span>⚡ 单步调试：独立生成 Suno 音频</span>
+                <span>⚡ 单步调试：独立生成伴奏音频</span>
               </>
             )}
           </button>
