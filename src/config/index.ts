@@ -212,6 +212,24 @@ export const envConfigs: Record<string, string> = {
   get kie_base_url() {
     return secretEnv('KIE_BASE_URL') || 'https://api.kie.ai/api/v1';
   },
+  get alibaba_api_key() {
+    return secretEnv('ALIBABA_API_KEY');
+  },
+  get alibaba_base_url() {
+    return (
+      secretEnv('ALIBABA_BASE_URL') ||
+      'https://ws-2txa9apyfxruykae.us-east-1.maas.aliyuncs.com/compatible-mode/v1'
+    );
+  },
+  get alibaba_model() {
+    return secretEnv('ALIBABA_MODEL') || 'deepseek-v4.1-flash-1017';
+  },
+  get rap_video_model() {
+    return secretEnv('RAP_VIDEO_MODEL') || 'happyhorse-1.1-r2v';
+  },
+  get rap_video_resolution() {
+    return secretEnv('RAP_VIDEO_RESOLUTION') || '480p';
+  },
 
   get locale() {
     return publicEnv('VITE_DEFAULT_LOCALE') ?? 'en';

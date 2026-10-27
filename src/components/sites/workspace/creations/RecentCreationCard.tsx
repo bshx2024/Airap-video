@@ -11,6 +11,7 @@ import {
   Loader2,
   Maximize2,
   Music,
+  QrCode,
   Trash2,
 } from 'lucide-react';
 
@@ -23,6 +24,7 @@ import { formatDateTime, type CreationItem } from '@/modules/creations/store';
 import { cn } from '@/lib/utils';
 import { m } from '@/paraglide/messages.js';
 import { DownloadButton } from '@/components/download-button';
+import { MobileVideoDownloadModal } from '@/components/sites/video-lite/MobileVideoDownloadModal';
 import { formatLocalizedErrorMessage } from '@/components/sites/root/generation-errors';
 import {
   Tooltip,
@@ -113,6 +115,8 @@ function RecentCreationCardImpl({
   onPlayAudio = () => {},
   onRequestDelete = () => {},
 }: RecentCreationCardProps) {
+  const [showMobileQr, setShowMobileQr] = React.useState(false);
+
   const isItemProcessing =
     item.status === 'processing' ||
     item.status === 'pending' ||
@@ -441,6 +445,20 @@ function RecentCreationCardImpl({
             />
           </div>
 
+          {/* Mobile QR Download Button */}
+          {item.url && (
+            <div onClick={(e) => e.stopPropagation()}>
+              <button
+                type="button"
+                onClick={() => setShowMobileQr(true)}
+                className="flex size-7 cursor-pointer items-center justify-center rounded-full border border-white/20 bg-black/60 text-white/90 shadow-sm backdrop-blur-md transition-all hover:scale-110 hover:bg-black/85 hover:text-amber-300"
+                title="手机扫码下载"
+              >
+                <QrCode className="size-3.5" />
+              </button>
+            </div>
+          )}
+
           {/* Delete Button */}
           <button
             type="button"
@@ -474,6 +492,16 @@ function RecentCreationCardImpl({
           </div>
         </div>
       </div>
+
+      {showMobileQr && item.url && (
+        <MobileVideoDownloadModal
+          isOpen={showMobileQr}
+          onClose={() => setShowMobileQr(false)}
+          videoUrl={item.url}
+          title={item.prompt || 'AI Video'}
+          filename={item.prompt ? `${item.prompt.slice(0, 20)}.mp4` : 'ai-video.mp4'}
+        />
+      )}
     </div>
   );
 }

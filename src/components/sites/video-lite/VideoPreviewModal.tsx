@@ -1,11 +1,10 @@
-'use client';
-
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import {
   ChevronLeft,
   ChevronRight,
   Download,
   FileVideo2,
+  QrCode,
   WandSparkles,
   X,
 } from 'lucide-react';
@@ -13,6 +12,7 @@ import {
 import { tDynamic } from '@/core/i18n/dynamic';
 import { type ShowcaseItem } from '@/config/video-landing-data';
 import { m } from '@/paraglide/messages.js';
+import { MobileVideoDownloadModal } from './MobileVideoDownloadModal';
 
 export function VideoPreviewModal({
   item,
@@ -31,6 +31,8 @@ export function VideoPreviewModal({
   onUsePrompt?: (prompt: string, model: string, sourceImage?: string) => void;
   onUseVideo?: (prompt: string, model: string, mediaUrl: string) => void;
 }) {
+  const [downloadQrOpen, setDownloadQrOpen] = useState(false);
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
@@ -146,14 +148,25 @@ export function VideoPreviewModal({
 
         <aside className="relative z-20 flex max-h-[48dvh] min-h-0 flex-col overflow-hidden border-t border-white/10 bg-[#0b0b0d]/96 text-white backdrop-blur-xl lg:m-3 lg:ml-0 lg:max-h-none lg:rounded-[1.25rem] lg:border">
           <div className="flex items-center justify-between gap-3 border-b border-white/8 px-5 py-4">
-            <a
-              href={item.video}
-              download
-              className="focus-visible:ring-primary inline-flex h-9 cursor-pointer items-center gap-2 rounded-full border border-white/12 bg-white/5 px-3.5 text-xs font-medium text-white transition-colors hover:bg-white/10 focus-visible:ring-2 focus-visible:outline-none"
-            >
-              <Download className="size-3.5" />
-              {m['showcase.dialog.download_master']()}
-            </a>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setDownloadQrOpen(true)}
+                className="focus-visible:ring-primary inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-full border border-amber-400/30 bg-amber-500/10 px-3 text-xs font-medium text-amber-300 transition-colors hover:bg-amber-500/20 focus-visible:ring-2 focus-visible:outline-none"
+                title="手机扫码下载"
+              >
+                <QrCode className="size-3.5 text-amber-400" />
+                <span>手机扫码</span>
+              </button>
+              <a
+                href={item.video}
+                download
+                className="focus-visible:ring-primary inline-flex h-9 cursor-pointer items-center gap-2 rounded-full border border-white/12 bg-white/5 px-3.5 text-xs font-medium text-white transition-colors hover:bg-white/10 focus-visible:ring-2 focus-visible:outline-none"
+              >
+                <Download className="size-3.5" />
+                {m['showcase.dialog.download_master']()}
+              </a>
+            </div>
             <button
               type="button"
               aria-label={m['showcase.dialog.close_player']()}
@@ -203,6 +216,16 @@ export function VideoPreviewModal({
           </div>
         </aside>
       </div>
+
+      {downloadQrOpen && item.video && (
+        <MobileVideoDownloadModal
+          isOpen={downloadQrOpen}
+          onClose={() => setDownloadQrOpen(false)}
+          videoUrl={item.video}
+          title={title || 'AI Video'}
+          filename="ai-video.mp4"
+        />
+      )}
     </div>
   );
 }

@@ -1,13 +1,14 @@
 'use client';
 
 import React from 'react';
-import { X } from 'lucide-react';
+import { QrCode, X } from 'lucide-react';
 import { createPortal } from 'react-dom';
 
 import type { CreationItem } from '@/modules/creations/store';
 import { cn } from '@/lib/utils';
 import { m } from '@/paraglide/messages.js';
 import { DownloadButton } from '@/components/download-button';
+import { MobileVideoDownloadModal } from '@/components/sites/video-lite/MobileVideoDownloadModal';
 
 export interface RecentCreationsLightboxProps {
   item: CreationItem | null;
@@ -19,6 +20,7 @@ export function RecentCreationsLightbox({
   onClose,
 }: RecentCreationsLightboxProps) {
   const [mounted, setMounted] = React.useState(false);
+  const [showMobileQr, setShowMobileQr] = React.useState(false);
   // 关闭时保留上次作品，避免卸载 <img> 导致同图再次打开重新下载
   const [displayItem, setDisplayItem] = React.useState<CreationItem | null>(
     null
@@ -82,6 +84,16 @@ export function RecentCreationsLightbox({
           </div>
         )}
         <div className="absolute top-3 right-3 flex items-center gap-2">
+          {displayItem.url && (
+            <button
+              type="button"
+              onClick={() => setShowMobileQr(true)}
+              className="flex size-9 cursor-pointer items-center justify-center rounded-full border border-amber-400/30 bg-black/60 text-amber-300 backdrop-blur-md transition-all hover:scale-105 hover:bg-black/80 hover:text-amber-200"
+              title="手机扫码下载"
+            >
+              <QrCode className="size-4" />
+            </button>
+          )}
           <DownloadButton
             item={displayItem}
             className="flex size-9 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-black/60 text-white backdrop-blur-md transition-all hover:scale-105 hover:bg-black/80"
@@ -98,6 +110,16 @@ export function RecentCreationsLightbox({
           </button>
         </div>
       </div>
+
+      {showMobileQr && displayItem.url && (
+        <MobileVideoDownloadModal
+          isOpen={showMobileQr}
+          onClose={() => setShowMobileQr(false)}
+          videoUrl={displayItem.url}
+          title={displayItem.prompt || 'AI Video'}
+          filename={displayItem.prompt ? `${displayItem.prompt.slice(0, 20)}.mp4` : 'ai-video.mp4'}
+        />
+      )}
     </div>,
     document.body
   );

@@ -67,6 +67,10 @@ function AdminLayout() {
           label: m['admin.nav.ai_video_tasks'](),
         },
         {
+          href: '/admin/workflow',
+          label: '⚡ 可视化工作流 (Coze)',
+        },
+        {
           href: '/admin/ai-tasks?type=video&status=failed',
           label: m['admin.nav.ai_video_failed_tasks'](),
         },

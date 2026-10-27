@@ -18,8 +18,11 @@ import { VideoHowItWorks } from '@/components/sites/video-lite/VideoHowItWorks';
 import { VideoPromptInspirations } from '@/components/sites/video-lite/VideoPromptInspirations';
 import { VideoUseCases } from '@/components/sites/video-lite/VideoUseCases';
 import { WhatIsVideoGenerator } from '@/components/sites/video-lite/WhatIsVideoGenerator';
+import { AiRapHeroGenerator } from '@/components/sites/video-lite/AiRapHeroGenerator';
+import { cn } from '@/lib/utils';
 
 function HomePage() {
+  const [generatorMode, setGeneratorMode] = useState<'rap' | 'classic'>('rap');
   const [selectedPrompt, setSelectedPrompt] = useState<{
     prompt: string;
     model: string;
@@ -51,10 +54,44 @@ function HomePage() {
     <div className="video-home-page bg-background text-foreground min-h-screen font-sans antialiased transition-colors dark:bg-[#020617] dark:text-white">
       <VideoHeader />
       <main>
-        <VideoHeroGenerator
-          externalPrompt={selectedPrompt}
-          onClearExternalPrompt={() => setSelectedPrompt(null)}
-        />
+        {/* Generator Mode Switcher */}
+        <div className="pt-24 pb-2 text-center bg-[#020617]">
+          <div className="inline-flex rounded-full border border-white/10 bg-white/[0.04] p-1.5 shadow-xl backdrop-blur-md">
+            <button
+              type="button"
+              onClick={() => setGeneratorMode('rap')}
+              className={cn(
+                'cursor-pointer rounded-full px-5 py-2 text-xs font-bold transition-all sm:text-sm',
+                generatorMode === 'rap'
+                  ? 'bg-gradient-to-r from-amber-500 via-rose-500 to-purple-600 text-white shadow-lg shadow-amber-500/25'
+                  : 'text-slate-400 hover:text-white'
+              )}
+            >
+              🔥 AI Rap MV Studio
+            </button>
+            <button
+              type="button"
+              onClick={() => setGeneratorMode('classic')}
+              className={cn(
+                'cursor-pointer rounded-full px-5 py-2 text-xs font-bold transition-all sm:text-sm',
+                generatorMode === 'classic'
+                  ? 'bg-white/15 text-white shadow-lg'
+                  : 'text-slate-400 hover:text-white'
+              )}
+            >
+              🎬 Classic Video Generator
+            </button>
+          </div>
+        </div>
+
+        {generatorMode === 'rap' ? (
+          <AiRapHeroGenerator />
+        ) : (
+          <VideoHeroGenerator
+            externalPrompt={selectedPrompt}
+            onClearExternalPrompt={() => setSelectedPrompt(null)}
+          />
+        )}
         <VideoMarquee
           onSelectPrompt={(prompt, videoUrl) => {
             handleUseVideo(prompt, 'sora-2', videoUrl);

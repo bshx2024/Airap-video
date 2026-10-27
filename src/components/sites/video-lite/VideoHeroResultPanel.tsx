@@ -1,11 +1,10 @@
-'use client';
-
-import type { ReactNode } from 'react';
-import { LoaderCircle, Square, X } from 'lucide-react';
+import { useState, type ReactNode } from 'react';
+import { LoaderCircle, QrCode, Square, X } from 'lucide-react';
 
 import { Link } from '@/core/i18n/navigation';
 import { m } from '@/paraglide/messages.js';
 import { DownloadButton } from '@/components/download-button';
+import { MobileVideoDownloadModal } from './MobileVideoDownloadModal';
 
 export type VideoHeroGenerationResult = {
   id?: string;
@@ -23,6 +22,7 @@ export function VideoHeroResultPanel({
   generationResult: VideoHeroGenerationResult;
   onClear: () => void;
 }) {
+  const [downloadQrOpen, setDownloadQrOpen] = useState(false);
   return (
     <div
       id="generation-result"
@@ -121,6 +121,15 @@ export function VideoHeroResultPanel({
                 className="size-full object-contain"
               />
               <div className="absolute top-4 right-4 flex items-center gap-2 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+                <button
+                  type="button"
+                  onClick={() => setDownloadQrOpen(true)}
+                  className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-amber-400/40 bg-black/60 px-3 py-1.5 text-xs font-medium text-amber-300 shadow-lg backdrop-blur-md transition hover:bg-black/80"
+                  title="手机扫码下载"
+                >
+                  <QrCode className="size-3.5 text-amber-400" />
+                  <span>手机扫码下载</span>
+                </button>
                 <DownloadButton
                   item={{
                     id: generationResult.id || generationResult.taskId,
@@ -137,6 +146,16 @@ export function VideoHeroResultPanel({
           )}
         </div>
       </div>
+
+      {downloadQrOpen && generationResult.videoUrl && (
+        <MobileVideoDownloadModal
+          isOpen={downloadQrOpen}
+          onClose={() => setDownloadQrOpen(false)}
+          videoUrl={generationResult.videoUrl}
+          title={generationResult.prompt || 'AI Video'}
+          filename="ai-video.mp4"
+        />
+      )}
     </div>
   );
 }

@@ -29,13 +29,13 @@ import {
 export async function syncSingleTask(existingTask: any, taskId: string) {
   let activePollLeaseId: string | null = null;
   try {
-    const isTerminal =
-      existingTask.status === 'success' ||
-      existingTask.status === 'failed' ||
-      existingTask.status === 'canceled';
-
-    if (isTerminal) {
+    if (isTerminal && existingTask.scene !== 'rap_video') {
       return toTaskResult(existingTask, taskId);
+    }
+
+    if (existingTask.scene === 'rap_video') {
+      const { syncRapWorkflowTask } = await import('@/modules/ai/rap-workflow');
+      return await syncRapWorkflowTask(existingTask, taskId);
     }
 
     // Bound orphaned tasks so a lost provider callback cannot leave a

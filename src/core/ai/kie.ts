@@ -132,8 +132,24 @@ function normalizeKieVideoModel(
   imageToVideo: boolean,
   isReferenceMode = false
 ): string {
-  if (model === 'seedance-2-5') return 'bytedance/seedance-2-5';
-  if (model === 'doubao-seedance-2-0') return 'bytedance/seedance-2';
+  const m = String(model || '').toLowerCase();
+  if (
+    m === 'seedance-2-5' ||
+    m === 'bytedance/seedance-2-5' ||
+    m.includes('happyhorse') ||
+    m.includes('seedance-2-5') ||
+    m.includes('seedance-2.5')
+  ) {
+    return 'bytedance/seedance-2-5';
+  }
+  if (
+    m === 'doubao-seedance-2-0' ||
+    m === 'bytedance/seedance-2' ||
+    m.includes('seedance-2.0') ||
+    m.includes('seedance-2')
+  ) {
+    return 'bytedance/seedance-2';
+  }
   if (model === 'wan-3-0') return 'wan/3-0-video';
   if (model === 'wan-2-7') {
     return imageToVideo ? 'wan/2-7-image-to-video' : 'wan/2-7-text-to-video';
@@ -480,8 +496,18 @@ export class KieProvider implements AIProvider {
         params.options.image_urls) ||
       (params.options?.image_url ? [params.options.image_url] : []);
 
-    const isSeedance25 = params.model === 'seedance-2-5';
-    const isDoubaoSeedance = params.model === 'doubao-seedance-2-0';
+    const mLower = String(params.model || '').toLowerCase();
+    const isSeedance25 =
+      mLower === 'seedance-2-5' ||
+      mLower === 'bytedance/seedance-2-5' ||
+      mLower.includes('happyhorse') ||
+      mLower.includes('seedance-2-5') ||
+      mLower.includes('seedance-2.5');
+    const isDoubaoSeedance =
+      mLower === 'doubao-seedance-2-0' ||
+      mLower === 'bytedance/seedance-2' ||
+      mLower.includes('seedance-2.0') ||
+      mLower.includes('seedance-2');
     const isWan30 = params.model === 'wan-3-0';
     const isWan27 = params.model === 'wan-2-7';
     const isMinimaxH3 = params.model === 'minimax-h3';
@@ -500,7 +526,15 @@ export class KieProvider implements AIProvider {
         Boolean(video) && videos.indexOf(video) === index
     );
 
+    const audioUrls = [
+      ...(Array.isArray(params.options?.audio_urls)
+        ? params.options.audio_urls
+        : []),
+      ...(params.options?.audio_url ? [params.options.audio_url] : []),
+    ].filter(Boolean);
+
     const isReferenceMode =
+      audioUrls.length > 0 ||
       params.options?.mode === 'reference-to-video' ||
       Boolean(params.options?.is_reference_to_video);
 
@@ -554,11 +588,8 @@ export class KieProvider implements AIProvider {
         if (inputVideos.length > 0) {
           payload.input.reference_video_urls = inputVideos;
         }
-        if (
-          Array.isArray(params.options?.audio_urls) &&
-          params.options.audio_urls.length > 0
-        ) {
-          payload.input.reference_audio_urls = params.options.audio_urls;
+        if (audioUrls.length > 0) {
+          payload.input.reference_audio_urls = audioUrls;
         }
       } else if (inputImages[0]) {
         payload.input.first_frame_url = inputImages[0];
@@ -584,6 +615,7 @@ export class KieProvider implements AIProvider {
       payload.input.return_last_frame = Boolean(
         params.options?.return_last_frame ?? false
       );
+
     } else {
       if (!isWan27 && !isHailuo23 && !(isKling30Turbo && hasInputImages)) {
         payload.input.aspect_ratio = normalizeKieVideoAspectRatio(
