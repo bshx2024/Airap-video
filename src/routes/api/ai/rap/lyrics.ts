@@ -1,15 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router';
 
-import { getAuth } from '@/core/auth';
 import { generateRapLyrics } from '@/modules/ai/rap-workflow';
 import { respData, respErr } from '@/lib/resp';
 
 async function POST({ request }: { request: Request }) {
   try {
-    const auth = getAuth();
-    const session = await auth.api.getSession({ headers: request.headers });
-    // AI 试词对访客开放试用体验，成片生成则严格校验登录与积分扣除
-
     const body = await request.json().catch(() => ({}));
     const { topic = '', styleId = 'boom-bap', language = 'zh' } = body;
 

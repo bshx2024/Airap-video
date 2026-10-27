@@ -10,7 +10,8 @@
   "vars": {
     "DATABASE_PROVIDER": "d1",
     "VITE_APP_NAME": "Airap Video",
-    "VITE_APP_URL": "https://airap-video.net"
+    "VITE_APP_URL": "https://airap-video.net",
+    "AUTH_SECRET": "airap-secret-key-32-chars-long-production-env-2026"
   },
   "d1_databases": [
     {

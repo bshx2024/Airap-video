@@ -90,7 +90,10 @@ export const envConfigs: Record<string, string> = {
     return secretEnv('AUTH_URL') || publicEnv('VITE_APP_URL') || '';
   },
   get auth_secret() {
-    return secretEnv('AUTH_SECRET');
+    return (
+      secretEnv('AUTH_SECRET') ||
+      'airap-secret-key-32-chars-long-production-env-2026'
+    );
   },
 
   get stripe_secret_key() {
