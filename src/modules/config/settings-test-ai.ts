@@ -214,8 +214,14 @@ export async function testAlibaba(
     },
     body: JSON.stringify({
       model,
-      messages: [{ role: 'user', content: inputs.prompt || 'Hello' }],
-      max_tokens: 64,
+      messages: [
+        {
+          role: 'user',
+          content: inputs.prompt || 'Write a short 2-line rap greeting.',
+        },
+      ],
+      max_tokens: 512,
+      temperature: 0.7,
     }),
   });
 
@@ -230,13 +236,29 @@ export async function testAlibaba(
     };
   }
 
-  const reply = String(data?.choices?.[0]?.message?.content ?? '').trim();
+  const choice = data?.choices?.[0];
+  const message = choice?.message;
+  let reply = String(message?.content || '').trim();
+  if (!reply && message?.reasoning_content) {
+    reply = `[Thinking] ${String(message.reasoning_content).trim()}`;
+  }
+  if (!reply && choice?.text) {
+    reply = String(choice.text).trim();
+  }
+  if (!reply && data?.output?.text) {
+    reply = String(data.output.text).trim();
+  }
+  if (!reply && choice) {
+    reply = JSON.stringify(choice).slice(0, 200);
+  }
+
   return {
     success: true,
     message: 'Alibaba Cloud Model Studio (百炼国际版) API 连接成功！',
     details: {
       Model: data?.model || model,
-      Reply: reply.slice(0, 200) || '(empty)',
+      Reply: reply ? reply.slice(0, 300) : '(empty)',
+      Tokens: data?.usage ? `${data.usage.total_tokens || 0} tokens` : undefined,
     },
   };
 }
