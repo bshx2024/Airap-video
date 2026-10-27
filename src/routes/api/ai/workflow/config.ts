@@ -12,8 +12,8 @@ async function GET() {
 
     return respData({
       mock,
-      videoModel: envConfigs.rap_video_model || 'happyhorse-1.1-r2v',
-      videoResolution: envConfigs.rap_video_resolution || '480p',
+      videoModel: configs.alibaba_video_model || envConfigs.rap_video_model || 'happyhorse-1.1-r2v',
+      videoResolution: configs.alibaba_video_resolution || envConfigs.rap_video_resolution || '480p',
       musicModel: 'suno-v4',
       lyricsModel: configs.alibaba_model || envConfigs.alibaba_model || 'deepseek-v4.1-flash-1017',
       styles: RAP_STYLE_PRESETS,

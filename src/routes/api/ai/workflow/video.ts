@@ -148,24 +148,31 @@ async function POST({ request }: { request: Request }) {
       console.warn('[Workflow Video] Audio preflight check note:', e.message);
     }
 
-    // If happyhorse model is selected, dispatch directly to Alibaba Cloud Model Studio International
-    if (model.toLowerCase().includes('happyhorse')) {
-      const alibabaApiKey = envConfigs.alibaba_api_key;
-      const alibabaBaseUrl = envConfigs.alibaba_base_url;
+    // If happyhorse or wan model is selected, dispatch directly to Alibaba Cloud Model Studio International
+    if (model.toLowerCase().includes('happyhorse') || model.toLowerCase().includes('wan')) {
+      const { getAllConfigs } = await import('@/modules/config/service');
+      const configs = await getAllConfigs();
+      const alibabaApiKey = configs.alibaba_api_key || envConfigs.alibaba_api_key;
+      const alibabaBaseUrl = configs.alibaba_base_url || envConfigs.alibaba_base_url;
       if (!alibabaApiKey) {
-        return respErr('Alibaba Model Studio API Key is not configured (ALIBABA_API_KEY).');
+        return respErr('未配置阿里百炼 API Key。请在后台管理 [Settings -> AI -> Alibaba Cloud Model Studio] 中填入 Key 并保存。');
       }
 
       const origin = new URL(alibabaBaseUrl || 'https://ws-2txa9apyfxruykae.us-east-1.maas.aliyuncs.com').origin;
       const endpoint = `${origin}/api/v1/services/aigc/video-generation/video-synthesis`;
 
-      const normalizedResolution = (resolution || '480p').toUpperCase();
-      const validResolution = ['480P', '720P', '1080P'].includes(normalizedResolution)
-        ? normalizedResolution
+      const selectedResolution = (resolution || configs.alibaba_video_resolution || '480p').toUpperCase();
+      const validResolution = ['480P', '720P', '1080P'].includes(selectedResolution)
+        ? selectedResolution
         : '480P';
 
+      const selectedDuration = Number(duration) || Number(configs.alibaba_video_duration) || 5;
+      const selectedModel = model.toLowerCase().includes('wan')
+        ? model
+        : (configs.alibaba_video_model || 'happyhorse-1.1-r2v');
+
       const payload = {
-        model: 'happyhorse-1.1-r2v',
+        model: selectedModel,
         input: {
           prompt,
           media: publicImages.map((url) => ({
@@ -174,7 +181,7 @@ async function POST({ request }: { request: Request }) {
           })),
         },
         parameters: {
-          duration: Number(duration) || 5,
+          duration: selectedDuration,
           resolution: validResolution,
         },
       };

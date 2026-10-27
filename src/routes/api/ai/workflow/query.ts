@@ -35,9 +35,11 @@ async function GET({ request }: { request: Request }) {
       /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(taskId);
 
     if (isAlibabaTask) {
+      const { getAllConfigs } = await import('@/modules/config/service');
       const { envConfigs } = await import('@/config');
-      const alibabaApiKey = envConfigs.alibaba_api_key;
-      const alibabaBaseUrl = envConfigs.alibaba_base_url;
+      const configs = await getAllConfigs();
+      const alibabaApiKey = configs.alibaba_api_key || envConfigs.alibaba_api_key;
+      const alibabaBaseUrl = configs.alibaba_base_url || envConfigs.alibaba_base_url;
       const origin = new URL(alibabaBaseUrl || 'https://ws-2txa9apyfxruykae.us-east-1.maas.aliyuncs.com').origin;
       const queryEndpoint = `${origin}/api/v1/tasks/${taskId}`;
 
