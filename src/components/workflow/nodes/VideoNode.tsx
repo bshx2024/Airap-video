@@ -3,12 +3,16 @@ import { Handle, Position } from '@xyflow/react';
 import { Clapperboard, Download, Eye, Film, Loader2, Sparkles, Video } from 'lucide-react';
 import { NodeExecutionStatus } from '../types';
 
+export const DEFAULT_VIDEO_PROMPT =
+  'Continuous single-take two-shot, NO cuts, camera stays fixed. Both [Image 1] and [Image 2] always in the same frame against a solid bright orange studio background. A vintage chrome microphone hangs from the ceiling in the exact center between them. On the left, [Image 1] in red satin jacket, on the right, [Image 2] in black tactical vest. They heavily bounce their bodies to the 808 trap beat, with deep rhythmic head nods and fast expressive hip-hop hand gestures. They trade aggressive rap bars, alternating leaning into the hanging center mic, turning to face each other in an intense battle, perfectly lip-synced.';
+
 interface VideoNodeData {
   photo1: string;
   generatedAudioUrl?: string;
   videoModel: string;
   videoResolution: string;
   videoDuration?: number;
+  videoPrompt?: string;
   videoTaskId?: string;
   generatedVideoUrl?: string;
   latency?: number;
@@ -123,6 +127,27 @@ export function VideoNode({ data }: { data: VideoNodeData }) {
               <option value={15}>15 秒</option>
             </select>
           </div>
+        </div>
+
+        {/* Prompt Input Section */}
+        <div>
+          <div className="mb-1 flex items-center justify-between">
+            <label className="font-medium text-slate-300">动作与分镜提示词 (Prompt)</label>
+            <button
+              type="button"
+              onClick={() => data.onChange({ videoPrompt: DEFAULT_VIDEO_PROMPT })}
+              className="text-[10px] text-cyan-400 hover:underline"
+            >
+              重置预置
+            </button>
+          </div>
+          <textarea
+            rows={4}
+            value={data.videoPrompt !== undefined ? data.videoPrompt : DEFAULT_VIDEO_PROMPT}
+            onChange={(e) => data.onChange({ videoPrompt: e.target.value })}
+            placeholder="输入说唱动作、同框机位与场景描述..."
+            className="w-full rounded-lg border border-white/15 bg-white/5 p-2 text-[11px] leading-relaxed text-white placeholder-slate-500 focus:border-cyan-400 focus:outline-none"
+          />
         </div>
 
         {/* Action Button: Single-step debug */}

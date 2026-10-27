@@ -45,7 +45,7 @@ import { LyricsNode } from './nodes/LyricsNode';
 import { MusicNode } from './nodes/MusicNode';
 import { OutputNode } from './nodes/OutputNode';
 import { StartNode } from './nodes/StartNode';
-import { VideoNode } from './nodes/VideoNode';
+import { DEFAULT_VIDEO_PROMPT, VideoNode } from './nodes/VideoNode';
 import { NodeExecutionStatus, WorkflowState } from './types';
 
 const INITIAL_TOPIC = '两个说唱歌手在标志性亮橙色录音棚双人互呛，单支悬吊麦克风，高燃808陷阱鼓点';
@@ -80,6 +80,7 @@ Hit the beat hard, never think twice.`,
     videoModel: 'happyhorse-1.1-r2v',
     videoResolution: '480p',
     videoDuration: 5,
+    videoPrompt: DEFAULT_VIDEO_PROMPT,
     generatedVideoUrl: '',
 
     mock: false,
@@ -252,7 +253,7 @@ Hit the beat hard, never think twice.`,
         imageUrl: workflowState.photo1,
         imageUrls: workflowState.photo2 ? [workflowState.photo1, workflowState.photo2] : [workflowState.photo1],
         audioUrl: effectiveAudio,
-        prompt: `Two rappers performing aggressive hip hop roast battle, rhythmic head nods, mouth lip sync`,
+        prompt: workflowState.videoPrompt || DEFAULT_VIDEO_PROMPT,
         model: workflowState.videoModel,
         resolution: workflowState.videoResolution,
         duration: workflowState.videoDuration || 5,
@@ -313,6 +314,7 @@ Hit the beat hard, never think twice.`,
     workflowState.videoModel,
     workflowState.videoResolution,
     workflowState.videoDuration,
+    workflowState.videoPrompt,
     workflowState.mock,
     addLog,
   ]);

@@ -26,6 +26,7 @@ export interface WorkflowState {
   videoModel: string;
   videoResolution: string;
   videoDuration: number;
+  videoPrompt?: string;
   videoTaskId?: string;
   generatedVideoUrl?: string;
   videoLatency?: number;
