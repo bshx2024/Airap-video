@@ -161,33 +161,44 @@ async function POST({ request }: { request: Request }) {
       const origin = new URL(alibabaBaseUrl || 'https://ws-2txa9apyfxruykae.us-east-1.maas.aliyuncs.com').origin;
       const endpoint = `${origin}/api/v1/services/aigc/video-generation/video-synthesis`;
 
-      const selectedResolution = (resolution || configs.alibaba_video_resolution || '720p').toUpperCase();
+      const selectedResolution = (resolution || configs.alibaba_video_resolution || '480p').toUpperCase();
       const validResolution = ['480P', '720P', '1080P'].includes(selectedResolution)
         ? selectedResolution
-        : '720P';
+        : '480P';
 
       const selectedDuration = Number(duration) || Number(configs.alibaba_video_duration) || 5;
-      const selectedModel = model || configs.alibaba_video_model || 'wan2.1-i2v-plus';
+      const selectedModel = model || configs.alibaba_video_model || 'happyhorse-1.1-r2v';
 
       const firstImage = publicImages[0];
+      let effectivePrompt = prompt;
+      if (selectedModel.includes('r2v') && !effectivePrompt.includes('[Image 1]')) {
+        effectivePrompt = publicImages.length > 1
+          ? `The two rappers from [Image 1] and [Image 2] perform high-energy rap battle, rhythmic head nods, mouth lip sync`
+          : `The rapper from [Image 1] performs high-energy rap singing, rhythmic head nods, mouth lip sync`;
+      }
+
+      const mediaPayload = selectedModel.includes('r2v')
+        ? publicImages.map((url) => ({ url }))
+        : publicImages.map((url, idx) => ({
+            type: idx === 0 ? 'first_frame' : 'reference_image',
+            url,
+          }));
+
       const payload: any = {
         model: selectedModel,
         input: {
-          prompt,
+          prompt: effectivePrompt,
           img_url: firstImage,
-          media: publicImages.map((url, idx) => ({
-            type: idx === 0 ? 'first_frame' : 'reference_image',
-            url,
-          })),
+          media: mediaPayload,
         },
         parameters: {
           resolution: validResolution,
-          prompt_extend: true,
+          duration: selectedDuration,
         },
       };
 
-      if (!selectedModel.includes('wan2.1-i2v')) {
-        payload.parameters.duration = selectedDuration;
+      if (selectedModel.startsWith('wan2.')) {
+        payload.parameters.prompt_extend = true;
       }
 
       const res = await fetch(endpoint, {

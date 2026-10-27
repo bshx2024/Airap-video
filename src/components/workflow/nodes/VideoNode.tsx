@@ -89,14 +89,14 @@ export function VideoNode({ data }: { data: VideoNodeData }) {
           <div>
             <label className="mb-1 block font-medium text-slate-300">驱动模型</label>
             <select
-              value={data.videoModel || 'wan2.1-i2v-plus'}
+              value={data.videoModel || 'happyhorse-1.1-r2v'}
               onChange={(e) => data.onChange({ videoModel: e.target.value })}
               className="w-full rounded-lg border border-white/15 bg-slate-900 px-2 py-1.5 text-[11px] text-white focus:border-cyan-400 focus:outline-none"
             >
-              <option value="wan2.1-i2v-plus">Wan 2.1 Plus (阿里万象图生视频·推荐)</option>
-              <option value="wanx-v1">Wanx v1 (阿里万象经典版)</option>
-              <option value="happyhorse-1.1-r2v">HappyHorse 1.1 (阿里音画驱动)</option>
-              <option value="seedance-2-5">Seedance 2.5 (字节跳动)</option>
+              <option value="happyhorse-1.1-r2v">HappyHorse 1.1 R2V (阿里·480p调试约$0.02/s·推荐)</option>
+              <option value="happyhorse-1.1-i2v">HappyHorse 1.1 I2V (单人人像·480p调试)</option>
+              <option value="wan3.0-video">Wan 3.0 Video (万象3.0·720p最高性价比)</option>
+              <option value="wan2.1-i2v-plus">Wan 2.1 Plus (万象2.1高品质图生视频)</option>
             </select>
           </div>
           <div>
