@@ -12,16 +12,16 @@ async function GET() {
 
     return respData({
       mock,
-      videoModel: configs.alibaba_video_model || envConfigs.rap_video_model || 'happyhorse-1.1-r2v',
-      videoResolution: configs.alibaba_video_resolution || envConfigs.rap_video_resolution || '480p',
+      videoModel: configs.alibaba_video_model || envConfigs.rap_video_model || 'wan2.1-i2v-plus',
+      videoResolution: configs.alibaba_video_resolution || envConfigs.rap_video_resolution || '720p',
       musicModel: configs.kie_api_key ? 'suno-v4' : (configs.alibaba_api_key ? 'fun-music-v1' : 'suno-v4'),
       lyricsModel: configs.alibaba_model || envConfigs.alibaba_model || 'deepseek-v4.1-flash-1017',
       styles: RAP_STYLE_PRESETS,
       availableVideoModels: [
-        { id: 'happyhorse-1.1-r2v', name: 'HappyHorse 1.1 R2V (阿里音画动作驱动·高性价比)' },
-        { id: 'wan2.1-i2v-plus', name: 'Wan 2.1 Image-to-Video Plus (万象高品质图生视频)' },
-        { id: 'wan2.1-t2v-plus', name: 'Wan 2.1 Text-to-Video Plus (万象文生视频)' },
-        { id: 'seedance-2-5', name: 'Seedance 2.5 (大动作全身编舞 ~$1.50/次)' },
+        { id: 'wan2.1-i2v-plus', name: 'Wan 2.1 Plus (阿里万象高品质图生视频·推荐)' },
+        { id: 'wanx-v1', name: 'Wanx v1 (阿里万象经典版图生视频)' },
+        { id: 'happyhorse-1.1-r2v', name: 'HappyHorse 1.1 R2V (阿里动作驱动)' },
+        { id: 'seedance-2-5', name: 'Seedance 2.5 (字节跳动 ~$1.50/次)' },
       ],
       availableMusicModels: [
         { id: 'fun-music-v1', name: 'Fun-Music v1 (阿里百炼·说唱谱曲与伴奏)' },

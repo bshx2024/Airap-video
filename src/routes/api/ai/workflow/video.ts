@@ -152,8 +152,8 @@ async function POST({ request }: { request: Request }) {
     if (model.toLowerCase().includes('happyhorse') || model.toLowerCase().includes('wan')) {
       const { getAllConfigs } = await import('@/modules/config/service');
       const configs = await getAllConfigs();
-      const alibabaApiKey = configs.alibaba_api_key || envConfigs.alibaba_api_key;
-      const alibabaBaseUrl = configs.alibaba_base_url || envConfigs.alibaba_base_url;
+      const alibabaApiKey = (configs.alibaba_api_key || envConfigs.alibaba_api_key || '').trim();
+      const alibabaBaseUrl = (configs.alibaba_base_url || envConfigs.alibaba_base_url || '').trim();
       if (!alibabaApiKey) {
         return respErr('未配置阿里百炼 API Key。请在后台管理 [Settings -> AI -> Alibaba Cloud Model Studio] 中填入 Key 并保存。');
       }
@@ -161,30 +161,34 @@ async function POST({ request }: { request: Request }) {
       const origin = new URL(alibabaBaseUrl || 'https://ws-2txa9apyfxruykae.us-east-1.maas.aliyuncs.com').origin;
       const endpoint = `${origin}/api/v1/services/aigc/video-generation/video-synthesis`;
 
-      const selectedResolution = (resolution || configs.alibaba_video_resolution || '480p').toUpperCase();
+      const selectedResolution = (resolution || configs.alibaba_video_resolution || '720p').toUpperCase();
       const validResolution = ['480P', '720P', '1080P'].includes(selectedResolution)
         ? selectedResolution
-        : '480P';
+        : '720P';
 
       const selectedDuration = Number(duration) || Number(configs.alibaba_video_duration) || 5;
-      const selectedModel = model.toLowerCase().includes('wan')
-        ? model
-        : (configs.alibaba_video_model || 'happyhorse-1.1-r2v');
+      const selectedModel = model || configs.alibaba_video_model || 'wan2.1-i2v-plus';
 
-      const payload = {
+      const firstImage = publicImages[0];
+      const payload: any = {
         model: selectedModel,
         input: {
           prompt,
-          media: publicImages.map((url) => ({
-            type: 'reference_image',
+          img_url: firstImage,
+          media: publicImages.map((url, idx) => ({
+            type: idx === 0 ? 'first_frame' : 'reference_image',
             url,
           })),
         },
         parameters: {
-          duration: selectedDuration,
           resolution: validResolution,
+          prompt_extend: true,
         },
       };
+
+      if (!selectedModel.includes('wan2.1-i2v')) {
+        payload.parameters.duration = selectedDuration;
+      }
 
       const res = await fetch(endpoint, {
         method: 'POST',
@@ -196,14 +200,18 @@ async function POST({ request }: { request: Request }) {
         body: JSON.stringify(payload),
       });
 
-      const json = await res.json().catch(() => ({}));
+      const json: any = await res.json().catch(() => ({}));
       if (!res.ok || json.code) {
-        throw new Error(json.message || `Alibaba happyhorse request failed (HTTP ${res.status})`);
+        const errorMsg =
+          json.message ||
+          json.output?.message ||
+          `阿里百炼生视频失败 (HTTP ${res.status})`;
+        throw new Error(errorMsg);
       }
 
-      const taskId = json.output?.task_id;
+      const taskId = json.output?.task_id || json.request_id;
       if (!taskId) {
-        throw new Error('Alibaba happyhorse returned no task_id');
+        throw new Error('阿里百炼生视频服务未返回 task_id');
       }
 
       return respData({
@@ -211,7 +219,7 @@ async function POST({ request }: { request: Request }) {
         provider: 'alibaba',
         status: 'processing',
         mock: false,
-        message: `已成功调度阿里百炼国际 HappyHorse 模型 (${model}) 驱动渲染`,
+        message: `已成功向阿里百炼提交视频生成任务 (${selectedModel})`,
       });
     }
 
