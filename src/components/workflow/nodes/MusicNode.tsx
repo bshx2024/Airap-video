@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { Handle, Position } from '@xyflow/react';
-import { Headphones, Loader2, Music, Pause, Play, Sparkles, Volume2 } from 'lucide-react';
+import { Headphones, Link2, Loader2, Music, Pause, Play, RotateCcw, Sparkles, Upload } from 'lucide-react';
 import { NodeExecutionStatus } from '../types';
 
 interface MusicNodeData {
@@ -17,7 +17,10 @@ interface MusicNodeData {
 
 export function MusicNode({ data }: { data: MusicNodeData }) {
   const [isPlaying, setIsPlaying] = useState(false);
+  const [showUrlInput, setShowUrlInput] = useState(false);
+  const [urlInputValue, setUrlInputValue] = useState('');
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const togglePlay = () => {
     if (!audioRef.current || !data.generatedAudioUrl) return;
@@ -28,6 +31,19 @@ export function MusicNode({ data }: { data: MusicNodeData }) {
       audioRef.current.play();
       setIsPlaying(true);
     }
+  };
+
+  const handleAudioUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      data.onChange({
+        generatedAudioUrl: reader.result as string,
+      });
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
   };
 
   const isRunning = data.status === 'running';
@@ -118,6 +134,73 @@ export function MusicNode({ data }: { data: MusicNodeData }) {
           </button>
         </div>
 
+        {/* Hidden Audio File Input */}
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="audio/*,.mp3,.wav,.m4a,.ogg"
+          onChange={handleAudioUpload}
+          className="hidden"
+        />
+
+        {/* Fast Reuse / Upload Toolbar to Save Testing Costs */}
+        <div className="flex items-center gap-1.5 pt-0.5">
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className="flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.04] py-1.5 px-2 text-[11px] font-medium text-slate-300 transition hover:bg-white/[0.08] hover:border-white/20 hover:text-white"
+            title="上传本地 MP3 / WAV 伴奏，无需重复生成省成本"
+          >
+            <Upload className="size-3 text-rose-400" />
+            <span>上传已有音频</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setShowUrlInput(!showUrlInput)}
+            className="flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.04] py-1.5 px-2 text-[11px] font-medium text-slate-300 transition hover:bg-white/[0.08] hover:border-white/20 hover:text-white"
+            title="粘贴之前生成的 MP3 链接，直接复用"
+          >
+            <Link2 className="size-3 text-amber-400" />
+            <span>粘贴音频链接</span>
+          </button>
+          {data.generatedAudioUrl && (
+            <button
+              type="button"
+              onClick={() => data.onChange({ generatedAudioUrl: '' })}
+              className="flex size-7 cursor-pointer items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] text-slate-400 hover:text-rose-400 hover:bg-rose-500/10"
+              title="清除当前伴奏"
+            >
+              <RotateCcw className="size-3" />
+            </button>
+          )}
+        </div>
+
+        {/* Optional URL Paste Expandable Box */}
+        {showUrlInput && (
+          <div className="flex gap-1.5 rounded-lg border border-rose-500/30 bg-black/40 p-1.5 animate-fadeIn">
+            <input
+              type="text"
+              value={urlInputValue}
+              onChange={(e) => setUrlInputValue(e.target.value)}
+              placeholder="粘贴历史生成的 MP3 链接..."
+              className="flex-1 rounded-md border border-white/10 bg-slate-900 px-2 py-1 text-[11px] text-white placeholder-slate-500 focus:border-rose-400 focus:outline-none"
+            />
+            <button
+              type="button"
+              onClick={() => {
+                if (urlInputValue.trim()) {
+                  data.onChange({ generatedAudioUrl: urlInputValue.trim() });
+                  setShowUrlInput(false);
+                  setUrlInputValue('');
+                }
+              }}
+              className="rounded-md bg-rose-600 px-2.5 py-1 text-[11px] font-bold text-white hover:bg-rose-500"
+            >
+              应用
+            </button>
+          </div>
+        )}
+
         {/* Audio Player Preview */}
         <div>
           <span className="mb-1 block font-medium text-slate-300">伴奏试听与波形</span>
@@ -142,7 +225,7 @@ export function MusicNode({ data }: { data: MusicNodeData }) {
                   </div>
                   <div className="mt-1 flex justify-between text-[10px] text-slate-400">
                     <span>808 Trap Beat</span>
-                    <span>Ready</span>
+                    <span className="text-emerald-400">已就绪 (可供视频驱动)</span>
                   </div>
                 </div>
               </div>
@@ -155,21 +238,38 @@ export function MusicNode({ data }: { data: MusicNodeData }) {
               />
 
               <div className="flex items-center justify-between border-t border-white/10 pt-2 text-[10px] text-slate-400">
-                <span className="truncate max-w-[200px]">{data.generatedAudioUrl}</span>
-                <a
-                  href={data.generatedAudioUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-rose-400 hover:underline"
-                >
-                  下载 MP3
-                </a>
+                <span className="truncate max-w-[200px]" title={data.generatedAudioUrl}>
+                  {data.generatedAudioUrl.startsWith('data:') ? '本地上传的音频文件' : data.generatedAudioUrl}
+                </span>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="text-slate-400 hover:text-white"
+                  >
+                    替换
+                  </button>
+                  <a
+                    href={data.generatedAudioUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-rose-400 hover:underline"
+                  >
+                    下载 MP3
+                  </a>
+                </div>
               </div>
             </div>
           ) : (
-            <div className="flex h-16 items-center justify-center rounded-xl border border-dashed border-white/15 bg-white/[0.02] text-slate-500">
-              <Headphones className="size-4 mr-1.5 opacity-50" />
-              <span>暂无音频，点击上方调试或整跑生成</span>
+            <div
+              onClick={() => fileInputRef.current?.click()}
+              className="flex h-16 cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-white/15 bg-white/[0.02] text-slate-400 transition hover:border-rose-400/50 hover:bg-rose-500/[0.03]"
+            >
+              <div className="flex items-center gap-1.5 text-xs text-slate-300">
+                <Upload className="size-3.5 text-rose-400" />
+                <span>点击上传本地 MP3 / 拖拽音频文件</span>
+              </div>
+              <span className="mt-0.5 text-[10px] text-slate-500">也可点击上方单步调试自动生成</span>
             </div>
           )}
         </div>
