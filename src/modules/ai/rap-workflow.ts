@@ -56,65 +56,53 @@ export async function generateRapLyrics(params: {
   topic: string;
   styleId?: string;
   language?: string;
+  model?: string;
 }): Promise<RapLyricsResult> {
-  const { topic, styleId = 'boom-bap', language = 'zh' } = params;
+  const { topic, styleId = 'boom-bap', language = 'zh', model: reqModel } = params;
   const stylePreset =
     RAP_STYLE_PRESETS.find((s) => s.id === styleId) || RAP_STYLE_PRESETS[0];
 
-  // 1. 尝试匹配预设库 (仅当选择中文且未指定特殊语言时)
-  if (!language || language === 'zh') {
-    const matchedTheme = RAP_THEME_PRESETS.find(
-      (t) => topic.includes(t.title) || t.prompt.includes(topic)
-    );
-    if (matchedTheme) {
-      return {
-        title: matchedTheme.title.replace(/^[^\s]+\s*/, ''),
-        lyrics: matchedTheme.lyricsPreview,
-        styleTags: stylePreset.sunoStyle,
-        bpm: stylePreset.bpm,
-      };
-    }
+  // 1. 获取模型配置与密钥
+  const configs = await getAllConfigs();
+  const alibabaKey = configs.alibaba_api_key || envConfigs.alibaba_api_key;
+  const alibabaBaseUrl =
+    configs.alibaba_base_url ||
+    envConfigs.alibaba_base_url ||
+    'https://ws-2txa9apyfxruykae.us-east-1.maas.aliyuncs.com/compatible-mode/v1';
+  const alibabaModel =
+    configs.alibaba_model ||
+    envConfigs.alibaba_model ||
+    'deepseek-v4.1-flash-1017';
+
+  const apiKey =
+    alibabaKey ||
+    configs.openai_api_key ||
+    configs.deepseek_api_key ||
+    configs.gemini_api_key ||
+    configs.apimart_api_key;
+
+  const baseUrl = alibabaKey
+    ? alibabaBaseUrl
+    : configs.deepseek_api_key
+      ? 'https://api.deepseek.com/v1'
+      : configs.openai_base_url || 'https://api.openai.com/v1';
+
+  const selectedModel = alibabaKey
+    ? (reqModel && reqModel.includes('deepseek') ? reqModel : alibabaModel)
+    : configs.deepseek_api_key
+      ? 'deepseek-chat'
+      : configs.openai_model || 'gpt-4o-mini';
+
+  if (!apiKey) {
+    throw new Error('未配置大模型 API 密钥 (Alibaba DeepSeek / OpenAI)，无法生成歌词');
   }
 
-  // 2. 尝试调用配置的 LLM (优先使用阿里国际 DeepSeek)
-  try {
-    const configs = await getAllConfigs();
-    const alibabaKey = configs.alibaba_api_key || envConfigs.alibaba_api_key;
-    const alibabaBaseUrl =
-      configs.alibaba_base_url ||
-      envConfigs.alibaba_base_url ||
-      'https://ws-2txa9apyfxruykae.us-east-1.maas.aliyuncs.com/compatible-mode/v1';
-    const alibabaModel =
-      configs.alibaba_model ||
-      envConfigs.alibaba_model ||
-      'deepseek-v4.1-flash-1017';
+  const isEn = language === 'en';
+  const isEs = language === 'es';
+  const isFr = language === 'fr';
 
-    const apiKey =
-      alibabaKey ||
-      configs.openai_api_key ||
-      configs.deepseek_api_key ||
-      configs.gemini_api_key ||
-      configs.apimart_api_key;
-
-    const baseUrl = alibabaKey
-      ? alibabaBaseUrl
-      : configs.deepseek_api_key
-        ? 'https://api.deepseek.com/v1'
-        : configs.openai_base_url || 'https://api.openai.com/v1';
-
-    const model = alibabaKey
-      ? alibabaModel
-      : configs.deepseek_api_key
-        ? 'deepseek-chat'
-        : configs.openai_model || 'gpt-4o-mini';
-
-    if (apiKey) {
-      const isEn = language === 'en';
-      const isEs = language === 'es';
-      const isFr = language === 'fr';
-
-      const systemPrompt = isEn
-        ? `You are a world-class hip-hop rap producer and lyricist (inspired by Quavo, Takeoff, Drake, Kendrick Lamar).
+  const systemPrompt = isEn
+    ? `You are a world-class hip-hop rap producer and lyricist (inspired by Quavo, Takeoff, Drake, Kendrick Lamar).
 Write hard-hitting, rhythm-locked, multi-syllable rhyming rap lyrics strictly in ENGLISH, perfectly suited for Suno 808 Trap / Drill beats.
 Format output strictly as follows without any conversational preamble:
 [Intro]
@@ -125,11 +113,11 @@ Format output strictly as follows without any conversational preamble:
 (2-4 catchy, anthemic lines)
 [Outro]
 (1 short fade-out line)`
-        : isEs
-          ? `Eres un productor y letrista de hip-hop y trap latino de primer nivel. Escribe rimas contundentes y pegajosas en ESPAÑOL con formato [Intro], [Verse 1], [Chorus], [Outro].`
-          : isFr
-            ? `Tu es un producteur et parolier de rap/drill français d'élite. Écris des rimes percutantes et rythmées en FRANÇAIS avec format [Intro], [Verse 1], [Chorus], [Outro].`
-            : `你是一位顶级嘻哈说唱制作人与作词人。请根据用户给出的主题和风格，直接创作并输出一段充满节奏感、双押/单押韵脚紧密、适合用 Suno 生成的精悍 Rap 唱词。
+    : isEs
+      ? `Eres un productor y letrista de hip-hop y trap latino de primer nivel. Escribe rimas contundentes y pegajosas en ESPAÑOL con formato [Intro], [Verse 1], [Chorus], [Outro].`
+      : isFr
+        ? `Tu es un producteur et parolier de rap/drill français d'élite. Écris des rimes percutantes et rythmées en FRANÇAIS avec format [Intro], [Verse 1], [Chorus], [Outro].`
+        : `你是一位顶级嘻哈说唱制作人与作词人。请根据用户给出的主题和风格，直接创作并输出一段充满节奏感、双押/单押韵脚紧密、适合用 Suno 生成的精悍 Rap 唱词。
 输出格式严格遵循以下结构（直接输出，不要附加任何闲聊或长篇思考）：
 [Intro]
 (简短1-2句口白引子)
@@ -140,95 +128,46 @@ Format output strictly as follows without any conversational preamble:
 [Outro]
 (1句淡出收尾)`;
 
-      const userPrompt = `Topic / Theme: ${topic}\nMusic Style: ${stylePreset.name} (${stylePreset.enName})\nTarget BPM: ${stylePreset.bpm}\nLanguage: ${language.toUpperCase()}`;
+  const userPrompt = `Topic / Theme: ${topic}\nMusic Style: ${stylePreset.name} (${stylePreset.enName})\nTarget BPM: ${stylePreset.bpm}\nLanguage: ${language.toUpperCase()}`;
 
-      const res = await fetch(`${baseUrl}/chat/completions`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${apiKey.trim()}`,
-        },
-        body: JSON.stringify({
-          model,
-          messages: [
-            { role: 'system', content: systemPrompt },
-            { role: 'user', content: userPrompt },
-          ],
-          temperature: 0.8,
-          max_tokens: 3500,
-        }),
-      });
+  const res = await fetch(`${baseUrl}/chat/completions`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${apiKey.trim()}`,
+    },
+    body: JSON.stringify({
+      model: selectedModel,
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt },
+      ],
+      temperature: 0.8,
+      max_tokens: 3500,
+    }),
+  });
 
-      if (res.ok) {
-        const json: any = await res.json();
-        const choice = json.choices?.[0]?.message;
-        let generatedLyrics = (choice?.content || '').trim();
-        if (!generatedLyrics && choice?.reasoning_content) {
-          generatedLyrics = choice.reasoning_content.trim();
-        }
-
-        if (generatedLyrics && (generatedLyrics.includes('[') || generatedLyrics.length > 20)) {
-          const title = topic.slice(0, 15) || (isEn ? 'AI Rap Freestyle' : 'AI说唱对决');
-          return {
-            title,
-            lyrics: generatedLyrics,
-            styleTags: stylePreset.sunoStyle,
-            bpm: stylePreset.bpm,
-          };
-        }
-      }
-    }
-  } catch (err) {
-    console.warn('LLM lyrics generation failed, fallback to template:', err);
+  if (!res.ok) {
+    const errText = await res.text().catch(() => '');
+    console.error(`[LLM Lyrics] API returned ${res.status}:`, errText);
+    throw new Error(`大模型接口异常 (${res.status}): ${errText.slice(0, 150)}`);
   }
 
-  // 3. Fallback 高保真说唱模板合成
-  const isEn = language === 'en';
-  const title = isEn ? 'Relentless Flow' : (topic.slice(0, 12) || '节奏不息 (Relentless Flow)');
-  const fallbackLyrics = isEn
-    ? `[Intro]
-Yeah, check the mic in the booth!
-Turn the 808 up, let us get it!
+  const json: any = await res.json();
+  const choice = json.choices?.[0]?.message;
+  let generatedLyrics = (choice?.content || '').trim();
+  if (!generatedLyrics && choice?.reasoning_content) {
+    generatedLyrics = choice.reasoning_content.trim();
+  }
 
-[Verse 1]
-Stepping in the ring with the diamond clean flow
-Every single punchline running this whole show
-Locked on the beat never moving in slow-mo
-Heavy trap bass got the whole room glow
-Stacking up the rhymes from the ceiling to the floor
-Every single verse leaving them screaming for more!
+  if (!generatedLyrics) {
+    throw new Error('大模型未返回有效歌词');
+  }
 
-[Chorus]
-This is our moment, lighting up the sky
-Watch the heavy baseline flying up high!
-We came from the bottom now we taking the crown
-Best believe our rhythm shaking up the whole town!
-
-[Outro]
-Drop the mic. It is done.`
-    : `[Intro]
-Check it out, now listen to the beat!
-这是属于 ${topic.slice(0, 8)} 的高燃时刻！
-
-[Verse 1]
-聚光灯撕碎了所有的防备
-鼓点在胸腔每一次轰鸣绝不后退
-双押在字里行间穿梭成绝对
-踩准了八个八拍用实力来回馈
-谁在质疑我的方向不用理会
-让这段节奏把质疑统统击碎
-
-[Chorus]
-这就是我的声音 我的 Flow 在飞行
-不管是暴风骤雨 还是黎明降临
-把梦想握紧 在节拍中刻下姓名！
-
-[Outro]
-Drop the mic. It is done.`;
-
+  const title = topic.slice(0, 15) || (isEn ? 'AI Rap Freestyle' : 'AI说唱对决');
   return {
     title,
-    lyrics: fallbackLyrics,
+    lyrics: generatedLyrics,
     styleTags: stylePreset.sunoStyle,
     bpm: stylePreset.bpm,
   };

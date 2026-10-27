@@ -203,9 +203,6 @@ export const envConfigs: Record<string, string> = {
   },
 
   // AI
-  // OpenAI / Anthropic are admin-panel-only (like Gemini/Fal). No env fallback:
-  // OPENAI_API_KEY / ANTHROPIC_API_KEY are common ambient vars, and falling back
-  // to them would let the admin "Test" silently pass on the machine's own key.
   get replicate_api_token() {
     return secretEnv('REPLICATE_API_TOKEN');
   },

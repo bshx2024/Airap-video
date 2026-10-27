@@ -128,6 +128,7 @@ Hit the beat hard, never think twice.`,
         topic: workflowState.topic,
         styleId: workflowState.styleId,
         language: workflowState.lyricsLanguage || 'en',
+        model: workflowState.lyricsModel,
       });
 
       const latency = Date.now() - startTime;

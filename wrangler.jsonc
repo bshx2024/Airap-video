@@ -11,7 +11,11 @@
     "DATABASE_PROVIDER": "d1",
     "VITE_APP_NAME": "Airap Video",
     "VITE_APP_URL": "https://airap-video.net",
-    "AUTH_SECRET": "airap-secret-key-32-chars-long-production-env-2026"
+    "ALIBABA_BASE_URL": "https://ws-2txa9apyfxruykae.us-east-1.maas.aliyuncs.com/compatible-mode/v1",
+    "ALIBABA_MODEL": "deepseek-v4.1-flash-1017",
+    "KIE_BASE_URL": "https://api.kie.ai/api/v1",
+    "RAP_VIDEO_MODEL": "happyhorse-1.1-r2v",
+    "RAP_VIDEO_RESOLUTION": "480p"
   },
   "d1_databases": [
     {
