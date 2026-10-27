@@ -26,7 +26,7 @@ import { R2Provider } from '@/core/storage/r2';
 import { envConfigs } from '@/config';
 import { getUniSeq } from '@/lib/hash';
 
-import { testApimart, testKie } from './settings-test-ai';
+import { testAlibaba, testApimart, testKie } from './settings-test-ai';
 import type { TestResult } from './settings-test-specs';
 
 export { getTestSpec, getTestableGroups } from './settings-test-specs';
@@ -61,6 +61,8 @@ export async function runTest(
         return await testApimart(inputs, configs);
       case 'kie':
         return await testKie(inputs, configs);
+      case 'alibaba':
+        return await testAlibaba(inputs, configs);
       case 'openai':
         return await testOpenAI(inputs, configs);
       case 'anthropic':

@@ -279,6 +279,18 @@ export const testSpecs: Record<string, TestSpec> = {
       },
     ],
   },
+  alibaba: {
+    group: 'alibaba',
+    fields: [
+      {
+        name: 'prompt',
+        label: 'Prompt',
+        type: 'textarea',
+        defaultValue: 'Write a short 2-line rap greeting.',
+        required: true,
+      },
+    ],
+  },
   replicate: {
     group: 'replicate',
     fields: [

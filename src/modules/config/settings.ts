@@ -188,6 +188,13 @@ export function getSettingGroups(): SettingGroup[] {
       tab: 'ai',
       link: 'https://kie.ai',
     },
+    {
+      name: 'alibaba',
+      title: 'Alibaba Cloud Model Studio (阿里百炼国际版)',
+      description: 'HappyHorse 1.1 Video Synthesis & DeepSeek Rap Lyrics LLM',
+      tab: 'ai',
+      link: 'https://bailian.console.alibabacloud.com',
+    },
 
     // Analytics
     {
@@ -976,6 +983,37 @@ export function getSettings(): Setting[] {
       placeholder: 'xxx',
       group: 'kie',
       tab: 'ai',
+    },
+
+    // ─── AI / Alibaba Cloud Model Studio ──────────────────────────────
+    {
+      name: 'alibaba_base_url',
+      title: 'Base URL',
+      type: 'text',
+      placeholder: 'https://ws-2txa9apyfxruykae.us-east-1.maas.aliyuncs.com/compatible-mode/v1',
+      group: 'alibaba',
+      tab: 'ai',
+      defaultValue: 'https://ws-2txa9apyfxruykae.us-east-1.maas.aliyuncs.com/compatible-mode/v1',
+      tip: 'Alibaba Cloud Model Studio International Maas Endpoint',
+    },
+    {
+      name: 'alibaba_api_key',
+      title: 'API Key',
+      type: 'password',
+      placeholder: 'sk-ws-xxx',
+      group: 'alibaba',
+      tab: 'ai',
+      tip: 'Model Studio API Key (for HappyHorse 1.1 video generation & DeepSeek lyrics)',
+    },
+    {
+      name: 'alibaba_model',
+      title: 'Lyrics Model',
+      type: 'text',
+      placeholder: 'deepseek-v4.1-flash-1017',
+      defaultValue: 'deepseek-v4.1-flash-1017',
+      group: 'alibaba',
+      tab: 'ai',
+      tip: 'DeepSeek LLM model used for multi-syllable rap lyrics',
     },
 
     // ─── Analytics / Google Analytics ────────────────────────────────

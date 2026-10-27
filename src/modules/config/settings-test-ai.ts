@@ -192,3 +192,51 @@ export async function testKie(
     details: { 'Task ID': result.taskId, Status: result.taskStatus },
   };
 }
+
+export async function testAlibaba(
+  inputs: Record<string, string>,
+  configs: Record<string, string>
+): Promise<TestResult> {
+  const missing = need(configs, ['alibaba_api_key']);
+  if (missing) return { success: false, message: missing };
+
+  const baseUrl = (
+    configs.alibaba_base_url ||
+    'https://ws-2txa9apyfxruykae.us-east-1.maas.aliyuncs.com/compatible-mode/v1'
+  ).replace(/\/+$/, '');
+  const model = configs.alibaba_model || 'deepseek-v4.1-flash-1017';
+
+  const resp = await fetch(`${baseUrl}/chat/completions`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${configs.alibaba_api_key.trim()}`,
+    },
+    body: JSON.stringify({
+      model,
+      messages: [{ role: 'user', content: inputs.prompt || 'Hello' }],
+      max_tokens: 64,
+    }),
+  });
+
+  const data: any = await resp.json().catch(() => ({}));
+  if (!resp.ok) {
+    return {
+      success: false,
+      message:
+        data?.error?.message ||
+        data?.message ||
+        `Alibaba API request failed (${resp.status})`,
+    };
+  }
+
+  const reply = String(data?.choices?.[0]?.message?.content ?? '').trim();
+  return {
+    success: true,
+    message: 'Alibaba Cloud Model Studio (百炼国际版) API 连接成功！',
+    details: {
+      Model: data?.model || model,
+      Reply: reply.slice(0, 200) || '(empty)',
+    },
+  };
+}
