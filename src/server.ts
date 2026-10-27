@@ -235,6 +235,17 @@ async function handleRequest(req: Request): Promise<Response> {
         // Silently catch to prevent unhandled rejections during background insert
       }
     });
+
+    // Block any crawler/bot attempting to probe /tools/workflow or admin tools
+    if (urlObj.pathname.startsWith('/tools/workflow') || urlObj.pathname.startsWith('/admin/workflow')) {
+      return new Response('403 Forbidden: Crawlers are blocked on this path.', {
+        status: 403,
+        headers: {
+          'Content-Type': 'text/plain',
+          'X-Robots-Tag': 'noindex, nofollow, noarchive, nosnippet',
+        },
+      });
+    }
   }
 
   // Edge Cache optimization for anonymous public page requests
@@ -258,8 +269,11 @@ async function handleRequest(req: Request): Promise<Response> {
     );
   }
 
-  // Debugging Mode: Block crawlers & AI bots via HTTP header
-  if (isHtml) {
+  // Ensure /tools/workflow always carries strict X-Robots-Tag regardless of global debug mode
+  if (urlObj.pathname.startsWith('/tools/workflow') || urlObj.pathname.startsWith('/admin/workflow')) {
+    response.headers.set('X-Robots-Tag', 'noindex, nofollow, noarchive, nosnippet');
+  } else if (isHtml) {
+    // Debugging Mode: Block crawlers & AI bots via HTTP header
     response.headers.set('X-Robots-Tag', 'noindex, nofollow, noarchive, nosnippet');
   }
 

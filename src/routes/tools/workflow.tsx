@@ -7,6 +7,11 @@ export const Route = createFileRoute('/tools/workflow')({
     meta: [
       { title: 'AI Rap Video Visual Workflow Studio · Coze Edition' },
       { name: 'description', content: 'Node-based visual workflow debugger for AI Rap MV generation' },
+      { name: 'robots', content: 'noindex, nofollow, noarchive, nosnippet' },
+      { name: 'googlebot', content: 'noindex, nofollow, noarchive, nosnippet' },
+      { name: 'bingbot', content: 'noindex, nofollow, noarchive, nosnippet' },
+      { name: 'baiduspider', content: 'noindex, nofollow, noarchive, nosnippet' },
+      { name: 'bytespider', content: 'noindex, nofollow, noarchive, nosnippet' },
     ],
   }),
   component: ToolsWorkflowRoute,
