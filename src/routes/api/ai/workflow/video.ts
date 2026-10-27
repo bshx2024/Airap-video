@@ -209,9 +209,11 @@ async function POST({ request }: { request: Request }) {
         throw new Error(errorMsg);
       }
 
-      const taskId = json.output?.task_id || json.request_id;
+      const taskId = json.output?.task_id;
       if (!taskId) {
-        throw new Error('阿里百炼生视频服务未返回 task_id');
+        throw new Error(
+          `阿里百炼生视频服务未返回有效 task_id: ${json.message || JSON.stringify(json.output || json)}`
+        );
       }
 
       return respData({

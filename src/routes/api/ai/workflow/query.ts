@@ -63,11 +63,16 @@ async function GET({ request }: { request: Request }) {
           taskInfo: taskOutput,
           raw: json,
         });
-      } else if (taskStatus === 'FAILED') {
+      } else if (taskStatus === 'FAILED' || taskStatus === 'UNKNOWN') {
         return respData({
           taskId,
           status: 'failed',
-          error: taskOutput.message || json.message || 'Alibaba video generation failed',
+          error:
+            taskOutput.message ||
+            json.message ||
+            (taskStatus === 'UNKNOWN'
+              ? '任务不存在或已失效 (UNKNOWN)，请选用官方推荐的 Wan 2.1 模型重新生成'
+              : 'Alibaba video generation failed'),
           taskInfo: taskOutput,
           raw: json,
         });
