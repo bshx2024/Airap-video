@@ -201,8 +201,8 @@ async function POST({ request }: { request: Request }) {
       let effectivePrompt = prompt;
 
       // Enhance prompt with motion transfer guidance when reference video is provided
-      if (publicReferenceVideoUrl && !effectivePrompt.includes('[Video 1]')) {
-        effectivePrompt = `Strictly replicate the exact body motions, head nods, arm gestures, and hanging microphone rap battle choreography from [Video 1]. Left rapper [Image 1] actively delivers high-energy rap punchlines into the hanging mic with wide pronounced syllable mouth articulation, while the characters perform high-energy rap cypher in 9:16 vertical studio framing with synchronized mouth lip-sync matching the audio beat: ${prompt}`;
+      if (publicReferenceVideoUrl && !effectivePrompt.includes('Replace')) {
+        effectivePrompt = `Replace the left rapper in [Video 1] with the character shown in [Image 1]. The new character [Image 1] actively delivers energetic rap singing into the hanging mic with wide pronounced mouth articulation, while strictly replicating the exact body motions, head nods, arm gestures, and hanging microphone rap battle choreography from [Video 1]. Keep the studio and right character unchanged: ${prompt}`;
       } else if (selectedModel.includes('r2v') && !effectivePrompt.includes('[Image 1]')) {
         effectivePrompt = publicImages.length > 1
           ? `The two rappers from [Image 1] and [Image 2] perform high-energy rap battle, rhythmic head nods, mouth lip sync`
