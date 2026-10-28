@@ -179,7 +179,10 @@ async function POST({ request }: { request: Request }) {
       }
 
       const mediaPayload = selectedModel.includes('r2v')
-        ? publicImages.map((url) => ({ url }))
+        ? publicImages.map((url) => ({
+            type: 'reference_image',
+            url,
+          }))
         : publicImages.map((url, idx) => ({
             type: idx === 0 ? 'first_frame' : 'reference_image',
             url,
@@ -197,7 +200,8 @@ async function POST({ request }: { request: Request }) {
         parameters: {
           resolution: validResolution,
           duration: selectedDuration,
-          aspect_ratio: selectedAspect,
+          ratio: selectedAspect, // 阿里百炼 DashScope 官方参数键名: ratio (支持 '9:16', '16:9', '1:1')
+          aspect_ratio: selectedAspect, // 兼容其它模型格式
         },
       };
 
