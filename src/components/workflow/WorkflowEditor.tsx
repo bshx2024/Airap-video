@@ -49,9 +49,9 @@ import { DEFAULT_VIDEO_PROMPT, VideoNode } from './nodes/VideoNode';
 import { NodeExecutionStatus, WorkflowState } from './types';
 
 const INITIAL_TOPIC = 'Quavo & Takeoff 经典 Hotel Lobby 亮橙色录音棚双人互呛，单支悬吊麦克风，高燃808陷阱鼓点';
-const DEMO_PHOTO_1 = '/imgs/scenes/quavo-takeoff-takeoff.jpg';
-const DEMO_PHOTO_2 = '/imgs/scenes/quavo-takeoff-quavo.jpg';
-const DEMO_AUDIO = '/audio/hotel-lobby-original-5s.m4a';
+const DEMO_PHOTO_1 = 'https://airap-video.net/imgs/scenes/quavo-takeoff-takeoff.jpg';
+const DEMO_PHOTO_2 = 'https://airap-video.net/imgs/scenes/quavo-takeoff-quavo.jpg';
+const DEMO_AUDIO = 'https://airap-video.net/audio/hotel-lobby-original-5s.m4a';
 
 export function WorkflowEditor() {
   // Workflow Global State

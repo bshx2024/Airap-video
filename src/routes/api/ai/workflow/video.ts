@@ -91,6 +91,12 @@ async function ensurePublicMediaUrl(
     }
   }
 
+  if (trimmed.startsWith('/') || trimmed.startsWith('\\')) {
+    const cleanPath = trimmed.replace(/^[/\\]+/, '');
+    const siteBase = (envConfigs.app_url || 'https://airap-video.net').replace(/\/+$/, '');
+    return `${siteBase}/${cleanPath}`;
+  }
+
   return trimmed;
 }
 
