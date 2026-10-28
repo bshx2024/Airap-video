@@ -229,8 +229,8 @@ async function POST({ request }: { request: Request }) {
         },
       };
 
-      // For Wan or models supporting explicit size, map resolution + aspect ratio to pixel size
-      if (selectedModel.toLowerCase().includes('wan')) {
+      // For Wan 2.1 legacy models supporting explicit pixel size
+      if (selectedModel.toLowerCase().includes('wan2.1')) {
         const sizeMap: Record<string, Record<string, string>> = {
           '480P': { '9:16': '480*832', '16:9': '832*480', '1:1': '624*624' },
           '720P': { '9:16': '720*1280', '16:9': '1280*720', '1:1': '960*960' },
@@ -242,7 +242,7 @@ async function POST({ request }: { request: Request }) {
         }
       }
 
-      if (selectedModel.startsWith('wan2.')) {
+      if (selectedModel.toLowerCase().includes('wan')) {
         payload.parameters.prompt_extend = true;
       }
 
