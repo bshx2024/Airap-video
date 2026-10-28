@@ -295,32 +295,55 @@ Big one. Yeah, we keep it in the booth.`,
         const taskId = res.taskId;
         let pollCount = 0;
         const poll = async () => {
-          pollCount++;
-          const elapsedSec = Math.round((Date.now() - startTime) / 1000);
+          try {
+            pollCount++;
+            const elapsedSec = Math.round((Date.now() - startTime) / 1000);
 
-          const qRes = await apiGet<any>(`/api/ai/workflow/query?taskId=${taskId}&mediaType=video`);
-          if (pollCount % 2 === 0) {
-            const sub = qRes?.subStatus ? `[${qRes.subStatus}]` : '';
-            addLog(`⏳ [Step 3] 百炼 GPU 运算中... 已等待 ${elapsedSec}s ${sub}`);
-          }
-
-          if (qRes && qRes.status === 'success' && qRes.videoUrl) {
-            const latency = Date.now() - startTime;
-            setNodeLatencies((prev) => ({ ...prev, video: latency }));
-            setWorkflowState((prev) => ({
-              ...prev,
-              generatedVideoUrl: qRes.videoUrl,
-            }));
-            setNodeStatuses((prev) => ({ ...prev, video: 'success', output: 'success' }));
-            addLog(`✅ [Step 3] 视频驱动渲染完成 (${latency}ms): ${qRes.videoUrl}`);
-            toast.success('🎬 AI Rap MV 渲染完成！');
-          } else if (qRes && qRes.status === 'failed') {
-            throw new Error(qRes.error || 'Video driver failed');
-          } else {
-            if (pollCount > 180) {
-              throw new Error('视频渲染超时 (已等待超过15分钟)');
+            const qRes = await apiGet<any>(`/api/ai/workflow/query?taskId=${taskId}&mediaType=video`);
+            if (pollCount % 2 === 0 || pollCount === 1) {
+              const sub = qRes?.subStatus ? `[${qRes.subStatus}]` : '';
+              addLog(`⏳ [Step 3] 百炼 GPU 运算中... 已等待 ${elapsedSec}s ${sub}`);
             }
+
+            if (qRes && qRes.status === 'success' && qRes.videoUrl) {
+              const latency = Date.now() - startTime;
+              setNodeLatencies((prev) => ({ ...prev, video: latency }));
+              setWorkflowState((prev) => ({
+                ...prev,
+                generatedVideoUrl: qRes.videoUrl,
+              }));
+              setNodeStatuses((prev) => ({ ...prev, video: 'success', output: 'success' }));
+              addLog(`✅ [Step 3] 视频驱动渲染完成 (${latency}ms): ${qRes.videoUrl}`);
+              toast.success('🎬 AI Rap MV 视频渲染完成！可在 Output 节点下载成片。');
+              return;
+            }
+
+            if (qRes && qRes.status === 'failed') {
+              const errMsg = qRes.error || 'Video driver failed';
+              setNodeStatuses((prev) => ({ ...prev, video: 'failed' }));
+              addLog(`❌ [Step 3] 视频驱动失败: ${errMsg}`);
+              toast.error(`视频渲染失败: ${errMsg}`);
+              return;
+            }
+
+            if (pollCount > 180) {
+              setNodeStatuses((prev) => ({ ...prev, video: 'failed' }));
+              addLog('❌ [Step 3] 视频驱动超时: 已等待超过15分钟');
+              toast.error('视频渲染超时');
+              return;
+            }
+
             setTimeout(poll, 5000);
+          } catch (pollErr: any) {
+            console.error('Video poll error:', pollErr);
+            if (pollCount < 180) {
+              // Retry on transient network blip
+              setTimeout(poll, 5000);
+            } else {
+              setNodeStatuses((prev) => ({ ...prev, video: 'failed' }));
+              addLog(`❌ [Step 3] 进度监听中断: ${pollErr.message || '网络连接异常'}`);
+              toast.error(`进度监听中断: ${pollErr.message || '网络异常'}`);
+            }
           }
         };
         setTimeout(poll, 3000);

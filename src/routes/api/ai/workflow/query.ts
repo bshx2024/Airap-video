@@ -72,16 +72,24 @@ async function GET({ request }: { request: Request }) {
           taskInfo: taskOutput,
           raw: json,
         });
-      } else if (taskStatus === 'FAILED' || taskStatus === 'UNKNOWN') {
+      } else if (taskStatus === 'FAILED') {
         return respData({
           taskId,
           status: 'failed',
           error:
             taskOutput.message ||
             json.message ||
-            (taskStatus === 'UNKNOWN'
-              ? '任务不存在或已失效 (UNKNOWN)'
-              : 'Alibaba video generation failed'),
+            '阿里百炼视频驱动生成失败 (FAILED)',
+          taskInfo: taskOutput,
+          raw: json,
+        });
+      } else if (taskStatus === 'UNKNOWN') {
+        // DashScope async tasks may return UNKNOWN during the first few seconds while propagating across worker nodes
+        return respData({
+          taskId,
+          status: 'processing',
+          subStatus: 'INITIALIZING',
+          videoUrl: null,
           taskInfo: taskOutput,
           raw: json,
         });
