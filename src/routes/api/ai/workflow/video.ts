@@ -202,6 +202,7 @@ async function POST({ request }: { request: Request }) {
           prompt: effectivePrompt,
           img_url: firstImage,
           media: mediaPayload,
+          ...(publicAudioUrl ? { audio_url: publicAudioUrl } : {}),
         },
         parameters: {
           resolution: validResolution,

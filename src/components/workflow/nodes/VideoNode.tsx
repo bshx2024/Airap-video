@@ -1,6 +1,6 @@
 import React from 'react';
 import { Handle, Position } from '@xyflow/react';
-import { Clapperboard, Download, Eye, Film, Loader2, Sparkles, Video } from 'lucide-react';
+import { Clapperboard, Download, Eye, Film, Loader2, Music, Sparkles, Video, Volume2, VolumeX } from 'lucide-react';
 import { NodeExecutionStatus } from '../types';
 
 export const DEFAULT_VIDEO_PROMPT =
@@ -27,10 +27,41 @@ export function VideoNode({ data }: { data: VideoNodeData }) {
   const isRunning = data.status === 'running';
   const isSuccess = data.status === 'success' || Boolean(data.generatedVideoUrl);
   const [videoLoadError, setVideoLoadError] = React.useState(false);
+  const [syncAudio, setSyncAudio] = React.useState(true);
+
+  const videoRef = React.useRef<HTMLVideoElement>(null);
+  const audioRef = React.useRef<HTMLAudioElement>(null);
 
   React.useEffect(() => {
     setVideoLoadError(false);
   }, [data.generatedVideoUrl]);
+
+  const handleVideoPlay = () => {
+    if (syncAudio && audioRef.current && videoRef.current) {
+      audioRef.current.currentTime = videoRef.current.currentTime;
+      audioRef.current.play().catch(() => {});
+    }
+  };
+
+  const handleVideoPause = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+    }
+  };
+
+  const handleVideoTimeUpdate = () => {
+    if (syncAudio && audioRef.current && videoRef.current) {
+      if (Math.abs(audioRef.current.currentTime - videoRef.current.currentTime) > 0.25) {
+        audioRef.current.currentTime = videoRef.current.currentTime;
+      }
+    }
+  };
+
+  const handleVideoSeeked = () => {
+    if (syncAudio && audioRef.current && videoRef.current) {
+      audioRef.current.currentTime = videoRef.current.currentTime;
+    }
+  };
 
   return (
     <div
@@ -187,18 +218,62 @@ export function VideoNode({ data }: { data: VideoNodeData }) {
 
         {/* Video Player Preview */}
         <div>
-          <span className="mb-1 block font-medium text-slate-300">视频播放器与预览</span>
+          <div className="mb-1 flex items-center justify-between">
+            <span className="font-medium text-slate-300">视频播放器与预览</span>
+            {data.generatedAudioUrl && data.generatedVideoUrl && (
+              <button
+                type="button"
+                onClick={() => setSyncAudio((prev) => !prev)}
+                className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold transition ${
+                  syncAudio
+                    ? 'border border-cyan-500/40 bg-cyan-500/20 text-cyan-300 shadow-sm'
+                    : 'border border-white/10 bg-slate-800 text-slate-400'
+                }`}
+                title="开启后播放视频将自动同步播放第2步的编曲伴奏音频"
+              >
+                {syncAudio ? (
+                  <>
+                    <Volume2 className="size-3 text-cyan-400" />
+                    <span>伴奏双轨联播: 开启</span>
+                  </>
+                ) : (
+                  <>
+                    <VolumeX className="size-3 text-slate-400" />
+                    <span>伴奏双轨联播: 关闭</span>
+                  </>
+                )}
+              </button>
+            )}
+          </div>
+
           {data.generatedVideoUrl ? (
             <div className="relative overflow-hidden rounded-xl border border-white/15 bg-black">
+              {/* Synchronized Accompaniment Audio Element */}
+              {data.generatedAudioUrl && (
+                <audio
+                  ref={audioRef}
+                  src={data.generatedAudioUrl}
+                  preload="auto"
+                  loop
+                  className="hidden"
+                />
+              )}
+
               <video
+                ref={videoRef}
                 src={data.generatedVideoUrl}
                 controls
                 autoPlay
                 loop
-                muted
+                muted={syncAudio && Boolean(data.generatedAudioUrl)}
+                onPlay={handleVideoPlay}
+                onPause={handleVideoPause}
+                onTimeUpdate={handleVideoTimeUpdate}
+                onSeeked={handleVideoSeeked}
                 onError={() => setVideoLoadError(true)}
                 className="max-h-52 w-full object-contain"
               />
+
               {videoLoadError && (
                 <div className="border-t border-amber-500/30 bg-amber-950/80 p-2.5 text-[11px] text-amber-200">
                   <div className="flex items-center gap-1.5 font-bold text-amber-300">
@@ -211,17 +286,27 @@ export function VideoNode({ data }: { data: VideoNodeData }) {
                   </div>
                 </div>
               )}
-              <div className="flex items-center justify-between border-t border-white/10 bg-black/60 p-2 text-[10px] text-slate-400">
-                <span className="truncate max-w-[200px]">{data.generatedVideoUrl}</span>
-                <a
-                  href={data.generatedVideoUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="flex items-center gap-1 text-cyan-400 hover:underline"
-                >
-                  <Download className="size-3" />
-                  <span>下载 MP4</span>
-                </a>
+
+              {/* Status & Sync Note */}
+              <div className="border-t border-white/10 bg-black/60 p-2 text-[10px]">
+                <div className="flex items-center justify-between text-slate-400">
+                  <span className="truncate max-w-[200px]">{data.generatedVideoUrl}</span>
+                  <a
+                    href={data.generatedVideoUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center gap-1 text-cyan-400 hover:underline"
+                  >
+                    <Download className="size-3" />
+                    <span>下载 MP4</span>
+                  </a>
+                </div>
+                {data.generatedAudioUrl && (
+                  <div className="mt-1.5 flex items-center gap-1 text-[10px] text-cyan-300/80">
+                    <Music className="size-3 text-cyan-400 shrink-0" />
+                    <span className="truncate">已关联伴奏：{data.generatedAudioUrl}</span>
+                  </div>
+                )}
               </div>
             </div>
           ) : (
