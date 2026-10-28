@@ -31,6 +31,9 @@ export interface WorkflowState {
   videoTaskId?: string;
   generatedVideoUrl?: string;
   videoLatency?: number;
+  referenceVideoUrl?: string;
+  motionSyncEnabled?: boolean;
+  lipSyncEnabled?: boolean;
 
   // Execution meta
   mock: boolean;

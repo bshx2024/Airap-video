@@ -65,6 +65,9 @@ async function ensurePublicMediaUrl(
       } else if (cleanPath.endsWith('.mp3')) {
         contentType = 'audio/mpeg';
         ext = 'mp3';
+      } else if (cleanPath.endsWith('.mp4')) {
+        contentType = 'video/mp4';
+        ext = 'mp4';
       }
     }
   }
@@ -107,8 +110,11 @@ async function POST({ request }: { request: Request }) {
       imageUrl = '',
       imageUrls = [],
       audioUrl = '',
+      referenceVideoUrl = '',
+      motionSyncEnabled = true,
+      lipSyncEnabled = true,
       prompt = 'Rapper singing rap song, high energy, synchronized mouth lip sync',
-      model = envConfigs.rap_video_model || 'seedance-2-5',
+      model = envConfigs.rap_video_model || 'wan3.0-video',
       resolution = envConfigs.rap_video_resolution || '480p',
       aspectRatio = '9:16',
       duration = 5,
@@ -142,6 +148,9 @@ async function POST({ request }: { request: Request }) {
       rawImages.map((img: string) => ensurePublicMediaUrl(img, 'image'))
     );
     const publicAudioUrl = await ensurePublicMediaUrl(audioUrl, 'audio');
+    const publicReferenceVideoUrl = referenceVideoUrl
+      ? await ensurePublicMediaUrl(referenceVideoUrl, 'video')
+      : '';
 
     // Pre-flight check: ensure the audio URL is alive and not 404
     try {
@@ -174,25 +183,33 @@ async function POST({ request }: { request: Request }) {
         : '480P';
 
       const selectedDuration = Number(duration) || Number(configs.alibaba_video_duration) || 5;
-      const selectedModel = model || configs.alibaba_video_model || 'happyhorse-1.1-r2v';
+      const selectedModel = model || configs.alibaba_video_model || 'wan3.0-video';
 
       const firstImage = publicImages[0];
       let effectivePrompt = prompt;
-      if (selectedModel.includes('r2v') && !effectivePrompt.includes('[Image 1]')) {
+
+      // Enhance prompt with motion transfer guidance when reference video is provided
+      if (publicReferenceVideoUrl && !effectivePrompt.includes('[Video 1]')) {
+        effectivePrompt = `Strictly replicate the exact body motions, head nods, arm gestures, and hanging microphone rap battle choreography from [Video 1]. The characters from [Image 1] and [Image 2] perform high-energy rap cypher in 9:16 vertical studio framing with synchronized mouth lip-sync matching the audio beat: ${prompt}`;
+      } else if (selectedModel.includes('r2v') && !effectivePrompt.includes('[Image 1]')) {
         effectivePrompt = publicImages.length > 1
           ? `The two rappers from [Image 1] and [Image 2] perform high-energy rap battle, rhythmic head nods, mouth lip sync`
           : `The rapper from [Image 1] performs high-energy rap singing, rhythmic head nods, mouth lip sync`;
       }
 
-      const mediaPayload = selectedModel.includes('r2v')
-        ? publicImages.map((url) => ({
-            type: 'reference_image',
-            url,
-          }))
-        : publicImages.map((url, idx) => ({
-            type: idx === 0 ? 'first_frame' : 'reference_image',
-            url,
-          }));
+      const mediaPayload: any[] = [];
+      if (publicReferenceVideoUrl) {
+        mediaPayload.push({
+          type: 'reference_video',
+          url: publicReferenceVideoUrl,
+        });
+      }
+      publicImages.forEach((url, idx) => {
+        mediaPayload.push({
+          type: selectedModel.includes('r2v') ? 'reference_image' : (idx === 0 && !publicReferenceVideoUrl ? 'first_frame' : 'reference_image'),
+          url,
+        });
+      });
 
       const selectedAspect = ['9:16', '16:9', '1:1'].includes(aspectRatio) ? aspectRatio : '9:16';
 
@@ -281,6 +298,8 @@ async function POST({ request }: { request: Request }) {
           image_url: publicImages[0],
           image_urls: publicImages,
           audio_url: publicAudioUrl,
+          video_url: publicReferenceVideoUrl,
+          reference_video_url: publicReferenceVideoUrl,
           resolution,
           aspect_ratio: selectedAspect,
           ratio: selectedAspect,

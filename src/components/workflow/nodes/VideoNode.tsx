@@ -4,11 +4,14 @@ import { Clapperboard, Download, Eye, Film, Loader2, Music, Sparkles, Video, Vol
 import { NodeExecutionStatus } from '../types';
 
 export const DEFAULT_VIDEO_PROMPT =
-  'A locked-off, continuous single-take wide two-shot in 9:16 vertical framing, NO camera cuts or transitions. Setting: Seamless solid bright orange studio cyclorama room with clean commercial lighting and subtle floor reflections. In the exact center between the two rappers, a vintage chrome condenser microphone hangs suspended from the ceiling at head height. Characters: Left: [Image 1] (wearing white sunglasses and vertical striped shirt), standing side-by-side, heavily bouncing knees and shoulders with rhythmic head nods in sync with the 808 trap beat, hands folded at chest. Right: [Image 2] (wearing black sunglasses and bright orange shirt), delivering intense punchline rap vocals into the hanging mic with perfect mouth lip-sync. Motion timeline: 00:00 - 00:02: [Image 2] points his right hand directly forward at the camera with sharp hip-hop point gesture, pulsing his body to the heavy 808 bass, while [Image 1] bounces rhythmically. 00:03 - 00:05: [Image 2] leans toward the hanging center mic and gestures with open palms toward [Image 1]. Both artists turn 45 degrees inward facing each other across the hanging microphone in an intense rap battle stance, trading bars with authentic street confidence. Flawless mouth sync, authentic underground rap cypher aesthetic, photorealistic 4K cinematic quality.';
+  'A locked-off, continuous single-take wide two-shot in 9:16 vertical framing, NO camera cuts or transitions. Setting: Seamless solid bright orange studio cyclorama room with clean commercial lighting and subtle floor reflections. In the exact center between the two rappers, a vintage chrome condenser microphone hangs suspended from the ceiling at head height. Characters: Left: [Image 1] (wearing white sunglasses and vertical striped shirt), standing side-by-side, heavily bouncing knees and shoulders with rhythmic head nods in sync with the 808 trap beat, hands folded at chest. Right: [Image 2] (wearing black sunglasses and bright orange shirt), delivering intense punchline rap vocals into the hanging mic with perfect mouth lip-sync. Motion transfer: Strictly mirror the head gestures, pointing hand motions, and microphone cypher choreography from [Video 1] (reference driving video). Right rapper points index finger directly forward at 00:00 - 00:02 and bounces to the 808 bass, then both rappers tilt toward the hanging mic at 00:03 - 00:05. Flawless syllable mouth articulation matching the rap audio track, photorealistic 4K cinematic quality.';
 
 interface VideoNodeData {
   photo1: string;
   generatedAudioUrl?: string;
+  referenceVideoUrl?: string;
+  motionSyncEnabled?: boolean;
+  lipSyncEnabled?: boolean;
   videoModel: string;
   videoResolution: string;
   videoRatio?: string;
@@ -28,6 +31,7 @@ export function VideoNode({ data }: { data: VideoNodeData }) {
   const isSuccess = data.status === 'success' || Boolean(data.generatedVideoUrl);
   const [videoLoadError, setVideoLoadError] = React.useState(false);
   const [syncAudio, setSyncAudio] = React.useState(true);
+  const [showRefVideo, setShowRefVideo] = React.useState(false);
 
   const videoRef = React.useRef<HTMLVideoElement>(null);
   const audioRef = React.useRef<HTMLAudioElement>(null);
@@ -125,13 +129,13 @@ export function VideoNode({ data }: { data: VideoNodeData }) {
           <div>
             <label className="mb-1 block font-medium text-slate-300">驱动模型</label>
             <select
-              value={data.videoModel || 'happyhorse-1.1-r2v'}
+              value={data.videoModel || 'wan3.0-video'}
               onChange={(e) => data.onChange({ videoModel: e.target.value })}
               className="w-full rounded-lg border border-white/15 bg-slate-900 px-2 py-1.5 text-[11px] text-white focus:border-cyan-400 focus:outline-none"
             >
-              <option value="happyhorse-1.1-r2v">HappyHorse 1.1 R2V (阿里调试)</option>
-              <option value="happyhorse-1.1-i2v">HappyHorse 1.1 I2V (单人人像)</option>
-              <option value="wan3.0-video">Wan 3.0 Video (万象性价比)</option>
+              <option value="wan3.0-video">Wan 3.0 (原版姿态驱动+生成·推荐)</option>
+              <option value="seedance-2-5">Seedance 2.5 (音素级口型咬字对齐)</option>
+              <option value="happyhorse-1.1-r2v">HappyHorse 1.1 R2V (阿里多图)</option>
               <option value="wan2.1-i2v-plus">Wan 2.1 Plus (万象高品质)</option>
             </select>
           </div>
@@ -170,6 +174,64 @@ export function VideoNode({ data }: { data: VideoNodeData }) {
               <option value={10}>10 秒</option>
               <option value={15}>15 秒</option>
             </select>
+          </div>
+        </div>
+
+        {/* Original Video Motion Reference & Lip-Sync Panel */}
+        <div className="rounded-xl border border-cyan-500/30 bg-cyan-950/30 p-2.5">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1.5">
+              <Film className="size-3.5 text-cyan-400" />
+              <span className="font-semibold text-cyan-300">原版动作与姿态驱动源</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowRefVideo((prev) => !prev)}
+              className="flex items-center gap-1 text-[10px] text-cyan-400 hover:underline"
+            >
+              <Eye className="size-3" />
+              <span>{showRefVideo ? '折叠预览' : '查看原版 5 秒'}</span>
+            </button>
+          </div>
+
+          <div className="mt-1.5 flex items-center justify-between text-[10px] text-slate-400">
+            <span className="truncate max-w-[200px]">Hotel Lobby 原版5秒动作模版</span>
+            <span className="rounded bg-cyan-500/20 px-1.5 py-0.5 text-cyan-300 font-medium">Video-to-Video 驱动</span>
+          </div>
+
+          {showRefVideo && (
+            <div className="mt-2 overflow-hidden rounded-lg border border-white/10 bg-black">
+              <video
+                src={data.referenceVideoUrl || '/videos/reference-5s.mp4'}
+                controls
+                loop
+                className="max-h-36 w-full object-contain"
+              />
+              <div className="bg-slate-900/80 p-1.5 text-center text-[10px] text-slate-400">
+                原版参考动作源：用于提取 Takeoff 指镜头挥手与 Quavo 律动骨架
+              </div>
+            </div>
+          )}
+
+          <div className="mt-2 grid grid-cols-2 gap-2 border-t border-white/10 pt-2 text-[10px]">
+            <label className="flex items-center gap-1.5 cursor-pointer text-slate-300">
+              <input
+                type="checkbox"
+                checked={data.motionSyncEnabled !== false}
+                onChange={(e) => data.onChange({ motionSyncEnabled: e.target.checked })}
+                className="rounded border-white/20 bg-slate-900 text-cyan-500 focus:ring-0"
+              />
+              <span>骨骼姿态迁移 (Motion)</span>
+            </label>
+            <label className="flex items-center gap-1.5 cursor-pointer text-slate-300">
+              <input
+                type="checkbox"
+                checked={data.lipSyncEnabled !== false}
+                onChange={(e) => data.onChange({ lipSyncEnabled: e.target.checked })}
+                className="rounded border-white/20 bg-slate-900 text-cyan-500 focus:ring-0"
+              />
+              <span>音素级口型对齐 (Lip-Sync)</span>
+            </label>
           </div>
         </div>
 
