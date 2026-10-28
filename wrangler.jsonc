@@ -15,7 +15,13 @@
     "ALIBABA_MODEL": "deepseek-v4.1-flash-1017",
     "KIE_BASE_URL": "https://api.kie.ai/api/v1",
     "RAP_VIDEO_MODEL": "happyhorse-1.1-r2v",
-    "RAP_VIDEO_RESOLUTION": "480p"
+    "RAP_VIDEO_RESOLUTION": "480p",
+    "R2_ACCOUNT_ID": "a9246b06d96e713031083e5a08343901",
+    "R2_ACCESS_KEY": "15766228e0b8a673a980a4714df09fee",
+    "R2_SECRET_KEY": "7c9123ed311721c6a9b2cac84bcd699ef21a05ca4b27a6f92a85e370c31638b7",
+    "R2_BUCKET_NAME": "airap-video-storage",
+    "R2_DOMAIN": "https://pub-5e8c263fe2a34ea4bb036f8b72d808ca.r2.dev",
+    "R2_ENDPOINT": "https://a9246b06d96e713031083e5a08343901.r2.cloudflarestorage.com"
   },
   "d1_databases": [
     {

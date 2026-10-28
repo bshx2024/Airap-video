@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import { Handle, Position } from '@xyflow/react';
-import { Play, Sparkles, Upload, Users, Image as ImageIcon } from 'lucide-react';
+import { Play, Sparkles, Upload, Users, Image as ImageIcon, Loader2 } from 'lucide-react';
 import { RAP_STYLE_PRESETS } from '@/config/rap-presets';
 import { NodeExecutionStatus } from '../types';
 
@@ -16,22 +16,103 @@ interface StartNodeData {
   onRunStep?: () => void;
 }
 
-export function StartNode({ data }: { data: StartNodeData }) {
-  const fileInputRef1 = React.useRef<HTMLInputElement>(null);
-  const fileInputRef2 = React.useRef<HTMLInputElement>(null);
+/**
+ * Client-side canvas image downscaling to prevent multi-megabyte base64 payloads
+ * from crashing browser fetch or exceeding Cloudflare edge request limits.
+ */
+function compressImageToBlob(
+  file: File,
+  maxDimension = 1280,
+  quality = 0.85
+): Promise<{ blob: Blob; dataUrl: string }> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        let { width, height } = img;
+        if (width > maxDimension || height > maxDimension) {
+          if (width > height) {
+            height = Math.round((height * maxDimension) / width);
+            width = maxDimension;
+          } else {
+            width = Math.round((width * maxDimension) / height);
+            height = maxDimension;
+          }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          return reject(new Error('Canvas 2D context unavailable'));
+        }
+        ctx.drawImage(img, 0, 0, width, height);
+        const dataUrl = canvas.toDataURL('image/jpeg', quality);
+        canvas.toBlob(
+          (blob) => {
+            if (blob) {
+              resolve({ blob, dataUrl });
+            } else {
+              reject(new Error('Canvas toBlob failed'));
+            }
+          },
+          'image/jpeg',
+          quality
+        );
+      };
+      img.onerror = () => reject(new Error('图片解析失败'));
+      img.src = event.target?.result as string;
+    };
+    reader.onerror = () => reject(new Error('读取本地图片失败'));
+    reader.readAsDataURL(file);
+  });
+}
 
-  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>, slot: 1 | 2) => {
+export function StartNode({ data }: { data: StartNodeData }) {
+  const fileInputRef1 = useRef<HTMLInputElement>(null);
+  const fileInputRef2 = useRef<HTMLInputElement>(null);
+  const [uploadingSlot, setUploadingSlot] = useState<1 | 2 | null>(null);
+
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>, slot: 1 | 2) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      if (slot === 1) {
-        data.onChange({ photo1: reader.result as string });
-      } else {
-        data.onChange({ photo2: reader.result as string });
+
+    setUploadingSlot(slot);
+    try {
+      // 1. Client-side compression (reduces 10MB to ~150KB)
+      const { blob, dataUrl } = await compressImageToBlob(file, 1280, 0.85);
+
+      // 2. Upload to public CDN storage (/api/storage/upload-media)
+      const formData = new FormData();
+      const safeName = file.name.replace(/\.[^.]+$/, '') + '.jpg';
+      formData.append('files', blob, safeName);
+
+      let finalUrl = dataUrl;
+      try {
+        const res = await fetch('/api/storage/upload-media', {
+          method: 'POST',
+          body: formData,
+        });
+        const json = await res.json().catch(() => ({}));
+        if (json?.code === 0 && json?.data?.urls?.[0]) {
+          finalUrl = json.data.urls[0];
+        }
+      } catch (uploadErr) {
+        console.warn('Storage upload network error, fallback to compressed local image:', uploadErr);
       }
-    };
-    reader.readAsDataURL(file);
+
+      if (slot === 1) {
+        data.onChange({ photo1: finalUrl });
+      } else {
+        data.onChange({ photo2: finalUrl });
+      }
+    } catch (err) {
+      console.error('Photo upload process failed:', err);
+    } finally {
+      setUploadingSlot(null);
+      if (e.target) e.target.value = '';
+    }
   };
 
   const selectedStyle =
@@ -120,10 +201,15 @@ export function StartNode({ data }: { data: StartNodeData }) {
           <div className="flex gap-2">
             {/* Photo 1 */}
             <div
-              onClick={() => fileInputRef1.current?.click()}
+              onClick={() => !uploadingSlot && fileInputRef1.current?.click()}
               className="group relative flex h-20 flex-1 cursor-pointer items-center justify-center overflow-hidden rounded-lg border border-dashed border-white/20 bg-white/[0.02] transition hover:border-amber-400 hover:bg-white/[0.06]"
             >
-              {data.photo1 ? (
+              {uploadingSlot === 1 ? (
+                <div className="flex flex-col items-center gap-1.5 text-amber-400">
+                  <Loader2 className="size-5 animate-spin" />
+                  <span className="text-[10px] font-medium">优化上传中...</span>
+                </div>
+              ) : data.photo1 ? (
                 <img src={data.photo1} alt="Rapper 1" className="h-full w-full object-cover" />
               ) : (
                 <div className="flex flex-col items-center gap-1 text-slate-400">
@@ -136,6 +222,7 @@ export function StartNode({ data }: { data: StartNodeData }) {
                 type="file"
                 accept="image/*"
                 className="hidden"
+                disabled={uploadingSlot !== null}
                 onChange={(e) => handlePhotoUpload(e, 1)}
               />
             </div>
@@ -143,10 +230,15 @@ export function StartNode({ data }: { data: StartNodeData }) {
             {/* Photo 2 (Duo) */}
             {data.studioMode === 'duo' && (
               <div
-                onClick={() => fileInputRef2.current?.click()}
+                onClick={() => !uploadingSlot && fileInputRef2.current?.click()}
                 className="group relative flex h-20 flex-1 cursor-pointer items-center justify-center overflow-hidden rounded-lg border border-dashed border-white/20 bg-white/[0.02] transition hover:border-amber-400 hover:bg-white/[0.06]"
               >
-                {data.photo2 ? (
+                {uploadingSlot === 2 ? (
+                  <div className="flex flex-col items-center gap-1.5 text-amber-400">
+                    <Loader2 className="size-5 animate-spin" />
+                    <span className="text-[10px] font-medium">优化上传中...</span>
+                  </div>
+                ) : data.photo2 ? (
                   <img src={data.photo2} alt="Rapper 2" className="h-full w-full object-cover" />
                 ) : (
                   <div className="flex flex-col items-center gap-1 text-slate-400">
@@ -159,6 +251,7 @@ export function StartNode({ data }: { data: StartNodeData }) {
                   type="file"
                   accept="image/*"
                   className="hidden"
+                  disabled={uploadingSlot !== null}
                   onChange={(e) => handlePhotoUpload(e, 2)}
                 />
               </div>

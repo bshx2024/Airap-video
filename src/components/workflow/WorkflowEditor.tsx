@@ -327,8 +327,12 @@ Big one. Yeah, we keep it in the booth.`,
       }
     } catch (err: any) {
       setNodeStatuses((prev) => ({ ...prev, video: 'failed' }));
-      addLog(`❌ [Step 3] 视频驱动异常: ${err.message}`);
-      toast.error(`视频渲染失败: ${err.message}`);
+      const msg =
+        err.message === 'Failed to fetch'
+          ? '网络连接中断或请求超时 (Failed to fetch)。若刚更换了大图，请重新在开始节点选择人像以完成自动压缩与云端上传'
+          : err.message || '未知错误';
+      addLog(`❌ [Step 3] 视频驱动异常: ${msg}`);
+      toast.error(`视频渲染失败: ${msg}`);
       throw err;
     }
   }, [

@@ -8,6 +8,7 @@ import { respData, respErr } from '@/lib/resp';
 
 import fs from 'node:fs';
 import path from 'node:path';
+import { Buffer } from 'node:buffer';
 import { getStorage } from '@/modules/storage/service';
 import { md5 } from '@/lib/hash';
 
@@ -17,7 +18,7 @@ import { md5 } from '@/lib/hash';
  */
 async function ensurePublicMediaUrl(
   inputUrl: string,
-  mediaKind: 'image' | 'audio' = 'image'
+  mediaKind: 'image' | 'audio' | 'video' = 'image'
 ): Promise<string> {
   if (!inputUrl) return '';
   const trimmed = inputUrl.trim();
@@ -31,15 +32,9 @@ async function ensurePublicMediaUrl(
     return trimmed;
   }
 
-  const storage = await getStorage();
-  if (!storage) {
-    console.warn(`[Workflow Video] Storage not configured, using original URL: ${trimmed}`);
-    return trimmed;
-  }
-
   let buffer: Buffer | null = null;
-  let contentType = mediaKind === 'audio' ? 'audio/mpeg' : 'image/jpeg';
-  let ext = mediaKind === 'audio' ? 'mp3' : 'jpg';
+  let contentType = mediaKind === 'audio' ? 'audio/mpeg' : mediaKind === 'video' ? 'video/mp4' : 'image/jpeg';
+  let ext = mediaKind === 'audio' ? 'mp3' : mediaKind === 'video' ? 'mp4' : 'jpg';
 
   if (trimmed.startsWith('data:')) {
     const match = trimmed.match(/^data:([^;]+);base64,(.+)$/);
@@ -49,49 +44,59 @@ async function ensurePublicMediaUrl(
       else if (contentType.includes('webp')) ext = 'webp';
       else if (contentType.includes('mp3') || contentType.includes('mpeg')) ext = 'mp3';
       else if (contentType.includes('wav')) ext = 'wav';
+      else if (contentType.includes('mp4')) ext = 'mp4';
       buffer = Buffer.from(match[2], 'base64');
     }
   } else if (trimmed.startsWith('/') || trimmed.startsWith('\\')) {
     const cleanPath = trimmed.replace(/^[/\\]+/, '');
     const localFilePath = path.join(process.cwd(), 'public', cleanPath);
-    if (fs.existsSync(localFilePath)) {
-      buffer = fs.readFileSync(localFilePath);
-      if (cleanPath.endsWith('.png')) {
-        contentType = 'image/png';
-        ext = 'png';
-      } else if (cleanPath.endsWith('.webp')) {
-        contentType = 'image/webp';
-        ext = 'webp';
-      } else if (cleanPath.endsWith('.mp3')) {
-        contentType = 'audio/mpeg';
-        ext = 'mp3';
-      } else if (cleanPath.endsWith('.mp4')) {
-        contentType = 'video/mp4';
-        ext = 'mp4';
+    try {
+      if (fs.existsSync(localFilePath)) {
+        buffer = fs.readFileSync(localFilePath);
+        if (cleanPath.endsWith('.png')) {
+          contentType = 'image/png';
+          ext = 'png';
+        } else if (cleanPath.endsWith('.webp')) {
+          contentType = 'image/webp';
+          ext = 'webp';
+        } else if (cleanPath.endsWith('.mp3')) {
+          contentType = 'audio/mpeg';
+          ext = 'mp3';
+        } else if (cleanPath.endsWith('.mp4')) {
+          contentType = 'video/mp4';
+          ext = 'mp4';
+        }
       }
+    } catch {
+      // Ignore filesystem errors in edge runtimes
     }
   }
 
-  if (buffer) {
-    const hash = md5(buffer);
-    const objectKey = `workflow/${mediaKind}_${hash}.${ext}`;
-    const publicUrl = storage.getPublicUrl({ key: objectKey });
+  try {
+    const storage = await getStorage();
+    if (storage && buffer) {
+      const hash = md5(buffer);
+      const objectKey = `workflow/${mediaKind}_${hash}.${ext}`;
+      const publicUrl = storage.getPublicUrl({ key: objectKey });
 
-    const exists = await storage.exists({ key: objectKey }).catch(() => false);
-    if (exists && publicUrl) {
-      return publicUrl;
+      const exists = await storage.exists({ key: objectKey }).catch(() => false);
+      if (exists && publicUrl) {
+        return publicUrl;
+      }
+
+      const uploadRes = await storage.uploadFile({
+        body: buffer,
+        key: objectKey,
+        contentType,
+        disposition: 'inline',
+      });
+
+      if (uploadRes.success && uploadRes.url) {
+        return uploadRes.url;
+      }
     }
-
-    const uploadRes = await storage.uploadFile({
-      body: buffer,
-      key: objectKey,
-      contentType,
-      disposition: 'inline',
-    });
-
-    if (uploadRes.success && uploadRes.url) {
-      return uploadRes.url;
-    }
+  } catch (storageErr: any) {
+    console.warn('[Workflow Video] Storage upload error:', storageErr?.message);
   }
 
   if (trimmed.startsWith('/') || trimmed.startsWith('\\')) {
@@ -151,6 +156,13 @@ async function POST({ request }: { request: Request }) {
     const publicReferenceVideoUrl = referenceVideoUrl
       ? await ensurePublicMediaUrl(referenceVideoUrl, 'video')
       : '';
+
+    // Validate that images are public URLs (DashScope cannot process raw base64 data URIs)
+    if (publicImages.some((img: string) => img.startsWith('data:'))) {
+      return respErr(
+        '人像图片需转为公网可访问 CDN 链接（阿里百炼模型不支持 Base64 数据）。请在开始节点重新上传或检查存储配置。'
+      );
+    }
 
     // Pre-flight check: ensure the audio URL is alive and not 404
     try {
@@ -254,6 +266,9 @@ async function POST({ request }: { request: Request }) {
           'X-DashScope-Async': 'enable',
         },
         body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(30000),
+      }).catch((fetchErr: any) => {
+        throw new Error(`连接阿里百炼生视频服务超时或网络中断: ${fetchErr.message}`);
       });
 
       const json: any = await res.json().catch(() => ({}));
