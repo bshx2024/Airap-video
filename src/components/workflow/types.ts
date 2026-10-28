@@ -8,6 +8,8 @@ export interface WorkflowState {
   studioMode: 'duo' | 'solo';
   photo1: string;
   photo2?: string;
+  rawPhoto1?: string;
+  rawPhoto2?: string;
 
   // Lyrics Node Data
   lyricsModel: string;
