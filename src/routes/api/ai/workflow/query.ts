@@ -50,6 +50,15 @@ async function GET({ request }: { request: Request }) {
       });
 
       const json = await res.json().catch(() => ({}));
+      if (!res.ok || json.code) {
+        return respData({
+          taskId,
+          status: 'failed',
+          error: json.message || json.output?.message || `阿里百炼任务查询失败 (HTTP ${res.status})`,
+          raw: json,
+        });
+      }
+
       const taskOutput = json.output || {};
       const taskStatus = taskOutput.task_status;
 
@@ -71,7 +80,7 @@ async function GET({ request }: { request: Request }) {
             taskOutput.message ||
             json.message ||
             (taskStatus === 'UNKNOWN'
-              ? '任务不存在或已失效 (UNKNOWN)，请选用官方推荐的 Wan 2.1 模型重新生成'
+              ? '任务不存在或已失效 (UNKNOWN)'
               : 'Alibaba video generation failed'),
           taskInfo: taskOutput,
           raw: json,
@@ -80,6 +89,7 @@ async function GET({ request }: { request: Request }) {
         return respData({
           taskId,
           status: 'processing',
+          subStatus: taskStatus || 'PENDING',
           videoUrl: null,
           taskInfo: taskOutput,
           raw: json,

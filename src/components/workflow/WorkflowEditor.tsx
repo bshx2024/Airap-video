@@ -297,11 +297,13 @@ Big one. Yeah, we keep it in the booth.`,
         const poll = async () => {
           pollCount++;
           const elapsedSec = Math.round((Date.now() - startTime) / 1000);
-          if (pollCount % 2 === 0) {
-            addLog(`⏳ [Step 3] 百炼 GPU 深度推理渲染中... 已耗时 ${elapsedSec}s (状态: PROCESSING)`);
-          }
 
           const qRes = await apiGet<any>(`/api/ai/workflow/query?taskId=${taskId}&mediaType=video`);
+          if (pollCount % 2 === 0) {
+            const sub = qRes?.subStatus ? `[${qRes.subStatus}]` : '';
+            addLog(`⏳ [Step 3] 百炼 GPU 运算中... 已等待 ${elapsedSec}s ${sub}`);
+          }
+
           if (qRes && qRes.status === 'success' && qRes.videoUrl) {
             const latency = Date.now() - startTime;
             setNodeLatencies((prev) => ({ ...prev, video: latency }));
@@ -315,13 +317,13 @@ Big one. Yeah, we keep it in the booth.`,
           } else if (qRes && qRes.status === 'failed') {
             throw new Error(qRes.error || 'Video driver failed');
           } else {
-            if (pollCount > 90) {
-              throw new Error('视频渲染超时');
+            if (pollCount > 180) {
+              throw new Error('视频渲染超时 (已等待超过15分钟)');
             }
             setTimeout(poll, 5000);
           }
         };
-        setTimeout(poll, 4000);
+        setTimeout(poll, 3000);
       }
     } catch (err: any) {
       setNodeStatuses((prev) => ({ ...prev, video: 'failed' }));
