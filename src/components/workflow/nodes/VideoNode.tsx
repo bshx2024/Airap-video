@@ -3,8 +3,16 @@ import { Handle, Position } from '@xyflow/react';
 import { Clapperboard, Download, Eye, Film, Loader2, Music, Sparkles, Video, Volume2, VolumeX } from 'lucide-react';
 import { NodeExecutionStatus } from '../types';
 
-export const DEFAULT_VIDEO_PROMPT =
-  'A locked-off, continuous single-take wide two-shot in 9:16 vertical framing, NO camera cuts or transitions. Setting: Seamless solid bright orange studio cyclorama room with clean commercial lighting and subtle floor reflections. In the exact center between the two rappers, a vintage chrome condenser microphone hangs suspended from the ceiling at head height. Characters: Left: [Image 1] (wearing white sunglasses and vertical striped shirt), standing side-by-side, heavily bouncing knees and shoulders with rhythmic head nods in sync with the 808 trap beat, hands folded at chest. Right: [Image 2] (wearing black sunglasses and bright orange shirt), delivering intense punchline rap vocals into the hanging mic with perfect mouth lip-sync. Motion transfer: Strictly mirror the head gestures, pointing hand motions, and microphone cypher choreography from [Video 1] (reference driving video). Right rapper points index finger directly forward at 00:00 - 00:02 and bounces to the 808 bass, then both rappers tilt toward the hanging mic at 00:03 - 00:05. Flawless syllable mouth articulation matching the rap audio track, photorealistic 4K cinematic quality.';
+export const PROMPT_PRESETS = {
+  leftLead:
+    'A locked-off continuous wide two-shot in 9:16 vertical framing, solid bright orange cyclorama studio with vintage chrome hanging mic. Left rapper [Image 1] is the energetic LEAD VOCALIST, delivering aggressive punchline rap vocals directly into the hanging mic with wide expressive syllable mouth articulation, energetic head nods, and body bounce in sync with the 808 beat. Right rapper [Image 2] accompanies with rhythmic gestures. Motion transfer: Strictly mirror the head gestures, pointing hand motions, and microphone cypher choreography from [Video 1], with flawless syllable lip-sync matching the rap audio track, 4K cinematic quality.',
+  dualLead:
+    'A locked-off continuous wide two-shot in 9:16 vertical framing, solid bright orange cyclorama studio with vintage chrome hanging mic. Both Left [Image 1] and Right [Image 2] perform high-energy rap cypher, vigorously bouncing knees and tilting toward the hanging mic, with wide pronounced mouth lip-sync articulation matching the audio vocals. Motion transfer: Strictly mirror the pointing hand gestures, head nods, and microphone choreography from [Video 1], flawless rap lip-sync, photorealistic 4K cinematic quality.',
+  rightLead:
+    'A locked-off continuous wide two-shot in 9:16 vertical framing, solid bright orange studio with chrome hanging mic. Right rapper [Image 2] is the primary lead vocalist pointing forward and rapping into the mic with pronounced mouth lip-sync, while Left rapper [Image 1] heavily bounces with rhythmic head nods. Motion transfer: Strictly mirror [Video 1] choreography, 4K cinematic quality.',
+};
+
+export const DEFAULT_VIDEO_PROMPT = PROMPT_PRESETS.leftLead;
 
 interface VideoNodeData {
   photo1: string;
@@ -238,14 +246,33 @@ export function VideoNode({ data }: { data: VideoNodeData }) {
         {/* Prompt Input Section */}
         <div>
           <div className="mb-1 flex items-center justify-between">
-            <label className="font-medium text-slate-300">动作与分镜提示词 (Prompt)</label>
-            <button
-              type="button"
-              onClick={() => data.onChange({ videoPrompt: DEFAULT_VIDEO_PROMPT })}
-              className="text-[10px] text-cyan-400 hover:underline"
-            >
-              重置预置
-            </button>
+            <label className="font-medium text-slate-300">动作与分镜提示词</label>
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                onClick={() => data.onChange({ videoPrompt: PROMPT_PRESETS.leftLead })}
+                className="rounded bg-cyan-500/20 px-1.5 py-0.5 text-[9px] font-semibold text-cyan-300 hover:bg-cyan-500/30 transition"
+                title="重点对齐左边替换人物的歌唱大口型与动作"
+              >
+                🔥 左主唱
+              </button>
+              <button
+                type="button"
+                onClick={() => data.onChange({ videoPrompt: PROMPT_PRESETS.dualLead })}
+                className="rounded bg-white/5 px-1.5 py-0.5 text-[9px] font-semibold text-slate-300 hover:bg-white/10 transition"
+                title="双人高能量对唱与口型"
+              >
+                🎙️ 双主唱
+              </button>
+              <button
+                type="button"
+                onClick={() => data.onChange({ videoPrompt: PROMPT_PRESETS.rightLead })}
+                className="rounded bg-white/5 px-1.5 py-0.5 text-[9px] font-semibold text-slate-300 hover:bg-white/10 transition"
+                title="重点对齐右侧人物"
+              >
+                右主唱
+              </button>
+            </div>
           </div>
           <textarea
             rows={4}
