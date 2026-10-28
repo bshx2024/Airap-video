@@ -104,6 +104,7 @@ async function POST({ request }: { request: Request }) {
       prompt = 'Rapper singing rap song, high energy, synchronized mouth lip sync',
       model = envConfigs.rap_video_model || 'seedance-2-5',
       resolution = envConfigs.rap_video_resolution || '480p',
+      aspectRatio = '9:16',
       duration = 5,
       mock: reqMock,
     } = body;
@@ -184,6 +185,8 @@ async function POST({ request }: { request: Request }) {
             url,
           }));
 
+      const selectedAspect = ['9:16', '16:9', '1:1'].includes(aspectRatio) ? aspectRatio : '9:16';
+
       const payload: any = {
         model: selectedModel,
         input: {
@@ -194,8 +197,22 @@ async function POST({ request }: { request: Request }) {
         parameters: {
           resolution: validResolution,
           duration: selectedDuration,
+          aspect_ratio: selectedAspect,
         },
       };
+
+      // For Wan or models supporting explicit size, map resolution + aspect ratio to pixel size
+      if (selectedModel.toLowerCase().includes('wan')) {
+        const sizeMap: Record<string, Record<string, string>> = {
+          '480P': { '9:16': '480*832', '16:9': '832*480', '1:1': '624*624' },
+          '720P': { '9:16': '720*1280', '16:9': '1280*720', '1:1': '960*960' },
+          '1080P': { '9:16': '1080*1920', '16:9': '1920*1080', '1:1': '1440*1440' },
+        };
+        const mappedSize = sizeMap[validResolution]?.[selectedAspect];
+        if (mappedSize) {
+          payload.parameters.size = mappedSize;
+        }
+      }
 
       if (selectedModel.startsWith('wan2.')) {
         payload.parameters.prompt_extend = true;
@@ -254,6 +271,8 @@ async function POST({ request }: { request: Request }) {
           image_urls: publicImages,
           audio_url: publicAudioUrl,
           resolution,
+          aspect_ratio: selectedAspect,
+          ratio: selectedAspect,
           duration: Number(duration) || 5,
         },
       },

@@ -11,6 +11,7 @@ interface VideoNodeData {
   generatedAudioUrl?: string;
   videoModel: string;
   videoResolution: string;
+  videoRatio?: string;
   videoDuration?: number;
   videoPrompt?: string;
   videoTaskId?: string;
@@ -33,7 +34,7 @@ export function VideoNode({ data }: { data: VideoNodeData }) {
 
   return (
     <div
-      className={`w-96 rounded-2xl border bg-[#0d1527]/95 p-4 text-white shadow-2xl backdrop-blur-xl transition-all ${
+      className={`w-[400px] rounded-2xl border bg-[#0d1527]/95 p-4 text-white shadow-2xl backdrop-blur-xl transition-all ${
         isRunning
           ? 'border-cyan-500 shadow-[0_0_25px_rgba(6,182,212,0.35)]'
           : isSuccess
@@ -88,8 +89,8 @@ export function VideoNode({ data }: { data: VideoNodeData }) {
 
       {/* Body */}
       <div className="mt-3 space-y-3 text-xs">
-        {/* Model, Resolution & Duration Select */}
-        <div className="grid grid-cols-3 gap-2">
+        {/* Model, Ratio, Resolution & Duration Select */}
+        <div className="grid grid-cols-2 gap-2.5">
           <div>
             <label className="mb-1 block font-medium text-slate-300">驱动模型</label>
             <select
@@ -97,22 +98,34 @@ export function VideoNode({ data }: { data: VideoNodeData }) {
               onChange={(e) => data.onChange({ videoModel: e.target.value })}
               className="w-full rounded-lg border border-white/15 bg-slate-900 px-2 py-1.5 text-[11px] text-white focus:border-cyan-400 focus:outline-none"
             >
-              <option value="happyhorse-1.1-r2v">HappyHorse 1.1 R2V (阿里·480p调试约$0.02/s·推荐)</option>
-              <option value="happyhorse-1.1-i2v">HappyHorse 1.1 I2V (单人人像·480p调试)</option>
-              <option value="wan3.0-video">Wan 3.0 Video (万象3.0·720p最高性价比)</option>
-              <option value="wan2.1-i2v-plus">Wan 2.1 Plus (万象2.1高品质图生视频)</option>
+              <option value="happyhorse-1.1-r2v">HappyHorse 1.1 R2V (阿里调试)</option>
+              <option value="happyhorse-1.1-i2v">HappyHorse 1.1 I2V (单人人像)</option>
+              <option value="wan3.0-video">Wan 3.0 Video (万象性价比)</option>
+              <option value="wan2.1-i2v-plus">Wan 2.1 Plus (万象高品质)</option>
+            </select>
+          </div>
+          <div>
+            <label className="mb-1 block font-medium text-cyan-300">画幅比例</label>
+            <select
+              value={data.videoRatio || '9:16'}
+              onChange={(e) => data.onChange({ videoRatio: e.target.value })}
+              className="w-full rounded-lg border border-cyan-500/40 bg-slate-900 px-2 py-1.5 text-[11px] font-semibold text-cyan-300 focus:border-cyan-400 focus:outline-none"
+            >
+              <option value="9:16">📱 9:16 (竖屏·短视频/TikTok)</option>
+              <option value="16:9">🖥️ 16:9 (横屏·宽屏/YouTube)</option>
+              <option value="1:1">⬛ 1:1 (方形·正方形)</option>
             </select>
           </div>
           <div>
             <label className="mb-1 block font-medium text-slate-300">清晰度</label>
             <select
-              value={data.videoResolution}
+              value={data.videoResolution || '480p'}
               onChange={(e) => data.onChange({ videoResolution: e.target.value })}
               className="w-full rounded-lg border border-white/15 bg-slate-900 px-2 py-1.5 text-[11px] text-white focus:border-cyan-400 focus:outline-none"
             >
-              <option value="480p">480p (调试)</option>
-              <option value="720p">720p</option>
-              <option value="1080p">1080p</option>
+              <option value="480p">480p (超低成本调试)</option>
+              <option value="720p">720p (标清高清)</option>
+              <option value="1080p">1080p (全高清)</option>
             </select>
           </div>
           <div>

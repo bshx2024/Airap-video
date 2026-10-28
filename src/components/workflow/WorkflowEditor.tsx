@@ -79,6 +79,7 @@ Hit the beat hard, never think twice.`,
 
     videoModel: 'happyhorse-1.1-r2v',
     videoResolution: '480p',
+    videoRatio: '9:16',
     videoDuration: 5,
     videoPrompt: DEFAULT_VIDEO_PROMPT,
     generatedVideoUrl: '',
@@ -245,7 +246,7 @@ Hit the beat hard, never think twice.`,
     }
 
     setNodeStatuses((prev) => ({ ...prev, video: 'running' }));
-    addLog(`🚀 [Step 3] 触发音画对齐驱动: 模型 ${workflowState.videoModel}, 清晰度: ${workflowState.videoResolution}, 时长: ${workflowState.videoDuration || 5}s`);
+    addLog(`🚀 [Step 3] 触发音画对齐驱动: 模型 ${workflowState.videoModel}, 画幅: ${workflowState.videoRatio || '9:16'}, 清晰度: ${workflowState.videoResolution}, 时长: ${workflowState.videoDuration || 5}s`);
     const startTime = Date.now();
 
     try {
@@ -256,6 +257,7 @@ Hit the beat hard, never think twice.`,
         prompt: workflowState.videoPrompt || DEFAULT_VIDEO_PROMPT,
         model: workflowState.videoModel,
         resolution: workflowState.videoResolution,
+        aspectRatio: workflowState.videoRatio || '9:16',
         duration: workflowState.videoDuration || 5,
         mock: workflowState.mock,
       });
@@ -313,6 +315,7 @@ Hit the beat hard, never think twice.`,
     workflowState.generatedAudioUrl,
     workflowState.videoModel,
     workflowState.videoResolution,
+    workflowState.videoRatio,
     workflowState.videoDuration,
     workflowState.videoPrompt,
     workflowState.mock,
@@ -375,6 +378,7 @@ Hit the beat hard, never think twice.`,
         video: {
           model: workflowState.videoModel,
           resolution: workflowState.videoResolution,
+          aspectRatio: workflowState.videoRatio || '9:16',
           videoUrl: workflowState.generatedVideoUrl,
         },
       },

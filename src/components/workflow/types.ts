@@ -25,6 +25,7 @@ export interface WorkflowState {
   // Video Node Data
   videoModel: string;
   videoResolution: string;
+  videoRatio?: string;
   videoDuration: number;
   videoPrompt?: string;
   videoTaskId?: string;
