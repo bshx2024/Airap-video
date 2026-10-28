@@ -480,9 +480,9 @@ export function AiRapHeroGenerator() {
           <span>Full-Stack Pipeline: AI Lyrics ➔ Suno 808 Rap Beats ➔ Lip-Sync & Motion ➔ 4K Output</span>
         </div>
         <h1 className="mt-4 text-3xl font-extrabold tracking-tight text-white sm:text-5xl lg:text-6xl">
-          Turn Any Photo into a{' '}
+          AI Rap Video Generator:{' '}
           <span className="bg-gradient-to-r from-amber-400 via-rose-500 to-purple-500 bg-clip-text text-transparent">
-            Viral Hip-Hop Rap Star
+            Turn Any Photo into a Viral Rap MV
           </span>
         </h1>
         <p className="mt-3 text-sm text-slate-300 sm:text-base lg:text-lg">
@@ -580,6 +580,9 @@ export function AiRapHeroGenerator() {
                         <img
                           src={photo1}
                           alt="Rapper 1"
+                          width={56}
+                          height={56}
+                          loading="lazy"
                           className="size-14 rounded-lg object-cover ring-1 ring-amber-400/40"
                         />
                         <div className="min-w-0 flex-1">
@@ -685,6 +688,9 @@ export function AiRapHeroGenerator() {
                         <img
                           src={photo2}
                           alt="Rapper 2"
+                          width={56}
+                          height={56}
+                          loading="lazy"
                           className="size-14 rounded-lg object-cover ring-1 ring-fuchsia-400/40"
                         />
                         <div className="min-w-0 flex-1">
@@ -780,6 +786,9 @@ export function AiRapHeroGenerator() {
                       <img
                         src={photo1}
                         alt="Uploaded photo"
+                        width={64}
+                        height={64}
+                        loading="lazy"
                         className="size-16 rounded-lg object-cover ring-1 ring-amber-400/40"
                       />
                       <div className="min-w-0 flex-1">
@@ -876,6 +885,9 @@ export function AiRapHeroGenerator() {
                   <img
                     src={avatar.imageUrl}
                     alt={avatar.name}
+                    width={20}
+                    height={20}
+                    loading="lazy"
                     className="size-5 rounded-full object-cover"
                   />
                   <span className="text-[11px] text-white/80">
@@ -1282,6 +1294,9 @@ export function AiRapHeroGenerator() {
                       key={currentChip.id}
                       src={currentChip.image}
                       alt={currentChip.title}
+                      width={420}
+                      height={746}
+                      loading="lazy"
                       className="size-full object-cover transition-all duration-700 ease-out group-hover/stage:scale-105"
                     />
 
