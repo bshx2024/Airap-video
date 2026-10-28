@@ -48,9 +48,10 @@ import { StartNode } from './nodes/StartNode';
 import { DEFAULT_VIDEO_PROMPT, VideoNode } from './nodes/VideoNode';
 import { NodeExecutionStatus, WorkflowState } from './types';
 
-const INITIAL_TOPIC = '两个说唱歌手在标志性亮橙色录音棚双人互呛，单支悬吊麦克风，高燃808陷阱鼓点';
-const DEMO_PHOTO_1 = '/imgs/scenes/hotel-lobby-studio.jpg';
-const DEMO_PHOTO_2 = '/imgs/scenes/on-the-radar-booth.jpg';
+const INITIAL_TOPIC = 'Quavo & Takeoff 经典 Hotel Lobby 亮橙色录音棚双人互呛，单支悬吊麦克风，高燃808陷阱鼓点';
+const DEMO_PHOTO_1 = '/imgs/scenes/quavo-takeoff-takeoff.jpg';
+const DEMO_PHOTO_2 = '/imgs/scenes/quavo-takeoff-quavo.jpg';
+const DEMO_AUDIO = '/audio/hotel-lobby-original-5s.m4a';
 
 export function WorkflowEditor() {
   // Workflow Global State
@@ -66,16 +67,17 @@ export function WorkflowEditor() {
     lyricsLanguage: 'en',
     generatedTitle: 'Hotel Lobby Cypher',
     generatedLyrics: `[Intro: Beat drops heavy 808]
-Yeah, on the radar, let's get it.
+Let's get it.
 
-[Verse 1: Lead MC]
-Step in the booth, diamonds flashing like light,
-Two mics up, we owning the night.
-Orange glow room, dripping in ice,
-Hit the beat hard, never think twice.`,
+[Verse 1: Quavo]
+Hop out the sixteen, passing the Digi-D5,
+Know this not a Challenger, we keeping it alive.
+
+[Outro: Takeoff]
+Big one. Yeah, we keep it in the booth.`,
 
     musicModel: 'suno-v4',
-    generatedAudioUrl: 'https://pixanyoss.16781678.xyz/test.mp3',
+    generatedAudioUrl: DEMO_AUDIO,
 
     videoModel: 'happyhorse-1.1-r2v',
     videoResolution: '480p',
@@ -593,15 +595,23 @@ Hit the beat hard, never think twice.`,
               type="button"
               onClick={() => {
                 updateState({
-                  topic: 'Quavo & Takeoff 经典 Hotel Lobby 亮橙色录音棚双人双押互呛，808 重低音',
+                  topic: 'Quavo & Takeoff 经典 Hotel Lobby 亮橙色录音棚双人双押互呛，单支悬吊麦克风，808 重低音',
                   styleId: 'trap-808',
                   bpm: 140,
+                  photo1: DEMO_PHOTO_1,
+                  photo2: DEMO_PHOTO_2,
+                  generatedAudioUrl: DEMO_AUDIO,
+                  generatedLyrics: `[Intro: Beat drops heavy 808]\nLet's get it.\n\n[Verse 1: Quavo]\nHop out the sixteen, passing the Digi-D5,\nKnow this not a Challenger, we keeping it alive.\n\n[Outro: Takeoff]\nBig one. Yeah, we keep it in the booth.`,
+                  videoPrompt: DEFAULT_VIDEO_PROMPT,
+                  videoRatio: '9:16',
+                  videoResolution: '480p',
+                  videoDuration: 5,
                 });
-                toast.success('已载入预设：Hotel Lobby 橙色录音棚');
+                toast.success('已载入预设：Hotel Lobby 原版 1:1 神态动作配置');
               }}
               className="rounded-lg px-2 py-1 text-slate-300 hover:bg-white/10 hover:text-white"
             >
-              🔥 橙色录音棚
+              🔥 橙色录音棚 (1:1 原版复刻)
             </button>
             <button
               type="button"
