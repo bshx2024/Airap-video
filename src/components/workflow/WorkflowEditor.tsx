@@ -99,6 +99,13 @@ Big one. Yeah, we keep it in the booth.`,
 
   const [isFullRunning, setIsFullRunning] = useState(false);
   const [showLogDrawer, setShowLogDrawer] = useState(true);
+  const logsContainerRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    if (logsContainerRef.current) {
+      logsContainerRef.current.scrollTop = logsContainerRef.current.scrollHeight;
+    }
+  }, [workflowState.logs]);
 
   const addLog = useCallback((msg: string) => {
     const time = new Date().toLocaleTimeString();
@@ -289,6 +296,11 @@ Big one. Yeah, we keep it in the booth.`,
         let pollCount = 0;
         const poll = async () => {
           pollCount++;
+          const elapsedSec = Math.round((Date.now() - startTime) / 1000);
+          if (pollCount % 2 === 0) {
+            addLog(`⏳ [Step 3] 百炼 GPU 深度推理渲染中... 已耗时 ${elapsedSec}s (状态: PROCESSING)`);
+          }
+
           const qRes = await apiGet<any>(`/api/ai/workflow/query?taskId=${taskId}&mediaType=video`);
           if (qRes && qRes.status === 'success' && qRes.videoUrl) {
             const latency = Date.now() - startTime;
@@ -746,7 +758,10 @@ Big one. Yeah, we keep it in the booth.`,
 
           {/* Drawer Body: Logs list */}
           {showLogDrawer && (
-            <div className="h-40 overflow-y-auto p-3 font-mono text-[11px] leading-relaxed text-slate-300 space-y-1">
+            <div
+              ref={logsContainerRef}
+              className="h-40 overflow-y-auto p-3 font-mono text-[11px] leading-relaxed text-slate-300 space-y-1"
+            >
               {workflowState.logs.map((log, index) => (
                 <div
                   key={index}
