@@ -39,4 +39,15 @@ export interface WorkflowState {
   mock: boolean;
   activeRunningNode?: string | null;
   logs: string[];
+
+  // Image Prep & Guardrail Bypass Node Data
+  processedPhoto1?: string;
+  processedPhoto2?: string;
+  sunglassesStyle?: string;
+  sunglassesScale?: number;
+  sunglassesOffsetY?: number;
+  sunglassesOffsetX?: number;
+  sunglassesRotate?: number;
+  filterMode?: 'none' | 'hiphop-grain' | 'cg-smooth';
+  prepLatency?: number;
 }

@@ -103,9 +103,9 @@ export function StartNode({ data }: { data: StartNodeData }) {
       }
 
       if (slot === 1) {
-        data.onChange({ photo1: finalUrl });
+        data.onChange({ photo1: finalUrl, processedPhoto1: '' });
       } else {
-        data.onChange({ photo2: finalUrl });
+        data.onChange({ photo2: finalUrl, processedPhoto2: '' });
       }
     } catch (err) {
       console.error('Photo upload process failed:', err);
