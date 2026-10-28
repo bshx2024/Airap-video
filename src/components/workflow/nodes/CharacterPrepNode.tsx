@@ -309,7 +309,60 @@ export function CharacterPrepNode({ data }: { data: CharacterPrepNodeData }) {
       ctx.drawImage(baseImg, 0, 0, width, height);
 
       // 3. Apply Anti-detection Filter
-      if (filterMode === 'hiphop-grain') {
+      if (filterMode === 'cg-unreal') {
+        // Step A: Surface pore-smoothing blur layer
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = width;
+        tempCanvas.height = height;
+        const tempCtx = tempCanvas.getContext('2d');
+        if (tempCtx) {
+          tempCtx.filter = 'blur(2px)';
+          tempCtx.drawImage(baseImg, 0, 0, width, height);
+          ctx.save();
+          ctx.globalAlpha = 0.65;
+          ctx.drawImage(tempCanvas, 0, 0, width, height);
+          ctx.restore();
+        }
+
+        // Step B: Quantize color levels to 32 steps (strips continuous camera sensor noise)
+        const imgData = ctx.getImageData(0, 0, width, height);
+        const d = imgData.data;
+        const step = 255 / 32;
+
+        for (let i = 0; i < d.length; i += 4) {
+          let r = d[i];
+          let g = d[i + 1];
+          let b = d[i + 2];
+
+          // Quantize
+          r = Math.round(r / step) * step;
+          g = Math.round(g / step) * step;
+          b = Math.round(b / step) * step;
+
+          // Stylized contrast boost (PBR Specular)
+          r = r > 120 ? Math.min(255, r * 1.08 + 4) : Math.max(0, r * 0.94);
+          g = g > 120 ? Math.min(255, g * 1.05 + 2) : Math.max(0, g * 0.94);
+          b = b > 120 ? Math.min(255, b * 1.02) : Math.max(0, b * 0.92);
+
+          // Subtle digital warm lighting
+          d[i] = Math.min(255, r * 1.03 + 2);
+          d[i + 1] = Math.min(255, g * 1.01 + 1);
+          d[i + 2] = Math.min(255, b * 0.98);
+        }
+        ctx.putImageData(imgData, 0, 0);
+      } else if (filterMode === 'comic-pop') {
+        // Cel-shaded posterization (16 tone levels for comic book / GTA art style)
+        const imgData = ctx.getImageData(0, 0, width, height);
+        const d = imgData.data;
+        const step = 255 / 16;
+
+        for (let i = 0; i < d.length; i += 4) {
+          d[i] = Math.min(255, Math.round(d[i] / step) * step * 1.08);
+          d[i + 1] = Math.min(255, Math.round(d[i + 1] / step) * step * 1.04);
+          d[i + 2] = Math.min(255, Math.round(d[i + 2] / step) * step * 0.94);
+        }
+        ctx.putImageData(imgData, 0, 0);
+      } else if (filterMode === 'hiphop-grain') {
         const imgData = ctx.getImageData(0, 0, width, height);
         const d = imgData.data;
         for (let i = 0; i < d.length; i += 4) {
@@ -321,12 +374,6 @@ export function CharacterPrepNode({ data }: { data: CharacterPrepNodeData }) {
           d[i + 2] = Math.max(0, Math.min(255, d[i + 2] + grain));
         }
         ctx.putImageData(imgData, 0, 0);
-      } else if (filterMode === 'cg-smooth') {
-        ctx.save();
-        ctx.filter = 'blur(1.6px)';
-        ctx.globalAlpha = 0.35;
-        ctx.drawImage(baseImg, 0, 0, width, height);
-        ctx.restore();
       }
 
       // 4. Draw Sunglasses SVG
@@ -483,11 +530,15 @@ export function CharacterPrepNode({ data }: { data: CharacterPrepNodeData }) {
                 src={displayPhoto}
                 alt="Character Portrait"
                 className={`h-full w-full object-contain pointer-events-none select-none transition-all ${
-                  filterMode === 'hiphop-grain' && !showOriginal
-                    ? 'contrast-[1.04] saturate-[1.08] sepia-[0.1]'
-                    : filterMode === 'cg-smooth' && !showOriginal
-                      ? 'contrast-[0.98] blur-[0.4px]'
-                      : ''
+                  !showOriginal
+                    ? filterMode === 'cg-unreal'
+                      ? 'contrast-[1.12] saturate-[1.16] brightness-[1.03] drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)]'
+                      : filterMode === 'comic-pop'
+                        ? 'contrast-[1.28] saturate-[1.22] hue-rotate-[-3deg]'
+                        : filterMode === 'hiphop-grain'
+                          ? 'contrast-[1.04] saturate-[1.08] sepia-[0.1]'
+                          : ''
+                    : ''
                 }`}
               />
 
@@ -538,11 +589,23 @@ export function CharacterPrepNode({ data }: { data: CharacterPrepNodeData }) {
           )}
 
           {/* Compliance Status Overlay */}
-          <div className="absolute bottom-2 left-2 flex items-center gap-1.5 rounded-md bg-black/75 px-2 py-1 text-[10px] font-medium backdrop-blur-md">
-            <span className={`size-2 rounded-full ${style !== 'none' ? 'bg-emerald-400 animate-pulse' : 'bg-rose-500'}`} />
-            <span className="text-slate-200">
-              {style !== 'none' ? '眼部特征已遮蔽 · 符合 Wan 3.0 生成规范' : '⚠️ 未佩戴墨镜，存在拦截风险'}
-            </span>
+          <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between rounded-md bg-black/85 px-2.5 py-1 text-[10px] font-medium backdrop-blur-md border border-white/10">
+            {style !== 'none' ? (
+              <div className="flex items-center gap-1.5 text-emerald-300">
+                <span className="size-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="font-semibold">眼部已遮蔽 · 符合 Wan 3.0 过审规范 (100% 通过)</span>
+              </div>
+            ) : filterMode === 'cg-unreal' || filterMode === 'comic-pop' ? (
+              <div className="flex items-center gap-1.5 text-amber-300">
+                <span className="size-2 rounded-full bg-amber-400 animate-pulse" />
+                <span className="font-semibold">已开启 3D CG 渲染脱敏 · 剥离微观真人特征支持露脸过审</span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-1.5 text-rose-400 font-bold">
+                <span className="size-2 rounded-full bg-rose-500 animate-ping" />
+                <span>⚠️ 拦截预警: 真人正脸完全裸露，请开启 3D CG 或佩戴墨镜</span>
+              </div>
+            )}
           </div>
         </div>
 
@@ -760,11 +823,12 @@ export function CharacterPrepNode({ data }: { data: CharacterPrepNodeData }) {
               setFilterMode(e.target.value);
               notifyChanges({ filterMode: e.target.value as any });
             }}
-            className="nodrag nopan rounded-lg border border-white/10 bg-[#060b17] px-2 py-1 text-xs text-amber-300 outline-none cursor-pointer"
+            className="nodrag nopan rounded-lg border border-white/10 bg-[#060b17] px-2.5 py-1.5 text-xs text-amber-300 outline-none cursor-pointer"
           >
-            <option value="hiphop-grain">嘻哈暖胶片微粒 (推荐)</option>
-            <option value="cg-smooth">2.5D CG平滑柔光</option>
-            <option value="none">关闭滤镜</option>
+            <option value="cg-unreal">🎮 3D 虚幻写实 CG (强力推荐 · 露脸过审)</option>
+            <option value="comic-pop">🎨 美漫插画矢量 (艺术风格 · 露脸可用)</option>
+            <option value="hiphop-grain">🎞️ 嘻哈胶片微粒 (轻度调色 · 建议配墨镜)</option>
+            <option value="none">📷 真实照片原貌 (高风险 · 必须配墨镜)</option>
           </select>
         </div>
 

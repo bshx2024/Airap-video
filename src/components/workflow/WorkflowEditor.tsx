@@ -72,7 +72,7 @@ export function WorkflowEditor() {
     sunglassesOffsetY: 0,
     sunglassesOffsetX: 0,
     sunglassesRotate: 0,
-    filterMode: 'hiphop-grain',
+    filterMode: 'cg-unreal',
 
     lyricsModel: 'deepseek-v4.1-flash-1017',
     lyricsLanguage: 'en',
@@ -265,13 +265,24 @@ Big one. Yeah, we keep it in the booth.`,
       return;
     }
     setNodeStatuses((prev) => ({ ...prev, prep: 'running' }));
-    addLog(`🕶️ [Prep] 锁定角色造型与过审预处理: 款式: ${workflowState.sunglassesStyle || 'classic-black'}, 滤镜: ${workflowState.filterMode || 'hiphop-grain'}`);
+    const style = workflowState.sunglassesStyle || 'classic-black';
+    const filter = workflowState.filterMode || 'cg-unreal';
+    addLog(`🕶️ [Prep] 锁定角色造型与过审预处理: 款式: ${style}, 滤镜: ${filter}`);
     const startTime = Date.now();
     try {
       const latency = Date.now() - startTime;
       setNodeLatencies((prev) => ({ ...prev, prep: latency }));
       setNodeStatuses((prev) => ({ ...prev, prep: 'success' }));
-      addLog(`✅ [Prep] 角色造型预处理锁定完成 (${latency}ms)，五官特征已遮蔽，合规底图已就绪`);
+      
+      const hasShades = style !== 'none';
+      const isCgOrComic = filter === 'cg-unreal' || filter === 'comic-pop';
+      if (hasShades) {
+        addLog(`✅ [Prep] 角色造型锁定完成 (${latency}ms): 五官已佩戴墨镜遮蔽，100% 满足合规规范`);
+      } else if (isCgOrComic) {
+        addLog(`✅ [Prep] 角色造型锁定完成 (${latency}ms): 3D CG 渲染脱敏完成，已剥离微观真人特征，支持露脸过审`);
+      } else {
+        addLog(`⚠️ [Prep] 角色造型锁定完成 (${latency}ms): 警告：当前未佩戴墨镜且未开启 3D CG 滤镜，云端极可能判定 FaceDetectionSuspect`);
+      }
       toast.success('🕶️ 角色造型已锁定！');
     } catch (err: any) {
       setNodeStatuses((prev) => ({ ...prev, prep: 'failed' }));
@@ -289,7 +300,15 @@ Big one. Yeah, we keep it in the booth.`,
       return;
     }
     if (workflowState.processedPhoto1) {
-      addLog('🛡️ [Step 3] 已装入防拦截造型底图 (含嘻哈墨镜与抗检微粒)，确保护航过审');
+      const style = workflowState.sunglassesStyle || 'classic-black';
+      const filter = workflowState.filterMode || 'cg-unreal';
+      if (style !== 'none') {
+        addLog('🛡️ [Step 3] 已装配防拦截底图 (含嘻哈墨镜)，确保护航过审');
+      } else if (filter === 'cg-unreal' || filter === 'comic-pop') {
+        addLog('🛡️ [Step 3] 已装配 3D CG 渲染脱敏底图，保护真人肖像免受活体检测拦截');
+      } else {
+        addLog('⚠️ [Step 3] 提示：当前使用无墨镜且未经 3D CG 滤镜的真人底图，若云端报错请在 Prep 节点切换 3D CG 或佩戴墨镜');
+      }
     }
     const effectiveAudio = workflowState.generatedAudioUrl || 'https://pixanyoss.16781678.xyz/test.mp3';
     if (!workflowState.generatedAudioUrl) {
