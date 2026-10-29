@@ -30,7 +30,7 @@ export const SUNGLASSES_PRESETS: Record<
     name: '经典黑超',
     tag: '说唱标配',
     desc: '大方框纯黑烤漆墨镜，100% 遮蔽眼眶三角区',
-    baseWidth: 140,
+    baseWidth: 108,
     svg: `<svg viewBox="0 0 240 70" xmlns="http://www.w3.org/2000/svg" class="w-full h-auto drop-shadow-[0_8px_16px_rgba(0,0,0,0.85)]">
       <defs>
         <linearGradient id="lensBlack" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -55,7 +55,7 @@ export const SUNGLASSES_PRESETS: Record<
     name: '赛博一体镜',
     tag: '未来主义',
     desc: '极简流线型荧光发光面罩，遮挡双眼关键点',
-    baseWidth: 155,
+    baseWidth: 118,
     svg: `<svg viewBox="0 0 240 60" xmlns="http://www.w3.org/2000/svg" class="w-full h-auto drop-shadow-[0_0_20px_rgba(0,242,254,0.7)]">
       <defs>
         <linearGradient id="cyberGrad" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -76,7 +76,7 @@ export const SUNGLASSES_PRESETS: Record<
     name: 'Thug Life 像素',
     tag: '街头梗图',
     desc: '8-Bit 嘻哈像素墨镜，反直觉打乱特征提取',
-    baseWidth: 145,
+    baseWidth: 110,
     svg: `<svg viewBox="0 0 240 60" xmlns="http://www.w3.org/2000/svg" class="w-full h-auto drop-shadow-[0_8px_16px_rgba(0,0,0,0.9)]">
       <!-- Top bar -->
       <rect x="8" y="10" width="224" height="12" fill="#000000"/>
@@ -97,7 +97,7 @@ export const SUNGLASSES_PRESETS: Record<
     name: '复古金丝',
     tag: '奢华复古',
     desc: '金色金属双梁墨镜，深色偏光镜片',
-    baseWidth: 140,
+    baseWidth: 106,
     svg: `<svg viewBox="0 0 240 70" xmlns="http://www.w3.org/2000/svg" class="w-full h-auto drop-shadow-[0_8px_16px_rgba(0,0,0,0.85)]">
       <defs>
         <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -315,10 +315,41 @@ export async function detectFaceFit(imageSrc: string): Promise<FaceFitResult | n
 
           const estimatedEyeY = Math.max(0.42, Math.min(0.48, bestEyeY / sh));
 
+          // 4. 精确测量双眼与颧骨处的真实脸宽 (Temple-to-Temple Width)
+          let sumFaceWidth = 0;
+          let validWidthRows = 0;
+          const cheekStart = Math.max(1, Math.round(bestEyeY - sh * 0.03));
+          const cheekEnd = Math.min(sh - 2, Math.round(bestEyeY + sh * 0.08));
+
+          for (let y = cheekStart; y <= cheekEnd; y++) {
+            let leftX = -1;
+            let rightX = -1;
+            for (let x = 2; x < sw - 2; x++) {
+              const idx = (y * sw + x) * 4;
+              const r = data[idx];
+              const g = data[idx + 1];
+              const b = data[idx + 2];
+              const isSkin = r > 45 && g > 28 && b > 18 && r > g && (r - b) > 12;
+              if (isSkin) {
+                if (leftX === -1) leftX = x;
+                rightX = x;
+              }
+            }
+            if (leftX !== -1 && rightX !== -1 && (rightX - leftX) > sw * 0.18 && (rightX - leftX) < sw * 0.65) {
+              sumFaceWidth += (rightX - leftX);
+              validWidthRows++;
+            }
+          }
+
+          // 计算脸型宽度比例 (标准自拍人脸约在 0.32 ~ 0.44 之间)
+          const detectedFaceWidthRatio = validWidthRows > 0
+            ? Math.max(0.28, Math.min(0.48, (sumFaceWidth / validWidthRows) / sw))
+            : 0.36;
+
           return resolve({
             eyeCenterXRatio: Math.max(0.44, Math.min(0.56, faceCenterX)),
             eyeCenterYRatio: estimatedEyeY,
-            faceWidthRatio: 0.46, // 标准人像自然脸宽比例
+            faceWidthRatio: detectedFaceWidthRatio,
             rotationDeg: 0,
           });
         } catch {
@@ -329,7 +360,7 @@ export async function detectFaceFit(imageSrc: string): Promise<FaceFitResult | n
         resolve({
           eyeCenterXRatio: 0.50,
           eyeCenterYRatio: 0.45,
-          faceWidthRatio: 0.46,
+          faceWidthRatio: 0.36,
           rotationDeg: 0,
         });
       };
@@ -368,7 +399,7 @@ export function CharacterPrepNode({ data }: { data: CharacterPrepNodeData }) {
 
   // Local state for instantaneous 60fps tracking without waiting for async parent render cycles
   const [style, setStyle] = useState<string>(data.sunglassesStyle || 'classic-black');
-  const [scale, setScale] = useState<number>(data.sunglassesScale ?? 105);
+  const [scale, setScale] = useState<number>(data.sunglassesScale ?? 88);
   const [offsetY, setOffsetY] = useState<number>(data.sunglassesOffsetY ?? 0);
   const [offsetX, setOffsetX] = useState<number>(data.sunglassesOffsetX ?? 0);
   const [rotate, setRotate] = useState<number>(data.sunglassesRotate ?? 0);
@@ -377,7 +408,7 @@ export function CharacterPrepNode({ data }: { data: CharacterPrepNodeData }) {
   // 3D Face Mesh Guardrail States (for 'none' / no sunglasses option)
   const [meshEnabled, setMeshEnabled] = useState<boolean>(data.meshEnabled ?? true);
   const [meshOpacity, setMeshOpacity] = useState<number>(data.meshOpacity ?? 26);
-  const [meshScale, setMeshScale] = useState<number>(data.meshScale ?? 105);
+  const [meshScale, setMeshScale] = useState<number>(data.meshScale ?? 92);
   const [meshOffsetY, setMeshOffsetY] = useState<number>(data.meshOffsetY ?? 0);
   const [meshOffsetX, setMeshOffsetX] = useState<number>(data.meshOffsetX ?? 0);
 
@@ -465,15 +496,16 @@ export function CharacterPrepNode({ data }: { data: CharacterPrepNodeData }) {
         // 严格约束在自然微调区间 (-12px ~ +12px)
         const newOffsetY = Math.max(-12, Math.min(12, rawOffsetY));
         const newOffsetX = Math.round(Math.max(-15, Math.min(15, ((fit.eyeCenterXRatio - 0.5) / 0.35) * 100)));
-        // 适中的墨镜大小 (96% ~ 115%)，刚好遮挡住双眼与眼眶，自然服帖
-        const newScale = Math.round(Math.max(96, Math.min(115, (fit.faceWidthRatio / 0.46) * 105)));
+        // 根据人脸真实脸宽自适应贴合脸型：
+        // 脸宽比例 0.36 对应自然贴合缩放 ~88% (刚好包覆双眼与太阳穴边缘，不突兀外扩)
+        const newScale = Math.round(Math.max(72, Math.min(125, (fit.faceWidthRatio / 0.36) * 88)));
         const newRotate = Math.max(-15, Math.min(15, fit.rotationDeg));
 
         // 3D 拓扑网格同步自适应 (基准 50%, 46%)
         const newMeshOffsetX = newOffsetX;
         const rawMeshOffsetY = Math.round(((fit.eyeCenterYRatio - 0.45) / 0.35) * 100);
         const newMeshOffsetY = Math.max(-10, Math.min(10, rawMeshOffsetY));
-        const newMeshScale = Math.round(Math.max(95, Math.min(115, (fit.faceWidthRatio / 0.46) * 105)));
+        const newMeshScale = Math.round(Math.max(75, Math.min(125, (fit.faceWidthRatio / 0.36) * 92)));
 
         setOffsetX(newOffsetX);
         setOffsetY(newOffsetY);
@@ -494,7 +526,7 @@ export function CharacterPrepNode({ data }: { data: CharacterPrepNodeData }) {
         });
 
         if (!silent) {
-          toast.success('🎯 智能识别成功！已自动锁定双眼与自然贴合尺寸');
+          toast.success(`🎯 智能识别成功！已匹配脸型尺寸 (${newScale}%) 并锁定双眼`);
         }
       } else {
         if (!silent) {
@@ -577,24 +609,24 @@ export function CharacterPrepNode({ data }: { data: CharacterPrepNodeData }) {
 
   const handleReset = () => {
     if (style !== 'none') {
-      setScale(105);
+      setScale(88);
       setOffsetY(0);
       setOffsetX(0);
       setRotate(0);
       notifyChanges({
-        sunglassesScale: 105,
+        sunglassesScale: 88,
         sunglassesOffsetY: 0,
         sunglassesOffsetX: 0,
         sunglassesRotate: 0,
       });
     } else {
       setMeshOpacity(26);
-      setMeshScale(105);
+      setMeshScale(92);
       setMeshOffsetY(0);
       setMeshOffsetX(0);
       notifyChanges({
         meshOpacity: 26,
-        meshScale: 105,
+        meshScale: 92,
         meshOffsetY: 0,
         meshOffsetX: 0,
       });
@@ -767,7 +799,7 @@ export function CharacterPrepNode({ data }: { data: CharacterPrepNodeData }) {
         const eyeCenterX = width * 0.5 + (offsetX / 100) * width * 0.35;
         const eyeCenterY = height * 0.45 + (offsetY / 100) * height * 0.35;
 
-        const baseWidthRatio = style === 'cyber-visor' ? 0.62 : 0.55;
+        const baseWidthRatio = style === 'cyber-visor' ? 0.44 : 0.39;
         const glassWidth = width * baseWidthRatio * (scale / 100);
         const glassHeight = (glassWidth / 240) * (style === 'cyber-visor' ? 60 : 70);
 
@@ -791,7 +823,7 @@ export function CharacterPrepNode({ data }: { data: CharacterPrepNodeData }) {
         const faceCenterX = width * 0.5 + (meshOffsetX / 100) * width * 0.35;
         const faceCenterY = height * 0.46 + (meshOffsetY / 100) * height * 0.35;
 
-        const meshWidth = width * 0.52 * (meshScale / 100);
+        const meshWidth = width * 0.40 * (meshScale / 100);
         const meshHeight = (meshWidth / 200) * 240;
 
         ctx.save();
@@ -971,7 +1003,7 @@ export function CharacterPrepNode({ data }: { data: CharacterPrepNodeData }) {
                     left: `calc(50% + ${meshOffsetX * 1.5}px)`,
                     top: `calc(46% + ${meshOffsetY * 1.5}px)`,
                     transform: `translate(-50%, -50%) scale(${meshScale / 100})`,
-                    width: '160px',
+                    width: '118px',
                   }}
                   dangerouslySetInnerHTML={{ __html: generateFaceMeshSvg(meshOpacity / 100) }}
                 />
