@@ -206,7 +206,17 @@ async function POST({ request }: { request: Request }) {
       let effectivePrompt = prompt;
 
       // Check whether reference video motion transfer should be active
-      const useReferenceVideo = Boolean(motionSyncEnabled !== false && publicReferenceVideoUrl);
+      let useReferenceVideo = Boolean(motionSyncEnabled !== false && publicReferenceVideoUrl);
+
+      // If user enabled motion transfer, the model must be wan3.0-video (HappyHorse I2V is pure image-to-video only)
+      if (useReferenceVideo && selectedModel.includes('happyhorse-1.1-i2v')) {
+        selectedModel = 'wan3.0-video';
+      }
+
+      // If model is happyhorse-1.1-i2v, it strictly requires first_frame only (never reference_video)
+      if (selectedModel === 'happyhorse-1.1-i2v') {
+        useReferenceVideo = false;
+      }
 
       // Enhance prompt with motion transfer guidance when reference video is provided and motion sync is enabled
       if (useReferenceVideo && !effectivePrompt.includes('Replace')) {

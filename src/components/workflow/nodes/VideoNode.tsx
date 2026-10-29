@@ -279,29 +279,47 @@ export function VideoNode({ data }: { data: VideoNodeData }) {
               </button>
               <button
                 type="button"
-                onClick={() => data.onChange({ videoPrompt: PROMPT_PRESETS.leftLead, motionSyncEnabled: true })}
+                onClick={() =>
+                  data.onChange({
+                    videoPrompt: PROMPT_PRESETS.leftLead,
+                    motionSyncEnabled: true,
+                    videoModel: 'wan3.0-video',
+                  })
+                }
                 className={`rounded px-1.5 py-0.5 text-[9px] font-semibold transition cursor-pointer ${
                   data.motionSyncEnabled !== false && data.videoPrompt === PROMPT_PRESETS.leftLead
                     ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40'
                     : 'bg-white/5 text-slate-300 hover:bg-white/10'
                 }`}
-                title="重点对齐左边替换人物的歌唱大口型与动作"
+                title="重点对齐左边替换人物的歌唱大口型与动作 (配合 Wan 3.0 原版姿态)"
               >
                 🔥 左主唱
               </button>
               <button
                 type="button"
-                onClick={() => data.onChange({ videoPrompt: PROMPT_PRESETS.dualLead, motionSyncEnabled: true })}
+                onClick={() =>
+                  data.onChange({
+                    videoPrompt: PROMPT_PRESETS.dualLead,
+                    motionSyncEnabled: true,
+                    videoModel: 'wan3.0-video',
+                  })
+                }
                 className="rounded bg-white/5 px-1.5 py-0.5 text-[9px] font-semibold text-slate-300 hover:bg-white/10 transition cursor-pointer"
-                title="双人高能量对唱与口型"
+                title="双人高能量对唱与口型 (配合 Wan 3.0 原版姿态)"
               >
                 🎙️ 双主唱
               </button>
               <button
                 type="button"
-                onClick={() => data.onChange({ videoPrompt: PROMPT_PRESETS.rightLead, motionSyncEnabled: true })}
+                onClick={() =>
+                  data.onChange({
+                    videoPrompt: PROMPT_PRESETS.rightLead,
+                    motionSyncEnabled: true,
+                    videoModel: 'wan3.0-video',
+                  })
+                }
                 className="rounded bg-white/5 px-1.5 py-0.5 text-[9px] font-semibold text-slate-300 hover:bg-white/10 transition cursor-pointer"
-                title="重点对齐右侧人物"
+                title="重点对齐右侧人物 (配合 Wan 3.0 原版姿态)"
               >
                 右主唱
               </button>
