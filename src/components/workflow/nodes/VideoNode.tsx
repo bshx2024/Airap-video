@@ -1,6 +1,7 @@
 import React from 'react';
 import { Handle, Position } from '@xyflow/react';
 import { Clapperboard, Download, Eye, Film, Loader2, Music, Sparkles, Video, Volume2, VolumeX } from 'lucide-react';
+import { toast } from 'sonner';
 import { NodeExecutionStatus } from '../types';
 
 export const PROMPT_PRESETS = {
@@ -10,6 +11,8 @@ export const PROMPT_PRESETS = {
     'Replace the left rapper in [Video 1] with the character from [Image 1], and the right rapper with [Image 2]. Both characters perform high-energy rap cypher, vigorously bouncing knees and tilting toward the hanging mic, with wide pronounced mouth lip-sync articulation matching the audio vocals. Keep the orange studio setting unchanged. Motion transfer: Strictly transfer the pointing hand gestures, head nods, and microphone choreography from [Video 1], flawless rap lip-sync, 4K cinematic quality.',
   rightLead:
     'Replace the right rapper in [Video 1] with the character shown in [Image 2]. The right character [Image 2] is the primary lead vocalist pointing forward and rapping into the mic with pronounced mouth lip-sync, while Left rapper heavily bounces with rhythmic head nods. Keep the studio setting and motion timing from [Video 1] strictly preserved, 4K cinematic quality.',
+  freeStyle:
+    'A high-energy hip-hop rapper shown in [Image 1] performing dynamically in the studio, free rhythmic body bounce, energetic natural hand gestures pointing at camera, expressive facial expressions, singing passionately with mouth lip-sync matching the 808 trap beat, cinematic studio lighting, 4K quality.',
 };
 
 export const DEFAULT_VIDEO_PROMPT = PROMPT_PRESETS.leftLead;
@@ -203,8 +206,14 @@ export function VideoNode({ data }: { data: VideoNodeData }) {
           </div>
 
           <div className="mt-1.5 flex items-center justify-between text-[10px] text-slate-400">
-            <span className="truncate max-w-[200px]">Hotel Lobby 原版5秒动作模版</span>
-            <span className="rounded bg-cyan-500/20 px-1.5 py-0.5 text-cyan-300 font-medium">Video-to-Video 驱动</span>
+            <span className="truncate max-w-[190px]">Hotel Lobby 原版5秒动作模版</span>
+            {data.motionSyncEnabled !== false ? (
+              <span className="rounded bg-cyan-500/20 px-1.5 py-0.5 text-cyan-300 font-medium">Video-to-Video 驱动</span>
+            ) : (
+              <span className="rounded bg-amber-500/20 px-1.5 py-0.5 text-amber-300 font-semibold border border-amber-500/30">
+                ✨ 自由动作 (无骨骼束缚)
+              </span>
+            )}
           </div>
 
           {showRefVideo && (
@@ -250,24 +259,48 @@ export function VideoNode({ data }: { data: VideoNodeData }) {
             <div className="flex items-center gap-1">
               <button
                 type="button"
-                onClick={() => data.onChange({ videoPrompt: PROMPT_PRESETS.leftLead })}
-                className="rounded bg-cyan-500/20 px-1.5 py-0.5 text-[9px] font-semibold text-cyan-300 hover:bg-cyan-500/30 transition"
+                onClick={() => {
+                  data.onChange({
+                    videoPrompt: PROMPT_PRESETS.freeStyle,
+                    motionSyncEnabled: false,
+                    lipSyncEnabled: true,
+                    videoModel: data.videoModel === 'wan3.0-video' ? 'wan2.1-i2v-plus' : data.videoModel,
+                  });
+                  toast.success('已切换为 AI 自由发挥模式：解绑原版骨骼约束，由 AI 自由演化动作与律动！');
+                }}
+                className={`rounded px-1.5 py-0.5 text-[9px] font-semibold transition cursor-pointer ${
+                  data.motionSyncEnabled === false
+                    ? 'bg-amber-500/25 text-amber-300 border border-amber-500/50 shadow-[0_0_10px_rgba(245,158,11,0.3)]'
+                    : 'bg-white/5 text-slate-300 hover:bg-white/10'
+                }`}
+                title="AI 自由发挥：解除原版视频骨骼动作约束，由 AI 自由演化身体律动与手势"
+              >
+                🎲 AI自由发挥
+              </button>
+              <button
+                type="button"
+                onClick={() => data.onChange({ videoPrompt: PROMPT_PRESETS.leftLead, motionSyncEnabled: true })}
+                className={`rounded px-1.5 py-0.5 text-[9px] font-semibold transition cursor-pointer ${
+                  data.motionSyncEnabled !== false && data.videoPrompt === PROMPT_PRESETS.leftLead
+                    ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40'
+                    : 'bg-white/5 text-slate-300 hover:bg-white/10'
+                }`}
                 title="重点对齐左边替换人物的歌唱大口型与动作"
               >
                 🔥 左主唱
               </button>
               <button
                 type="button"
-                onClick={() => data.onChange({ videoPrompt: PROMPT_PRESETS.dualLead })}
-                className="rounded bg-white/5 px-1.5 py-0.5 text-[9px] font-semibold text-slate-300 hover:bg-white/10 transition"
+                onClick={() => data.onChange({ videoPrompt: PROMPT_PRESETS.dualLead, motionSyncEnabled: true })}
+                className="rounded bg-white/5 px-1.5 py-0.5 text-[9px] font-semibold text-slate-300 hover:bg-white/10 transition cursor-pointer"
                 title="双人高能量对唱与口型"
               >
                 🎙️ 双主唱
               </button>
               <button
                 type="button"
-                onClick={() => data.onChange({ videoPrompt: PROMPT_PRESETS.rightLead })}
-                className="rounded bg-white/5 px-1.5 py-0.5 text-[9px] font-semibold text-slate-300 hover:bg-white/10 transition"
+                onClick={() => data.onChange({ videoPrompt: PROMPT_PRESETS.rightLead, motionSyncEnabled: true })}
+                className="rounded bg-white/5 px-1.5 py-0.5 text-[9px] font-semibold text-slate-300 hover:bg-white/10 transition cursor-pointer"
                 title="重点对齐右侧人物"
               >
                 右主唱

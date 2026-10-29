@@ -316,7 +316,8 @@ Big one. Yeah, we keep it in the booth.`,
     }
 
     setNodeStatuses((prev) => ({ ...prev, video: 'running' }));
-    addLog(`🚀 [Step 3] 触发音画对齐驱动: 模型 ${workflowState.videoModel}, 画幅: ${workflowState.videoRatio || '9:16'}, 清晰度: ${workflowState.videoResolution}, 时长: ${workflowState.videoDuration || 5}s`);
+    const motionModeText = workflowState.motionSyncEnabled === false ? '🎲 AI自由发挥 (解绑骨骼)' : '🎥 原版动作迁移';
+    addLog(`🚀 [Step 3] 触发音画对齐驱动: 模型 ${workflowState.videoModel}, 模式: ${motionModeText}, 画幅: ${workflowState.videoRatio || '9:16'}, 清晰度: ${workflowState.videoResolution}, 时长: ${workflowState.videoDuration || 5}s`);
     const startTime = Date.now();
 
     try {

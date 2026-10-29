@@ -200,8 +200,11 @@ async function POST({ request }: { request: Request }) {
       const firstImage = publicImages[0];
       let effectivePrompt = prompt;
 
-      // Enhance prompt with motion transfer guidance when reference video is provided
-      if (publicReferenceVideoUrl && !effectivePrompt.includes('Replace')) {
+      // Check whether reference video motion transfer should be active
+      const useReferenceVideo = Boolean(motionSyncEnabled !== false && publicReferenceVideoUrl);
+
+      // Enhance prompt with motion transfer guidance when reference video is provided and motion sync is enabled
+      if (useReferenceVideo && !effectivePrompt.includes('Replace')) {
         effectivePrompt = `Replace the left rapper in [Video 1] with the character shown in [Image 1]. The new character [Image 1] actively delivers energetic rap singing into the hanging mic with wide pronounced mouth articulation, while strictly replicating the exact body motions, head nods, arm gestures, and hanging microphone rap battle choreography from [Video 1]. Keep the studio and right character unchanged: ${prompt}`;
       } else if (selectedModel.includes('r2v') && !effectivePrompt.includes('[Image 1]')) {
         effectivePrompt = publicImages.length > 1
@@ -210,7 +213,7 @@ async function POST({ request }: { request: Request }) {
       }
 
       const mediaPayload: any[] = [];
-      if (publicReferenceVideoUrl) {
+      if (useReferenceVideo) {
         mediaPayload.push({
           type: 'reference_video',
           url: publicReferenceVideoUrl,
@@ -218,7 +221,7 @@ async function POST({ request }: { request: Request }) {
       }
       publicImages.forEach((url, idx) => {
         mediaPayload.push({
-          type: selectedModel.includes('r2v') ? 'reference_image' : (idx === 0 && !publicReferenceVideoUrl ? 'first_frame' : 'reference_image'),
+          type: selectedModel.includes('r2v') ? 'reference_image' : (idx === 0 && !useReferenceVideo ? 'first_frame' : 'reference_image'),
           url,
         });
       });
