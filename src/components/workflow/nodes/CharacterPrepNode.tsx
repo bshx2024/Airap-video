@@ -268,106 +268,95 @@ export async function detectFaceFit(imageSrc: string): Promise<FaceFitResult | n
             }
           }
 
-          // 计算水平中心 X
-          let totalXWeight = 0;
-          let sumWeightedX = 0;
+          // 计算水平中心 X 与水平面部跨度
+          let maxColWeight = 0;
           for (let x = 0; x < sw; x++) {
-            totalXWeight += colWeights[x];
-            sumWeightedX += x * colWeights[x];
+            if (colWeights[x] > maxColWeight) maxColWeight = colWeights[x];
           }
 
-          const faceCenterX = totalXWeight > 0 ? (sumWeightedX / totalXWeight) / sw : 0.5;
-
-          // 1. 扫描人脸垂直分布区间 [faceTopY, faceBottomY] (不受特写/半身像限制)
-          let maxRowWeight = 0;
-          for (let y = 0; y < sh; y++) {
-            if (rowWeights[y] > maxRowWeight) maxRowWeight = rowWeights[y];
-          }
-
-          let faceTopY = Math.round(sh * 0.20);
-          let faceBottomY = Math.round(sh * 0.55);
-
-          if (maxRowWeight > 0.5) {
-            const rowThresh = maxRowWeight * 0.20;
-            for (let y = Math.round(sh * 0.10); y < sh - 2; y++) {
-              if (rowWeights[y] >= rowThresh) {
-                faceTopY = y;
+          let faceLeftX = Math.round(sw * 0.25);
+          let faceRightX = Math.round(sw * 0.75);
+          if (maxColWeight > 0.5) {
+            const colThresh = maxColWeight * 0.20;
+            for (let x = 2; x < sw - 2; x++) {
+              if (colWeights[x] >= colThresh) {
+                faceLeftX = x;
                 break;
               }
             }
-            for (let y = sh - 2; y >= Math.round(sh * 0.10); y--) {
-              if (rowWeights[y] >= rowThresh) {
-                faceBottomY = y;
+            for (let x = sw - 2; x >= 2; x--) {
+              if (colWeights[x] >= colThresh) {
+                faceRightX = x;
                 break;
               }
             }
           }
 
-          const faceH = Math.max(sh * 0.18, faceBottomY - faceTopY);
+          const faceW = Math.max(sw * 0.22, faceRightX - faceLeftX);
+          const faceCenterX = Math.max(0.38, Math.min(0.62, (faceLeftX + faceRightX) / 2 / sw));
+          const cx = Math.round(faceCenterX * sw);
+          // 瞳距约为面部宽度的 48% (中心到单侧眼睛约为 0.24)
+          const eyeSpan = Math.max(4, Math.round(faceW * 0.24));
 
-          // 2. 基于人体面部生理力学解算眼睛初始高度 (眼睛自然位于发际线至下巴的 34%~38% 处)
-          const approxEyeY = Math.round(faceTopY + faceH * 0.36);
+          // 2. Haar 双眼-高光鼻梁三元特征对检测 (Eye Pair vs Nose/Mouth Discriminator)
+          // 眼睛解剖学黄金定律：鼻梁中心为高光亮部，两侧双眼/眼窝为对称暗部。
+          // 鼻孔与嘴巴恰好相反（中心暗，两侧脸颊亮），因此该特征对能 100% 区分双眼与鼻子/嘴巴！
+          let bestEyeY = Math.round(sh * 0.32);
+          let maxEyeScore = -9999;
 
-          // 3. 在眼睛初始高度邻域 (±5% 画面高度) 精确进行 Haar-like 眼窝/眉毛/瞳孔暗谷微调扫描
-          let bestEyeY = approxEyeY;
-          let minBrightness = 999;
-          const searchStart = Math.max(2, Math.round(approxEyeY - sh * 0.05));
-          const searchEnd = Math.min(sh - 2, Math.round(approxEyeY + sh * 0.06));
+          // 垂直扫描区间 (0.16 ~ 0.52)，覆盖所有半身肖像与特写自拍
+          const scanStart = Math.max(4, Math.round(sh * 0.16));
+          const scanEnd = Math.min(sh - 4, Math.round(sh * 0.52));
 
-          for (let y = searchStart; y <= searchEnd; y++) {
-            let rowLum = 0;
-            let count = 0;
-            const xMin = Math.round(sw * 0.25);
-            const xMax = Math.round(sw * 0.75);
-            for (let x = xMin; x <= xMax; x++) {
+          for (let y = scanStart; y <= scanEnd; y++) {
+            // 中心鼻梁区域亮度 (宽 3px)
+            let centerLum = 0;
+            let cCount = 0;
+            for (let x = Math.max(0, cx - 1); x <= Math.min(sw - 1, cx + 1); x++) {
               const idx = (y * sw + x) * 4;
-              const lum = data[idx] * 0.299 + data[idx + 1] * 0.587 + data[idx + 2] * 0.114;
-              rowLum += lum;
-              count++;
+              centerLum += data[idx] * 0.299 + data[idx + 1] * 0.587 + data[idx + 2] * 0.114;
+              cCount++;
             }
-            const avgLum = count > 0 ? rowLum / count : 255;
-            if (avgLum < minBrightness) {
-              minBrightness = avgLum;
+            const avgCenterLum = cCount > 0 ? centerLum / cCount : 128;
+
+            // 左眼区域亮度 (宽 5px)
+            let leftLum = 0;
+            let lCount = 0;
+            const lx = Math.max(0, cx - eyeSpan);
+            for (let x = Math.max(0, lx - 2); x <= Math.min(sw - 1, lx + 2); x++) {
+              const idx = (y * sw + x) * 4;
+              leftLum += data[idx] * 0.299 + data[idx + 1] * 0.587 + data[idx + 2] * 0.114;
+              lCount++;
+            }
+            const avgLeftLum = lCount > 0 ? leftLum / lCount : 128;
+
+            // 右眼区域亮度 (宽 5px)
+            let rightLum = 0;
+            let rCount = 0;
+            const rx = Math.min(sw - 1, cx + eyeSpan);
+            for (let x = Math.max(0, rx - 2); x <= Math.min(sw - 1, rx + 2); x++) {
+              const idx = (y * sw + x) * 4;
+              rightLum += data[idx] * 0.299 + data[idx + 1] * 0.587 + data[idx + 2] * 0.114;
+              rCount++;
+            }
+            const avgRightLum = rCount > 0 ? rightLum / rCount : 128;
+
+            // 双眼特征分：鼻梁亮且双眼暗时得分最高 (+60~+90)，而在鼻孔/嘴部时中心暗侧面亮得分为负 (-120)！
+            const eyesAvg = (avgLeftLum + avgRightLum) / 2;
+            const eyeScore = avgCenterLum - eyesAvg;
+
+            if (eyeScore > maxEyeScore) {
+              maxEyeScore = eyeScore;
               bestEyeY = y;
             }
           }
 
-          // 无论特写自拍(0.45)还是半身肖像(0.32)，精准还原真实双眼高度
-          const estimatedEyeY = Math.max(0.18, Math.min(0.65, bestEyeY / sh));
-
-          // 4. 精确测量双眼与颧骨处的真实脸宽 (Temple-to-Temple Width)
-          let sumFaceWidth = 0;
-          let validWidthRows = 0;
-          const cheekStart = Math.max(1, Math.round(bestEyeY - sh * 0.03));
-          const cheekEnd = Math.min(sh - 2, Math.round(bestEyeY + sh * 0.08));
-
-          for (let y = cheekStart; y <= cheekEnd; y++) {
-            let leftX = -1;
-            let rightX = -1;
-            for (let x = 2; x < sw - 2; x++) {
-              const idx = (y * sw + x) * 4;
-              const r = data[idx];
-              const g = data[idx + 1];
-              const b = data[idx + 2];
-              const isSkin = r > 45 && g > 28 && b > 18 && r > g && (r - b) > 12;
-              if (isSkin) {
-                if (leftX === -1) leftX = x;
-                rightX = x;
-              }
-            }
-            if (leftX !== -1 && rightX !== -1 && (rightX - leftX) > sw * 0.18 && (rightX - leftX) < sw * 0.65) {
-              sumFaceWidth += (rightX - leftX);
-              validWidthRows++;
-            }
-          }
-
-          // 计算脸型宽度比例 (标准自拍人脸约在 0.32 ~ 0.44 之间)
-          const detectedFaceWidthRatio = validWidthRows > 0
-            ? Math.max(0.28, Math.min(0.48, (sumFaceWidth / validWidthRows) / sw))
-            : 0.36;
+          // 无论特写自拍(0.45)还是半身肖像(0.30)，精准锁定真实双眼高度
+          const estimatedEyeY = Math.max(0.18, Math.min(0.55, bestEyeY / sh));
+          const detectedFaceWidthRatio = Math.max(0.28, Math.min(0.48, faceW / sw));
 
           return resolve({
-            eyeCenterXRatio: Math.max(0.44, Math.min(0.56, faceCenterX)),
+            eyeCenterXRatio: faceCenterX,
             eyeCenterYRatio: estimatedEyeY,
             faceWidthRatio: detectedFaceWidthRatio,
             rotationDeg: 0,
@@ -513,8 +502,8 @@ export function CharacterPrepNode({ data }: { data: CharacterPrepNodeData }) {
       if (fit) {
         // 解算基于基准 (50%, 45%) 的微调相对偏移 (兼容半身像、特写与全身自拍)
         const rawOffsetY = Math.round(((fit.eyeCenterYRatio - 0.45) / 0.35) * 100);
-        const newOffsetY = Math.max(-45, Math.min(45, rawOffsetY));
-        const newOffsetX = Math.round(Math.max(-30, Math.min(30, ((fit.eyeCenterXRatio - 0.5) / 0.35) * 100)));
+        const newOffsetY = Math.max(-50, Math.min(50, rawOffsetY));
+        const newOffsetX = Math.round(Math.max(-35, Math.min(35, ((fit.eyeCenterXRatio - 0.5) / 0.35) * 100)));
         // 根据人脸真实脸宽自适应贴合脸型：
         // 脸宽比例 0.36 对应自然贴合缩放 ~88% (刚好包覆双眼与太阳穴边缘，不突兀外扩)
         const newScale = Math.round(Math.max(72, Math.min(125, (fit.faceWidthRatio / 0.36) * 88)));
@@ -523,7 +512,7 @@ export function CharacterPrepNode({ data }: { data: CharacterPrepNodeData }) {
         // 3D 拓扑网格同步自适应 (基准 50%, 46%)
         const newMeshOffsetX = newOffsetX;
         const rawMeshOffsetY = Math.round(((fit.eyeCenterYRatio - 0.45) / 0.35) * 100);
-        const newMeshOffsetY = Math.max(-45, Math.min(45, rawMeshOffsetY));
+        const newMeshOffsetY = Math.max(-50, Math.min(50, rawMeshOffsetY));
         const newMeshScale = Math.round(Math.max(75, Math.min(125, (fit.faceWidthRatio / 0.36) * 92)));
 
         setOffsetX(newOffsetX);
