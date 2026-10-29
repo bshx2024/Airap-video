@@ -118,6 +118,7 @@ async function POST({ request }: { request: Request }) {
       referenceVideoUrl = '',
       motionSyncEnabled = true,
       lipSyncEnabled = true,
+      lyrics = '',
       prompt = 'Rapper singing rap song, high energy, synchronized mouth lip sync',
       model = envConfigs.rap_video_model || 'wan3.0-video',
       resolution = envConfigs.rap_video_resolution || '480p',
@@ -176,6 +177,17 @@ async function POST({ request }: { request: Request }) {
       console.warn('[Workflow Video] Audio preflight check note:', e.message);
     }
 
+    // Extract first 2-3 lines of clean lyrics to steer the character mouth articulation
+    const cleanLyricsSnippet = typeof lyrics === 'string'
+      ? lyrics
+          .replace(/\[.*?\]/g, '')
+          .split('\n')
+          .map((s) => s.trim())
+          .filter((s) => s.length > 0 && !s.startsWith('#'))
+          .slice(0, 3)
+          .join(', ')
+      : '';
+
     // If happyhorse or wan model is selected, dispatch directly to Alibaba Cloud Model Studio International
     if (model.toLowerCase().includes('happyhorse') || model.toLowerCase().includes('wan')) {
       const { getAllConfigs } = await import('@/modules/config/service');
@@ -218,13 +230,28 @@ async function POST({ request }: { request: Request }) {
         useReferenceVideo = false;
       }
 
+      // If user disabled motion transfer (or model is pure r2v/i2v without reference video),
+      // sanitize any leftover "[Video 1]" references that would confuse the model
+      if (!useReferenceVideo && effectivePrompt.includes('[Video 1]')) {
+        effectivePrompt = effectivePrompt
+          .replace(/Replace the left rapper in \[Video 1\] with the character (?:from|shown in) \[Image 1\],? and replace the right rapper in \[Video 1\] with the character (?:from|shown in) \[Image 2\]\.?/gi, 'Two high-energy hip-hop rappers, [Image 1] on the left and [Image 2] on the right, perform together in the recording studio around a hanging microphone.')
+          .replace(/Replace the left rapper in \[Video 1\] with the character shown in \[Image 1\]\.?/gi, 'The energetic hip-hop rapper shown in [Image 1] performs dynamically in the recording studio into the hanging microphone.')
+          .replace(/Replace the right rapper in \[Video 1\] with the character shown in \[Image 2\]\.?/gi, 'The energetic hip-hop rapper shown in [Image 2] performs dynamically in the recording studio into the hanging microphone.')
+          .replace(/\[Video 1\]/g, 'the studio session');
+      }
+
       // Enhance prompt with motion transfer guidance when reference video is provided and motion sync is enabled
       if (useReferenceVideo && !effectivePrompt.includes('Replace')) {
-        effectivePrompt = `Replace the left rapper in [Video 1] with the character shown in [Image 1]. The new character [Image 1] actively delivers energetic rap singing into the hanging mic with wide pronounced mouth articulation, while strictly replicating the exact body motions, head nods, arm gestures, and hanging microphone rap battle choreography from [Video 1]. Keep the studio and right character unchanged: ${prompt}`;
+        effectivePrompt = `Replace the left rapper in [Video 1] with the character shown in [Image 1]. The new character [Image 1] actively delivers energetic rap singing into the hanging mic with wide pronounced mouth articulation, while strictly replicating the exact body motions, head nods, arm gestures, and hanging microphone rap battle choreography from [Video 1]. Keep the studio and right character unchanged: ${effectivePrompt}`;
       } else if (selectedModel.includes('r2v') && !effectivePrompt.includes('[Image 1]')) {
         effectivePrompt = publicImages.length > 1
           ? `The two rappers from [Image 1] and [Image 2] perform high-energy rap battle, rhythmic head nods, mouth lip sync`
           : `The rapper from [Image 1] performs high-energy rap singing, wide mouth articulation, rhythmic head nods, mouth lip sync`;
+      }
+
+      // Inject clean lyrics and strong mouth articulation directives for phoneme lip-syncing
+      if (cleanLyricsSnippet && lipSyncEnabled !== false) {
+        effectivePrompt += `. Pronounced mouth lip-sync: The rapper actively delivers expressive rap vocals into the hanging microphone, mouthing and pronouncing the lyrics: "${cleanLyricsSnippet}", wide open mouth movements, clear vowel and consonant articulation strictly in sync with the audio track.`;
       }
 
       const mediaPayload: any[] = [];
@@ -253,6 +280,8 @@ async function POST({ request }: { request: Request }) {
           ...(publicAudioUrl ? { audio_url: publicAudioUrl } : {}),
         },
         parameters: {
+          watermark: false, // 彻底移除 Happy Horse 官方水印
+          has_watermark: false, // 兼容性防重
           resolution: validResolution,
           duration: selectedDuration,
           ratio: selectedAspect, // 阿里百炼 DashScope 官方参数键名: ratio (支持 '9:16', '16:9', '1:1')
