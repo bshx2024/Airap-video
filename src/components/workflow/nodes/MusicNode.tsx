@@ -11,6 +11,9 @@ interface MusicNodeData {
   latency?: number;
   status: NodeExecutionStatus;
   mock: boolean;
+  studioMode?: 'solo' | 'duo';
+  photo1Gender?: 'male' | 'female';
+  photo2Gender?: 'male' | 'female';
   vocalGender?: 'auto' | 'male' | 'female' | 'duet';
   effectiveVocalGender?: 'male' | 'female' | 'duet';
   onChange: (updates: any) => void;
@@ -51,10 +54,22 @@ export function MusicNode({ data }: { data: MusicNodeData }) {
   const isRunning = data.status === 'running';
   const isSuccess = data.status === 'success' || Boolean(data.generatedAudioUrl);
 
-  const effectiveGender =
-    data.vocalGender && data.vocalGender !== 'auto'
-      ? data.vocalGender
-      : data.effectiveVocalGender || 'male';
+  const effectiveGender: 'male' | 'female' | 'duet' = React.useMemo(() => {
+    if (data.vocalGender && data.vocalGender !== 'auto') {
+      return data.vocalGender;
+    }
+    if (data.effectiveVocalGender && data.effectiveVocalGender !== 'male') {
+      return data.effectiveVocalGender;
+    }
+    if (data.studioMode === 'duo') {
+      const g1 = data.photo1Gender;
+      const g2 = data.photo2Gender;
+      if (g1 === 'female' && g2 === 'female') return 'female';
+      if (g1 === 'male' && g2 === 'male') return 'male';
+      return 'duet';
+    }
+    return data.photo1Gender || 'male';
+  }, [data.vocalGender, data.studioMode, data.photo1Gender, data.photo2Gender, data.effectiveVocalGender]);
 
   return (
     <div
@@ -131,6 +146,11 @@ export function MusicNode({ data }: { data: MusicNodeData }) {
                     ? '👩 纯女声'
                     : '👨 纯男声'
               }
+              {(!data.vocalGender || data.vocalGender === 'auto') && (
+                <span className="ml-1 text-[9px] text-slate-400 font-normal">
+                  (已自适应)
+                </span>
+              )}
             </span>
           </div>
           <div className="grid grid-cols-4 gap-1">

@@ -152,10 +152,12 @@ Big one. Yeah, we keep it in the booth.`,
       return workflowState.vocalGender;
     }
     if (workflowState.studioMode === 'duo') {
-      if (workflowState.photo1Gender === 'female' && workflowState.photo2Gender === 'female') {
+      const g1 = workflowState.photo1Gender;
+      const g2 = workflowState.photo2Gender;
+      if (g1 === 'female' && g2 === 'female') {
         return 'female';
       }
-      if (workflowState.photo1Gender === 'male' && workflowState.photo2Gender === 'male') {
+      if (g1 === 'male' && g2 === 'male') {
         return 'male';
       }
       return 'duet';
