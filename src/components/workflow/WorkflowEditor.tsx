@@ -41,7 +41,6 @@ import { toast } from 'sonner';
 import { apiGet, apiPost } from '@/lib/api-client';
 import { RAP_STYLE_PRESETS } from '@/config/rap-presets';
 
-import { CharacterPrepNode } from './nodes/CharacterPrepNode';
 import { LyricsNode } from './nodes/LyricsNode';
 import { MusicNode } from './nodes/MusicNode';
 import { OutputNode } from './nodes/OutputNode';
@@ -107,7 +106,7 @@ Big one. Yeah, we keep it in the booth.`,
     activeRunningNode: null,
     logs: [
       '⚡ [System] 工作流可视化调试引擎已初始化完毕',
-      '📦 [Registry] 已载入 5 核心微服务算子 (Character Prep, LLM Lyrics, Suno Music, Video Lip-Sync, Output Asset)',
+      '📦 [Registry] 已载入 4 核心微服务算子 (LLM Lyrics, Suno Music, Video Lip-Sync, Output Asset)',
     ],
   });
 
@@ -137,7 +136,6 @@ Big one. Yeah, we keep it in the booth.`,
   // Node Status Tracking
   const [nodeStatuses, setNodeStatuses] = useState<Record<string, NodeExecutionStatus>>({
     start: 'success',
-    prep: 'idle',
     lyrics: 'idle',
     music: 'idle',
     video: 'idle',
@@ -330,57 +328,12 @@ Big one. Yeah, we keep it in the booth.`,
     addLog,
   ]);
 
-  // 0. Single Step: Run Character Prep
-  const runPrepStep = useCallback(async () => {
-    if (!workflowState.photo1) {
-      toast.error('请先在开始节点上传人像照片');
-      return;
-    }
-    setNodeStatuses((prev) => ({ ...prev, prep: 'running' }));
-    const style = workflowState.sunglassesStyle || 'classic-black';
-    const filter = workflowState.filterMode || 'cg-unreal';
-    addLog(`🕶️ [Prep] 锁定角色造型与过审预处理: 款式: ${style}, 滤镜: ${filter}`);
-    const startTime = Date.now();
-    try {
-      const latency = Date.now() - startTime;
-      setNodeLatencies((prev) => ({ ...prev, prep: latency }));
-      setNodeStatuses((prev) => ({ ...prev, prep: 'success' }));
-      
-      const hasShades = style !== 'none';
-      const isCgOrComic = filter === 'cg-unreal' || filter === 'comic-pop';
-      if (hasShades) {
-        addLog(`✅ [Prep] 角色造型锁定完成 (${latency}ms): 五官已佩戴墨镜遮蔽，100% 满足合规规范`);
-      } else if (isCgOrComic) {
-        addLog(`✅ [Prep] 角色造型锁定完成 (${latency}ms): 3D CG 渲染脱敏完成，已剥离微观真人特征，支持露脸过审`);
-      } else {
-        addLog(`⚠️ [Prep] 角色造型锁定完成 (${latency}ms): 警告：当前未佩戴墨镜且未开启 3D CG 滤镜，云端极可能判定 FaceDetectionSuspect`);
-      }
-      toast.success('🕶️ 角色造型已锁定！');
-    } catch (err: any) {
-      setNodeStatuses((prev) => ({ ...prev, prep: 'failed' }));
-      addLog(`❌ [Prep] 预处理异常: ${err.message}`);
-      toast.error(`预处理失败: ${err.message}`);
-      throw err;
-    }
-  }, [workflowState.photo1, workflowState.sunglassesStyle, workflowState.filterMode, addLog]);
-
   // 3. Single Step: Run Video
   const runVideoStep = useCallback(async () => {
-    const effectivePhoto1 = workflowState.processedPhoto1 || workflowState.photo1;
+    const effectivePhoto1 = workflowState.photo1;
     if (!effectivePhoto1) {
-      toast.error('请先在 Start Node 上传并在 Prep Node 锁定说唱歌手人像');
+      toast.error('请先在开始节点上传说唱歌手人像照片');
       return;
-    }
-    if (workflowState.processedPhoto1) {
-      const style = workflowState.sunglassesStyle || 'classic-black';
-      const filter = workflowState.filterMode || 'cg-unreal';
-      if (style !== 'none') {
-        addLog('🛡️ [Step 3] 已装配防拦截底图 (含嘻哈墨镜)，确保护航过审');
-      } else if (filter === 'cg-unreal' || filter === 'comic-pop') {
-        addLog('🛡️ [Step 3] 已装配 3D CG 渲染脱敏底图，保护真人肖像免受活体检测拦截');
-      } else {
-        addLog('⚠️ [Step 3] 提示：当前使用无墨镜且未经 3D CG 滤镜的真人底图，若云端报错请在 Prep 节点切换 3D CG 或佩戴墨镜');
-      }
     }
     const effectiveAudio = workflowState.generatedAudioUrl || 'https://pixanyoss.16781678.xyz/test.mp3';
     if (!workflowState.generatedAudioUrl) {
@@ -393,7 +346,7 @@ Big one. Yeah, we keep it in the booth.`,
     const startTime = Date.now();
 
     try {
-      const effectivePhoto2 = workflowState.processedPhoto2 || workflowState.photo2;
+      const effectivePhoto2 = workflowState.photo2;
       const res = await apiPost<any>('/api/ai/workflow/video', {
         imageUrl: effectivePhoto1,
         imageUrls: effectivePhoto2 ? [effectivePhoto1, effectivePhoto2] : [effectivePhoto1],
@@ -493,8 +446,6 @@ Big one. Yeah, we keep it in the booth.`,
   }, [
     workflowState.photo1,
     workflowState.photo2,
-    workflowState.processedPhoto1,
-    workflowState.processedPhoto2,
     workflowState.generatedAudioUrl,
     workflowState.videoModel,
     workflowState.videoResolution,
@@ -513,14 +464,6 @@ Big one. Yeah, we keep it in the booth.`,
     setIsFullRunning(true);
     addLog('🔥 ================== 启动一键全流程自动化调试 ==================');
     try {
-      // Step 0: Character Prep & Guardrail Bypass Check
-      if (workflowState.processedPhoto1) {
-        addLog('⏩ [Prep] 检测到已锁定的造型底图，直接复用进视频阶段...');
-      } else if (workflowState.photo1) {
-        addLog('🕶️ [Prep] 自动运行角色造型与防拦截预处理...');
-        await runPrepStep();
-      }
-
       // Step 1: Lyrics
       if (!workflowState.generatedLyrics) {
         await runLyricsStep();
@@ -546,11 +489,9 @@ Big one. Yeah, we keep it in the booth.`,
       setIsFullRunning(false);
     }
   }, [
-    workflowState.processedPhoto1,
     workflowState.photo1,
     workflowState.generatedLyrics,
     workflowState.generatedAudioUrl,
-    runPrepStep,
     runLyricsStep,
     runMusicStep,
     runVideoStep,
@@ -569,12 +510,6 @@ Big one. Yeah, we keep it in the booth.`,
           styleId: workflowState.styleId,
           bpm: workflowState.bpm,
           studioMode: workflowState.studioMode,
-        },
-        prep: {
-          style: workflowState.sunglassesStyle,
-          scale: workflowState.sunglassesScale,
-          filterMode: workflowState.filterMode,
-          processedPhoto1: workflowState.processedPhoto1,
         },
         lyrics: {
           model: workflowState.lyricsModel,
@@ -608,7 +543,6 @@ Big one. Yeah, we keep it in the booth.`,
   const nodeTypes = useMemo(
     () => ({
       startNode: StartNode,
-      characterPrepNode: CharacterPrepNode,
       lyricsNode: LyricsNode,
       musicNode: MusicNode,
       videoNode: VideoNode,
@@ -617,13 +551,13 @@ Big one. Yeah, we keep it in the booth.`,
     []
   );
 
-  // Initial Graph Layout
+  // Initial Graph Layout (Clean 4-Node Streamlined Pipeline)
   const initialNodes: Node[] = useMemo(
     () => [
       {
         id: 'start',
         type: 'startNode',
-        position: { x: 40, y: 160 },
+        position: { x: 40, y: 100 },
         data: {
           ...workflowState,
           status: nodeStatuses.start,
@@ -633,7 +567,7 @@ Big one. Yeah, we keep it in the booth.`,
       {
         id: 'lyrics',
         type: 'lyricsNode',
-        position: { x: 450, y: 40 },
+        position: { x: 480, y: 40 },
         data: {
           ...workflowState,
           status: nodeStatuses.lyrics,
@@ -645,7 +579,7 @@ Big one. Yeah, we keep it in the booth.`,
       {
         id: 'music',
         type: 'musicNode',
-        position: { x: 910, y: 40 },
+        position: { x: 940, y: 40 },
         data: {
           ...workflowState,
           effectiveVocalGender,
@@ -656,21 +590,9 @@ Big one. Yeah, we keep it in the booth.`,
         },
       },
       {
-        id: 'prep',
-        type: 'characterPrepNode',
-        position: { x: 450, y: 430 },
-        data: {
-          ...workflowState,
-          status: nodeStatuses.prep,
-          latency: nodeLatencies.prep,
-          onChange: updateState,
-          onRunStep: runPrepStep,
-        },
-      },
-      {
         id: 'video',
         type: 'videoNode',
-        position: { x: 1370, y: 120 },
+        position: { x: 1400, y: 40 },
         data: {
           ...workflowState,
           status: nodeStatuses.video,
@@ -682,7 +604,7 @@ Big one. Yeah, we keep it in the booth.`,
       {
         id: 'output',
         type: 'outputNode',
-        position: { x: 1830, y: 160 },
+        position: { x: 1860, y: 80 },
         data: {
           ...workflowState,
           status: nodeStatuses.output,
@@ -696,7 +618,6 @@ Big one. Yeah, we keep it in the booth.`,
       nodeStatuses,
       nodeLatencies,
       updateState,
-      runPrepStep,
       runLyricsStep,
       runMusicStep,
       runVideoStep,
@@ -728,24 +649,14 @@ Big one. Yeah, we keep it in the booth.`,
         markerEnd: { type: MarkerType.ArrowClosed, color: '#c084fc' },
       },
       {
-        id: 'e-start-prep',
+        id: 'e-start-video',
         source: 'start',
-        target: 'prep',
-        sourceHandle: 'prompt-out',
-        targetHandle: 'photo-in',
-        animated: nodeStatuses.prep === 'running',
-        style: { stroke: '#fbbf24', strokeWidth: 2.5 },
-        markerEnd: { type: MarkerType.ArrowClosed, color: '#fbbf24' },
-      },
-      {
-        id: 'e-prep-video',
-        source: 'prep',
         target: 'video',
-        sourceHandle: 'styled-out',
+        sourceHandle: 'prompt-out',
         targetHandle: 'image-in',
         animated: nodeStatuses.video === 'running',
-        style: { stroke: '#22d3ee', strokeWidth: 2.5 },
-        markerEnd: { type: MarkerType.ArrowClosed, color: '#22d3ee' },
+        style: { stroke: '#f59e0b', strokeWidth: 2.5 },
+        markerEnd: { type: MarkerType.ArrowClosed, color: '#f59e0b' },
       },
       {
         id: 'e-music-video',
