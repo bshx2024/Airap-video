@@ -264,25 +264,52 @@ Big one. Yeah, we keep it in the booth.`,
         const taskId = res.taskId;
         let pollCount = 0;
         const poll = async () => {
-          pollCount++;
-          const qRes = await apiGet<any>(`/api/ai/workflow/query?taskId=${taskId}&mediaType=music`);
-          if (qRes && qRes.status === 'success' && qRes.audioUrl) {
-            const latency = Date.now() - startTime;
-            setNodeLatencies((prev) => ({ ...prev, music: latency }));
-            setWorkflowState((prev) => ({
-              ...prev,
-              generatedAudioUrl: qRes.audioUrl,
-            }));
-            setNodeStatuses((prev) => ({ ...prev, music: 'success' }));
-            addLog(`✅ [Step 2] Suno 音乐编曲完成 (${latency}ms): ${qRes.audioUrl}`);
-            toast.success('🎵 伴奏生成完毕！');
-          } else if (qRes && qRes.status === 'failed') {
-            throw new Error(qRes.error || 'Suno generation failed');
-          } else {
-            if (pollCount > 60) {
-              throw new Error('Suno 生成超时，请检查配置或稍后重试');
+          try {
+            pollCount++;
+            const elapsedSec = Math.round((Date.now() - startTime) / 1000);
+            if (pollCount % 3 === 0 || pollCount === 1) {
+              addLog(`⏳ [Step 2] Suno 编曲渲染中... 已等待 ${elapsedSec}s`);
             }
+
+            const qRes = await apiGet<any>(`/api/ai/workflow/query?taskId=${taskId}&mediaType=music`);
+            if (qRes && qRes.status === 'success' && qRes.audioUrl) {
+              const latency = Date.now() - startTime;
+              setNodeLatencies((prev) => ({ ...prev, music: latency }));
+              setWorkflowState((prev) => ({
+                ...prev,
+                generatedAudioUrl: qRes.audioUrl,
+              }));
+              setNodeStatuses((prev) => ({ ...prev, music: 'success' }));
+              addLog(`✅ [Step 2] Suno 音乐编曲完成 (${latency}ms): ${qRes.audioUrl}`);
+              toast.success('🎵 伴奏生成完毕！');
+              return;
+            }
+
+            if (qRes && qRes.status === 'failed') {
+              const errMsg = qRes.error || qRes.taskInfo?.errorMessage || 'Suno 伴奏生成异常';
+              setNodeStatuses((prev) => ({ ...prev, music: 'failed' }));
+              addLog(`❌ [Step 2] Suno 编曲未成功: ${errMsg} (已停止轮询，可重新点击单步调试)`);
+              toast.error(`编曲未成功: ${errMsg}`);
+              return;
+            }
+
+            if (pollCount > 90) {
+              setNodeStatuses((prev) => ({ ...prev, music: 'failed' }));
+              addLog('❌ [Step 2] Suno 编曲超时 (超过 6 分钟)，请稍后重试');
+              toast.error('Suno 生成超时，请稍后重试');
+              return;
+            }
+
             setTimeout(poll, 4000);
+          } catch (pollErr: any) {
+            console.error('Music poll error:', pollErr);
+            if (pollCount < 90) {
+              setTimeout(poll, 4000);
+            } else {
+              setNodeStatuses((prev) => ({ ...prev, music: 'failed' }));
+              addLog(`❌ [Step 2] 轮询异常中断: ${pollErr.message}`);
+              toast.error(`轮询异常: ${pollErr.message}`);
+            }
           }
         };
         setTimeout(poll, 3000);

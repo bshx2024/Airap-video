@@ -134,7 +134,9 @@ async function POST({ request }: { request: Request }) {
         callbackUrl,
         options: {
           customMode: true,
-          title,
+          title: (title || 'Hotel Lobby Cypher')
+            .replace(/(quavo|takeoff|migos|drake|eminem|kanye|travis|carti|kendrick)/gi, 'MC')
+            .trim() || 'Hotel Lobby Cypher',
           style: finalStyle,
           lyrics,
           instrumental: Boolean(instrumental),
