@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { Handle, Position } from '@xyflow/react';
 import { Play, Sparkles, Upload, Users, Image as ImageIcon, Loader2, Wand2 } from 'lucide-react';
 import { RAP_STYLE_PRESETS, HOMEPAGE_THEMES } from '@/config/rap-presets';
+import { PROMPT_PRESETS } from './VideoNode';
 import { NodeExecutionStatus } from '../types';
 
 interface StartNodeData {
@@ -249,7 +250,7 @@ export function StartNode({ data }: { data: StartNodeData }) {
             <div className="flex gap-1 rounded-md bg-white/5 p-0.5">
               <button
                 type="button"
-                onClick={() => data.onChange({ studioMode: 'solo' })}
+                onClick={() => data.onChange({ studioMode: 'solo', videoPrompt: PROMPT_PRESETS.leftLead })}
                 className={`rounded px-1.5 py-0.5 text-[10px] font-semibold transition ${
                   data.studioMode === 'solo' ? 'bg-amber-500 text-black' : 'text-slate-400'
                 }`}
@@ -258,7 +259,7 @@ export function StartNode({ data }: { data: StartNodeData }) {
               </button>
               <button
                 type="button"
-                onClick={() => data.onChange({ studioMode: 'duo' })}
+                onClick={() => data.onChange({ studioMode: 'duo', videoPrompt: PROMPT_PRESETS.dualLead })}
                 className={`rounded px-1.5 py-0.5 text-[10px] font-semibold transition ${
                   data.studioMode === 'duo' ? 'bg-amber-500 text-black' : 'text-slate-400'
                 }`}

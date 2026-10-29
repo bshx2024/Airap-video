@@ -17,7 +17,7 @@ export const PROMPT_PRESETS = {
     'Two high-energy hip-hop rappers, [Image 1] on the left and [Image 2] on the right, performing dynamically together in the orange studio, free rhythmic body bounce, alternating cypher rap gestures pointing at the camera, expressive facial lip-sync matching the rap vocals, 4K cinematic quality.',
 };
 
-export const DEFAULT_VIDEO_PROMPT = PROMPT_PRESETS.leftLead;
+export const DEFAULT_VIDEO_PROMPT = PROMPT_PRESETS.dualLead;
 
 interface VideoNodeData {
   photo1: string;

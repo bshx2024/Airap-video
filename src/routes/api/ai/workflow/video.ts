@@ -242,7 +242,17 @@ async function POST({ request }: { request: Request }) {
 
       // Enhance prompt with motion transfer guidance when reference video is provided and motion sync is enabled
       if (useReferenceVideo && !effectivePrompt.includes('Replace')) {
-        effectivePrompt = `Replace the left rapper in [Video 1] with the character shown in [Image 1]. The new character [Image 1] actively delivers energetic rap singing into the hanging mic with wide pronounced mouth articulation, while strictly replicating the exact body motions, head nods, arm gestures, and hanging microphone rap battle choreography from [Video 1]. Keep the studio and right character unchanged: ${effectivePrompt}`;
+        if (publicImages.length > 1) {
+          effectivePrompt = `Replace the left rapper in [Video 1] with the character from [Image 1], and replace the right rapper in [Video 1] with the character from [Image 2]. Both characters [Image 1] on the left and [Image 2] on the right perform high-energy rap cypher together, actively delivering energetic rap singing into the hanging microphone with wide pronounced mouth articulation, while strictly replicating the exact body motions, head nods, arm gestures, and microphone choreography from [Video 1]. Keep the orange studio setting and lighting: ${effectivePrompt}`;
+        } else {
+          effectivePrompt = `Replace the left rapper in [Video 1] with the character shown in [Image 1]. The new character [Image 1] actively delivers energetic rap singing into the hanging mic with wide pronounced mouth articulation, while strictly replicating the exact body motions, head nods, arm gestures, and hanging microphone rap battle choreography from [Video 1]. Keep the studio and right character unchanged: ${effectivePrompt}`;
+        }
+      } else if (publicImages.length > 1 && /right character strictly unchanged/i.test(effectivePrompt)) {
+        // When user uploaded 2 photos for Duo mode, auto-upgrade single replacement to dual replacement
+        effectivePrompt = effectivePrompt.replace(
+          /Keep the (?:orange cyclorama studio, lighting, camera framing, and )?right character strictly unchanged\.?/gi,
+          'Replace the right rapper in [Video 1] with the character from [Image 2]. Both characters [Image 1] on the left and [Image 2] on the right perform high-energy rap cypher.'
+        );
       } else if (selectedModel.includes('r2v') && !effectivePrompt.includes('[Image 1]')) {
         effectivePrompt = publicImages.length > 1
           ? `The two rappers from [Image 1] and [Image 2] perform high-energy rap battle, rhythmic head nods, mouth lip sync`

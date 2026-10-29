@@ -45,7 +45,7 @@ import { LyricsNode } from './nodes/LyricsNode';
 import { MusicNode } from './nodes/MusicNode';
 import { OutputNode } from './nodes/OutputNode';
 import { StartNode } from './nodes/StartNode';
-import { DEFAULT_VIDEO_PROMPT, VideoNode } from './nodes/VideoNode';
+import { DEFAULT_VIDEO_PROMPT, PROMPT_PRESETS, VideoNode } from './nodes/VideoNode';
 import { NodeExecutionStatus, WorkflowState } from './types';
 
 const INITIAL_TOPIC = 'Quavo & Takeoff 经典 Hotel Lobby 亮橙色录音棚双人互呛，单支悬吊麦克风，高燃808陷阱鼓点';
@@ -96,7 +96,7 @@ Big one. Yeah, we keep it in the booth.`,
     videoResolution: '480p',
     videoRatio: '9:16',
     videoDuration: 5,
-    videoPrompt: DEFAULT_VIDEO_PROMPT,
+    videoPrompt: PROMPT_PRESETS.dualLead,
     generatedVideoUrl: '',
     referenceVideoUrl: '/videos/reference-5s.mp4',
     motionSyncEnabled: true,
