@@ -298,15 +298,30 @@ export async function detectFaceFit(imageSrc: string): Promise<FaceFitResult | n
           // 瞳距约为面部宽度的 48% (中心到单侧眼睛约为 0.24)
           const eyeSpan = Math.max(4, Math.round(faceW * 0.24));
 
-          // 2. Haar 双眼-高光鼻梁三元特征对检测 (Eye Pair vs Nose/Mouth Discriminator)
-          // 眼睛解剖学黄金定律：鼻梁中心为高光亮部，两侧双眼/眼窝为对称暗部。
-          // 鼻孔与嘴巴恰好相反（中心暗，两侧脸颊亮），因此该特征对能 100% 区分双眼与鼻子/嘴巴！
-          let bestEyeY = Math.round(sh * 0.32);
+          // 扫描垂直人脸顶端发际线 (faceTopY)
+          let maxRowWeight = 0;
+          for (let y = 0; y < sh; y++) {
+            if (rowWeights[y] > maxRowWeight) maxRowWeight = rowWeights[y];
+          }
+          let faceTopY = Math.round(sh * 0.18);
+          if (maxRowWeight > 0.5) {
+            const rowThresh = maxRowWeight * 0.22;
+            for (let y = Math.round(sh * 0.08); y < sh - 2; y++) {
+              if (rowWeights[y] >= rowThresh) {
+                faceTopY = y;
+                break;
+              }
+            }
+          }
+
+          // 2. 解剖学生理铁律：双眼必定位于发际线 (faceTopY) 下方约 0.26 ~ 0.48 个脸宽距离
+          // 嘴巴牙齿位于 0.65~0.85 脸宽处，因此将扫描窗口严格锁定在 [0.22*faceW, 0.48*faceW]，
+          // 从物理上彻底杜绝嘴唇、牙齿、下巴及衣领任何误入检测的可能！
+          let bestEyeY = Math.round(faceTopY + faceW * 0.36);
           let maxEyeScore = -9999;
 
-          // 垂直扫描区间 (0.16 ~ 0.52)，覆盖所有半身肖像与特写自拍
-          const scanStart = Math.max(4, Math.round(sh * 0.16));
-          const scanEnd = Math.min(sh - 4, Math.round(sh * 0.52));
+          const scanStart = Math.max(2, Math.round(faceTopY + faceW * 0.20));
+          const scanEnd = Math.min(sh - 2, Math.round(faceTopY + faceW * 0.48));
 
           for (let y = scanStart; y <= scanEnd; y++) {
             // 中心鼻梁区域亮度 (宽 3px)
@@ -341,9 +356,9 @@ export async function detectFaceFit(imageSrc: string): Promise<FaceFitResult | n
             }
             const avgRightLum = rCount > 0 ? rightLum / rCount : 128;
 
-            // 双眼特征分：鼻梁亮且双眼暗时得分最高 (+60~+90)，而在鼻孔/嘴部时中心暗侧面亮得分为负 (-120)！
+            // 双眼特征分：鼻梁亮且双眼暗 (加上双眼暗度加权，绝对吸附在眉毛与眼球)
             const eyesAvg = (avgLeftLum + avgRightLum) / 2;
-            const eyeScore = avgCenterLum - eyesAvg;
+            const eyeScore = (avgCenterLum - eyesAvg) + (255 - eyesAvg) * 0.4;
 
             if (eyeScore > maxEyeScore) {
               maxEyeScore = eyeScore;
@@ -639,6 +654,31 @@ export function CharacterPrepNode({ data }: { data: CharacterPrepNodeData }) {
         meshOffsetX: 0,
       });
     }
+  };
+
+  const handleApplyPreset = (presetOffsetY: number, presetScale: number) => {
+    if (style !== 'none') {
+      setScale(presetScale);
+      setOffsetY(presetOffsetY);
+      setOffsetX(0);
+      setRotate(0);
+      notifyChanges({
+        sunglassesScale: presetScale,
+        sunglassesOffsetY: presetOffsetY,
+        sunglassesOffsetX: 0,
+        sunglassesRotate: 0,
+      });
+    } else {
+      setMeshScale(presetScale);
+      setMeshOffsetY(presetOffsetY);
+      setMeshOffsetX(0);
+      notifyChanges({
+        meshScale: presetScale,
+        meshOffsetY: presetOffsetY,
+        meshOffsetX: 0,
+      });
+    }
+    toast.success(presetOffsetY === 0 ? '已对齐特写正脸预设 (0px)' : '已对齐半身肖像预设 (-36px)');
   };
 
   // Direct Pointer/Touch Dragging on Preview (Works for both Sunglasses and 3D Mesh)
@@ -1126,7 +1166,23 @@ export function CharacterPrepNode({ data }: { data: CharacterPrepNodeData }) {
               <span className="flex items-center gap-1 font-medium">
                 <Sliders className="size-3 text-amber-400" /> 墨镜位置与尺寸微调 (支持滑块/按钮/直接拖拽)
               </span>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => handleApplyPreset(-36, 88)}
+                  className="nodrag nopan flex items-center gap-1 rounded bg-sky-500/20 px-1.5 py-0.5 text-[9px] font-semibold text-sky-300 border border-sky-500/30 hover:bg-sky-500/30 transition cursor-pointer"
+                  title="半身肖像快速吸附眼睛 (-36px，如马斯克)"
+                >
+                  半身像
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleApplyPreset(0, 88)}
+                  className="nodrag nopan flex items-center gap-1 rounded bg-slate-500/20 px-1.5 py-0.5 text-[9px] font-medium text-slate-300 border border-white/10 hover:bg-white/10 transition cursor-pointer"
+                  title="特写正脸快速吸附眼睛 (0px)"
+                >
+                  特写像
+                </button>
                 <button
                   type="button"
                   onClick={() => handleAutoFitFace(false)}
@@ -1165,8 +1221,8 @@ export function CharacterPrepNode({ data }: { data: CharacterPrepNodeData }) {
                   </button>
                   <input
                     type="range"
-                    min="-40"
-                    max="40"
+                    min="-50"
+                    max="50"
                     step="1"
                     value={offsetY}
                     onChange={(e) => handleUpdateOffsetY(Number(e.target.value))}
