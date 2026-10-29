@@ -39,7 +39,7 @@ import {
 import { toast } from 'sonner';
 
 import { apiGet, apiPost } from '@/lib/api-client';
-import { RAP_STYLE_PRESETS } from '@/config/rap-presets';
+import { RAP_STYLE_PRESETS, HOMEPAGE_THEMES } from '@/config/rap-presets';
 
 import { LyricsNode } from './nodes/LyricsNode';
 import { MusicNode } from './nodes/MusicNode';
@@ -743,45 +743,39 @@ Big one. Yeah, we keep it in the booth.`,
             <span>{workflowState.mock ? 'Mock 模式: 开 (0成本)' : 'Mock 模式: 关 (调用API)'}</span>
           </button>
 
-          {/* Quick Presets */}
-          <div className="hidden sm:flex items-center gap-1 rounded-xl border border-white/10 bg-white/5 p-1 text-xs">
-            <span className="px-2 text-[10px] text-slate-400 font-medium">场景预设:</span>
-            <button
-              type="button"
-              onClick={() => {
-                updateState({
-                  topic: 'Quavo & Takeoff 经典 Hotel Lobby 亮橙色录音棚双人双押互呛，单支悬吊麦克风，808 重低音',
-                  styleId: 'trap-808',
-                  bpm: 140,
-                  photo1: DEMO_PHOTO_1,
-                  photo2: DEMO_PHOTO_2,
-                  generatedAudioUrl: DEMO_AUDIO,
-                  generatedLyrics: `[Intro: Beat drops heavy 808]\nLet's get it.\n\n[Verse 1: Quavo]\nHop out the sixteen, passing the Digi-D5,\nKnow this not a Challenger, we keeping it alive.\n\n[Outro: Takeoff]\nBig one. Yeah, we keep it in the booth.`,
-                  videoPrompt: DEFAULT_VIDEO_PROMPT,
-                  videoRatio: '9:16',
-                  videoResolution: '480p',
-                  videoDuration: 5,
-                });
-                toast.success('已载入预设：Hotel Lobby 原版 1:1 神态动作配置');
+          {/* Quick Presets Dropdown */}
+          <div className="hidden sm:flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/5 p-1 text-xs">
+            <span className="pl-2 text-[11px] text-amber-400 font-medium flex items-center gap-1">
+              <Sparkles className="size-3" />
+              <span>首页场景:</span>
+            </span>
+            <select
+              value=""
+              onChange={(e) => {
+                const theme = HOMEPAGE_THEMES.find((t) => t.id === e.target.value);
+                if (theme) {
+                  const matchedStyle = RAP_STYLE_PRESETS.find((s) => s.id === theme.styleId);
+                  updateState({
+                    topic: theme.topic,
+                    styleId: theme.styleId,
+                    bpm: matchedStyle?.bpm || theme.bpm,
+                    studioMode: theme.studioMode,
+                    generatedLyrics: theme.lyrics,
+                    videoPrompt: theme.videoPrompt,
+                    generatedTitle: theme.name.replace(/^[^\w\u4e00-\u9fa5]+/, '').trim(),
+                  });
+                  toast.success(`已载入首页场景：${theme.name}`);
+                }
               }}
-              className="rounded-lg px-2 py-1 text-slate-300 hover:bg-white/10 hover:text-white"
+              className="rounded-lg bg-black/40 border border-white/15 px-2 py-1 text-[11px] font-medium text-slate-200 focus:border-amber-400 focus:outline-none"
             >
-              🔥 橙色录音棚 (1:1 原版复刻)
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                updateState({
-                  topic: 'On The Radar 纽约地下暗黑电台录音间，荧光绿灯管，滑音808钻乐说唱',
-                  styleId: 'cyber-drill',
-                  bpm: 142,
-                });
-                toast.success('已载入预设：On The Radar 绿光电台');
-              }}
-              className="rounded-lg px-2 py-1 text-slate-300 hover:bg-white/10 hover:text-white"
-            >
-              🟩 绿光电台
-            </button>
+              <option value="" disabled>选择 7 大热榜主题快速测试...</option>
+              {HOMEPAGE_THEMES.map((theme) => (
+                <option key={theme.id} value={theme.id} className="bg-slate-900 text-white">
+                  {theme.name} · {theme.tag}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
 

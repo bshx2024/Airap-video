@@ -150,3 +150,95 @@ export const RAP_THEME_PRESETS: RapThemePreset[] = [
 ];
 
 export const RAP_COST_CREDITS = 120; // 涵盖 Suno 音乐生成 + 音频驱动视频合成
+
+export interface RapHomepageTheme {
+  id: string;
+  name: string;
+  tag: string;
+  topic: string;
+  styleId: string;
+  bpm: number;
+  studioMode: 'solo' | 'duo';
+  lyrics: string;
+  videoPrompt: string;
+}
+
+export const HOMEPAGE_THEMES: RapHomepageTheme[] = [
+  {
+    id: 'hotel-lobby',
+    name: '🔥 橙色录音棚 (Hotel Lobby)',
+    tag: '双人热榜 · 808 Trap',
+    topic: 'Quavo & Takeoff 经典 Hotel Lobby 亮橙色录音棚双人互呛，单支悬吊麦克风，高燃808陷阱鼓点',
+    styleId: 'trap-808',
+    bpm: 138,
+    studioMode: 'duo',
+    lyrics: `[Intro: Beat drops heavy 808]\nYeah, check the mic in the orange room!\nTakeoff and Quavo vibe, let us get it!\n\n[Verse 1: Left Rapper]\nYou always talking big but you showed up late\nI drop the heavy 808 to seal your fate\nLook at your drip, man, it expired in 08\nWe run the lobby while you hesitate\n\n[Outro: Right Rapper]\nHotel Lobby with the hanging mic swing\nHeavy 808s make the whole booth ring!`,
+    videoPrompt: 'Two rappers [Image 1] on the left and [Image 2] on the right are standing in an iconic bright orange studio around a single hanging microphone, inspired by Quavo and Takeoff Hotel Lobby, trading punchy roast bars, heavy 808 trap beat, rhythmic head nods, hip-hop hand gestures, 9:16 vertical TikTok style',
+  },
+  {
+    id: 'on-the-radar',
+    name: '🟩 绿光电台 (On The Radar)',
+    tag: '暗黑电台 · UK Drill',
+    topic: 'On The Radar 纽约地下暗黑电台录音间，荧光绿灯管，单手持麦，滑音808钻乐说唱',
+    styleId: 'cyber-drill',
+    bpm: 142,
+    studioMode: 'solo',
+    lyrics: `[Intro]\n(Whisper) On The Radar, green lights on.\nCheck the mic, sliding bass drop.\n\n[Verse 1]\nStanding by the mic under neon green tube\nEvery sliding 808 breaking every old rule\nGot the rapid drill flow cutting through the dark night\nDouble rhyme scheme locked beneath the spotlight\n\n[Chorus]\nOn The Radar, watch the green glow flare\nSliding drill bass taking over everywhere!`,
+    videoPrompt: 'A high-energy hip-hop rapper shown in [Image 1] inside the legendary On The Radar dark studio with neon green fluorescent tube lights and a standing microphone, intense aggressive UK drill freestyle, sharp sliding 808 bass, rapid rhythmic hand gestures and head nods, 9:16 vertical cinema',
+  },
+  {
+    id: 'friends-roast',
+    name: '🥊 好友互呛 (Roast Battle)',
+    tag: '街头地下 · Boom Bap',
+    topic: '街头地下 Cypher 两位好友互相爆笑双押吐槽，Boom Bap 经典节奏，人群呐喊',
+    styleId: 'boom-bap',
+    bpm: 92,
+    studioMode: 'duo',
+    lyrics: `[Intro]\nRound one, let us see who got the real bars!\n\n[Verse 1: Left Rapper]\nYou order takeout five times a day\nSaying you on a diet, what a cliché\nI drop the boom bap while you still text delay\n\n[Verse 2: Right Rapper]\nCall me a clown, but I got the crown\nBest friends roasting under underground lights\nTaking the mic and reaching new heights!`,
+    videoPrompt: 'Two best friends, [Image 1] on the left and [Image 2] on the right, roasting each other about always being late and ordering takeout, fast witty punchlines, underground cypher street lighting, hyping crowd in background, 9:16 vertical TikTok style',
+  },
+  {
+    id: 'pet-rap',
+    name: '🐶 萌宠快嘴 (Pet Rap)',
+    tag: '魔性快嘴 · Upbeat Trap',
+    topic: '萌宠戴墨镜挂大金链，超音速快嘴 Chopper Flow，欢快洗脑 Trap 鼓点',
+    styleId: 'trap-808',
+    bpm: 138,
+    studioMode: 'solo',
+    lyrics: `[Intro]\nMeow meow, drop that hypersonic beat!\n\n[Verse 1]\nI run the living room, king of the floor\nScratching the couch while I wait by the door\nChopper flow rapid, supersonic claws\n\n[Chorus]\nGold chain kitten with a million views\nSpitting fast bars on the evening news!`,
+    videoPrompt: 'A cool character wearing a heavy gold chain and sunglasses, spitting fast chopper flow to upbeat trap drums, energetic head-bobbing, hilarious contrast with viral social media aesthetics, 9:16 vertical video',
+  },
+  {
+    id: 'birthday-hype',
+    name: '🎂 生日轰趴 (Birthday Hype)',
+    tag: '派对狂欢 · Golden Trap',
+    topic: '生日派对轰趴互损与祝福，金色说唱舞台，彩带金链全场狂欢',
+    styleId: 'trap-808',
+    bpm: 138,
+    studioMode: 'duo',
+    lyrics: `[Intro]\nBlow out the candles, crank up the bass!\n\n[Verse 1]\nAnother year older, wrinkles on your face\nStill acting twenty-one all over the place\nGolden chains swinging, confetti in the air\n\n[Chorus]\nHappy birthday to the legendary clown\nTonight we taking over the whole town!`,
+    videoPrompt: 'Two friends celebrating a milestone birthday in a golden hip-hop studio, hilarious witty birthday roast verses, concert-level hype, confetti and gold chains, high-energy delivery, 9:16 vertical',
+  },
+  {
+    id: 'choreo-drill',
+    name: '⚡ 齐舞钻乐 (Choreo Drill)',
+    tag: '高燃齐舞 · UK Drill',
+    topic: '双人齐舞 Drill 编舞，重度身体律动与卡点，滑音 808 炸场',
+    styleId: 'cyber-drill',
+    bpm: 142,
+    studioMode: 'duo',
+    lyrics: `[Intro]\nWatch the sliding bass, lock the frame!\n\n[Verse 1]\nStep to the left, sync to the snare\nSliding drill bass floating in the air\nSharp isolations, cameras locked in tight\n\n[Chorus]\nTwo rappers dancing under strobe light flare\nDrill choreography without compare!`,
+    videoPrompt: 'Two rappers, [Image 1] on the left and [Image 2] on the right, doing full-body hip-hop choreography and energetic dance moves, sharp isolations matching heavy UK drill sliding bass, expressive facial confidence, fluid dynamic motion with spotlight tracking, 9:16 vertical',
+  },
+  {
+    id: 'neon-freestyle',
+    name: '🌃 霓虹街头 (Neon Street)',
+    tag: '赛博雨夜 · Melodic Lo-Fi',
+    topic: '赛博霓虹雨夜街头单人流动，手持麦克风，复古温暖 Lo-Fi 旋律说唱',
+    styleId: 'melodic-rap',
+    bpm: 98,
+    studioMode: 'solo',
+    lyrics: `[Intro]\nRain dropping on the neon pavement...\n\n[Verse 1]\nReflections of cyan, echoes in the mist\nA handheld mic and a story in the fist\nMelodic rhythm floating through the street\n\n[Chorus]\nCity never sleeps, but the flow so deep\nMidnight verses that the memories keep.`,
+    videoPrompt: 'Solo rapper shown in [Image 1] flowing effortlessly in a rain-slicked cyberpunk alley with neon reflections, handheld mic, relaxed head nods, vintage warm tube lighting, lo-fi boombap chill beat, 9:16 vertical cinema',
+  },
+];

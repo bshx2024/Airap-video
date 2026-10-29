@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { Handle, Position } from '@xyflow/react';
-import { Play, Sparkles, Upload, Users, Image as ImageIcon, Loader2 } from 'lucide-react';
-import { RAP_STYLE_PRESETS } from '@/config/rap-presets';
+import { Play, Sparkles, Upload, Users, Image as ImageIcon, Loader2, Wand2 } from 'lucide-react';
+import { RAP_STYLE_PRESETS, HOMEPAGE_THEMES } from '@/config/rap-presets';
 import { NodeExecutionStatus } from '../types';
 
 interface StartNodeData {
@@ -169,15 +169,54 @@ export function StartNode({ data }: { data: StartNodeData }) {
 
       {/* Body */}
       <div className="mt-3 space-y-3 text-xs">
-        {/* Topic Input */}
+        {/* Topic Input with Homepage Theme Switcher */}
         <div>
-          <label className="mb-1 block font-medium text-slate-300">主题 / 剧情梗概</label>
-          <input
-            type="text"
+          <div className="mb-1 flex items-center justify-between">
+            <label className="font-medium text-slate-300">主题 / 剧情梗概</label>
+            <div className="flex items-center gap-1 text-[10px] text-amber-400 font-medium">
+              <Sparkles className="size-3" />
+              <span>预设主题联动</span>
+            </div>
+          </div>
+
+          {/* Quick Theme Switcher Select */}
+          <div className="mb-1.5">
+            <select
+              onChange={(e) => {
+                const theme = HOMEPAGE_THEMES.find((t) => t.id === e.target.value);
+                if (theme) {
+                  const matchedStyle = RAP_STYLE_PRESETS.find((s) => s.id === theme.styleId);
+                  data.onChange({
+                    topic: theme.topic,
+                    styleId: theme.styleId,
+                    bpm: matchedStyle?.bpm || theme.bpm,
+                    studioMode: theme.studioMode,
+                    generatedLyrics: theme.lyrics,
+                    videoPrompt: theme.videoPrompt,
+                    generatedTitle: theme.name.replace(/^[^\w\u4e00-\u9fa5]+/, '').trim(),
+                  });
+                }
+              }}
+              defaultValue=""
+              className="w-full rounded-lg border border-amber-500/40 bg-amber-950/40 px-2 py-1.5 text-[11px] font-semibold text-amber-300 focus:border-amber-400 focus:outline-none"
+            >
+              <option value="" disabled className="bg-slate-900 text-slate-400">
+                ⚡ 快速载入首页 7 大精选主题...
+              </option>
+              {HOMEPAGE_THEMES.map((theme) => (
+                <option key={theme.id} value={theme.id} className="bg-slate-900 text-white font-normal">
+                  {theme.name} · {theme.tag}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <textarea
+            rows={2}
             value={data.topic}
             onChange={(e) => data.onChange({ topic: e.target.value })}
             placeholder="例如: 兄弟在橙色录音棚说唱互呛"
-            className="w-full rounded-lg border border-white/15 bg-white/5 px-2.5 py-1.5 text-xs text-white placeholder-slate-500 focus:border-amber-400 focus:outline-none"
+            className="w-full rounded-lg border border-white/15 bg-white/5 px-2.5 py-1.5 text-xs text-white placeholder-slate-500 focus:border-amber-400 focus:outline-none resize-none leading-relaxed"
           />
         </div>
 
