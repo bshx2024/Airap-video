@@ -393,7 +393,7 @@ export function CharacterPrepNode({ data }: { data: CharacterPrepNodeData }) {
         ctx.putImageData(imgData, 0, 0);
       }
 
-      // 4. Draw Sunglasses or 3D Face Wireframe Mesh
+      // 4. Draw Sunglasses
       if (style !== 'none' && SUNGLASSES_PRESETS[style]) {
         const preset = SUNGLASSES_PRESETS[style];
         const svgUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(preset.svg)}`;
@@ -541,7 +541,7 @@ export function CharacterPrepNode({ data }: { data: CharacterPrepNodeData }) {
           onPointerUp={handlePointerUp}
           onPointerCancel={handlePointerUp}
           className={`nodrag nopan relative flex h-52 w-full select-none overflow-hidden rounded-xl border border-white/10 bg-[#070b14] touch-none ${
-            style !== 'none' || meshEnabled ? 'cursor-grab active:cursor-grabbing' : ''
+            style !== 'none' ? 'cursor-grab active:cursor-grabbing' : ''
           }`}
         >
           {displayPhoto ? (
