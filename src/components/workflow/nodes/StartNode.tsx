@@ -104,8 +104,12 @@ export function StartNode({ data }: { data: StartNodeData }) {
         console.warn('Storage upload network error, fallback to compressed local image:', uploadErr);
       }
 
+      const isFemaleKeyword = /(girl|woman|female|lady|her|she|nv|jie|mei|femme|chick|frau|donna)/i.test(file.name);
+      const isMaleKeyword = /(boy|man|male|guy|his|he|nan|bro)/i.test(file.name);
+
       if (slot === 1) {
-        data.onChange({ photo1: finalUrl, rawPhoto1: dataUrl, processedPhoto1: '' });
+        const initialGender = isFemaleKeyword ? 'female' : (isMaleKeyword ? 'male' : (data.photo1Gender || 'male'));
+        data.onChange({ photo1: finalUrl, rawPhoto1: dataUrl, processedPhoto1: '', photo1Gender: initialGender });
         fetch('/api/ai/workflow/detect-gender', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -113,13 +117,14 @@ export function StartNode({ data }: { data: StartNodeData }) {
         })
           .then((r) => r.json())
           .then((res) => {
-            if (res?.data?.gender) {
+            if (res?.data?.gender && !isFemaleKeyword && !isMaleKeyword) {
               data.onChange({ photo1Gender: res.data.gender });
             }
           })
           .catch(() => {});
       } else {
-        data.onChange({ photo2: finalUrl, rawPhoto2: dataUrl, processedPhoto2: '' });
+        const initialGender = isFemaleKeyword ? 'female' : (isMaleKeyword ? 'male' : (data.photo1Gender === 'male' ? 'female' : 'male'));
+        data.onChange({ photo2: finalUrl, rawPhoto2: dataUrl, processedPhoto2: '', photo2Gender: initialGender });
         fetch('/api/ai/workflow/detect-gender', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -127,7 +132,7 @@ export function StartNode({ data }: { data: StartNodeData }) {
         })
           .then((r) => r.json())
           .then((res) => {
-            if (res?.data?.gender) {
+            if (res?.data?.gender && !isFemaleKeyword && !isMaleKeyword) {
               data.onChange({ photo2Gender: res.data.gender });
             }
           })
@@ -225,87 +230,117 @@ export function StartNode({ data }: { data: StartNodeData }) {
           </div>
 
           <div className="flex gap-2">
-            {/* Photo 1 */}
-            <div
-              onClick={() => !uploadingSlot && fileInputRef1.current?.click()}
-              className="group relative flex h-20 flex-1 cursor-pointer items-center justify-center overflow-hidden rounded-lg border border-dashed border-white/20 bg-white/[0.02] transition hover:border-amber-400 hover:bg-white/[0.06]"
-            >
-              {uploadingSlot === 1 ? (
-                <div className="flex flex-col items-center gap-1.5 text-amber-400">
-                  <Loader2 className="size-5 animate-spin" />
-                  <span className="text-[10px] font-medium">优化上传中...</span>
-                </div>
-              ) : data.photo1 ? (
-                <>
-                  <img src={data.photo1} alt="Rapper 1" className="h-full w-full object-cover" />
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      data.onChange({ photo1Gender: data.photo1Gender === 'female' ? 'male' : 'female' });
-                    }}
-                    className="nodrag nopan absolute bottom-1 right-1 rounded bg-black/80 px-1.5 py-0.5 text-[9px] font-bold text-amber-300 backdrop-blur-md border border-white/20 hover:border-amber-400 hover:bg-black transition cursor-pointer"
-                    title="点击切换歌手性别 (男声 / 女声)"
-                  >
-                    {data.photo1Gender === 'female' ? '👩 女声' : '👨 男声'}
-                  </button>
-                </>
-              ) : (
-                <div className="flex flex-col items-center gap-1 text-slate-400">
-                  <Upload className="size-4" />
-                  <span className="text-[10px]">主唱 MC</span>
-                </div>
-              )}
-              <input
-                ref={fileInputRef1}
-                type="file"
-                accept="image/*"
-                className="hidden"
-                disabled={uploadingSlot !== null}
-                onChange={(e) => handlePhotoUpload(e, 1)}
-              />
-            </div>
-
-            {/* Photo 2 (Duo) */}
-            {data.studioMode === 'duo' && (
+            {/* Photo 1 Container */}
+            <div className="flex flex-1 flex-col gap-1">
               <div
-                onClick={() => !uploadingSlot && fileInputRef2.current?.click()}
-                className="group relative flex h-20 flex-1 cursor-pointer items-center justify-center overflow-hidden rounded-lg border border-dashed border-white/20 bg-white/[0.02] transition hover:border-amber-400 hover:bg-white/[0.06]"
+                onClick={() => !uploadingSlot && fileInputRef1.current?.click()}
+                className="group relative flex h-20 w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg border border-dashed border-white/20 bg-white/[0.02] transition hover:border-amber-400 hover:bg-white/[0.06]"
               >
-                {uploadingSlot === 2 ? (
+                {uploadingSlot === 1 ? (
                   <div className="flex flex-col items-center gap-1.5 text-amber-400">
                     <Loader2 className="size-5 animate-spin" />
-                    <span className="text-[10px] font-medium">优化上传中...</span>
+                    <span className="text-[10px] font-medium">上传中...</span>
                   </div>
-                ) : data.photo2 ? (
-                  <>
-                    <img src={data.photo2} alt="Rapper 2" className="h-full w-full object-cover" />
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        data.onChange({ photo2Gender: data.photo2Gender === 'female' ? 'male' : 'female' });
-                      }}
-                      className="nodrag nopan absolute bottom-1 right-1 rounded bg-black/80 px-1.5 py-0.5 text-[9px] font-bold text-amber-300 backdrop-blur-md border border-white/20 hover:border-amber-400 hover:bg-black transition cursor-pointer"
-                      title="点击切换歌手性别 (男声 / 女声)"
-                    >
-                      {data.photo2Gender === 'female' ? '👩 女声' : '👨 男声'}
-                    </button>
-                  </>
+                ) : data.photo1 ? (
+                  <img src={data.photo1} alt="Rapper 1" className="h-full w-full object-cover" />
                 ) : (
                   <div className="flex flex-col items-center gap-1 text-slate-400">
                     <Upload className="size-4" />
-                    <span className="text-[10px]">副唱 / 对手</span>
+                    <span className="text-[10px]">主唱 MC</span>
                   </div>
                 )}
                 <input
-                  ref={fileInputRef2}
+                  ref={fileInputRef1}
                   type="file"
                   accept="image/*"
                   className="hidden"
                   disabled={uploadingSlot !== null}
-                  onChange={(e) => handlePhotoUpload(e, 2)}
+                  onChange={(e) => handlePhotoUpload(e, 1)}
                 />
+              </div>
+
+              {/* Explicit Gender Toggle 1 */}
+              <div className="flex rounded-md bg-white/5 p-0.5 text-[10px]">
+                <button
+                  type="button"
+                  onClick={() => data.onChange({ photo1Gender: 'male' })}
+                  className={`flex-1 py-0.5 text-center font-bold rounded transition cursor-pointer ${
+                    (data.photo1Gender === 'male' || !data.photo1Gender)
+                      ? 'bg-amber-500 text-black shadow'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  👨 男声
+                </button>
+                <button
+                  type="button"
+                  onClick={() => data.onChange({ photo1Gender: 'female' })}
+                  className={`flex-1 py-0.5 text-center font-bold rounded transition cursor-pointer ${
+                    data.photo1Gender === 'female'
+                      ? 'bg-rose-500 text-white shadow'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  👩 女声
+                </button>
+              </div>
+            </div>
+
+            {/* Photo 2 Container (Duo) */}
+            {data.studioMode === 'duo' && (
+              <div className="flex flex-1 flex-col gap-1">
+                <div
+                  onClick={() => !uploadingSlot && fileInputRef2.current?.click()}
+                  className="group relative flex h-20 w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg border border-dashed border-white/20 bg-white/[0.02] transition hover:border-amber-400 hover:bg-white/[0.06]"
+                >
+                  {uploadingSlot === 2 ? (
+                    <div className="flex flex-col items-center gap-1.5 text-amber-400">
+                      <Loader2 className="size-5 animate-spin" />
+                      <span className="text-[10px] font-medium">上传中...</span>
+                    </div>
+                  ) : data.photo2 ? (
+                    <img src={data.photo2} alt="Rapper 2" className="h-full w-full object-cover" />
+                  ) : (
+                    <div className="flex flex-col items-center gap-1 text-slate-400">
+                      <Upload className="size-4" />
+                      <span className="text-[10px]">副唱 / 对手</span>
+                    </div>
+                  )}
+                  <input
+                    ref={fileInputRef2}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    disabled={uploadingSlot !== null}
+                    onChange={(e) => handlePhotoUpload(e, 2)}
+                  />
+                </div>
+
+                {/* Explicit Gender Toggle 2 */}
+                <div className="flex rounded-md bg-white/5 p-0.5 text-[10px]">
+                  <button
+                    type="button"
+                    onClick={() => data.onChange({ photo2Gender: 'male' })}
+                    className={`flex-1 py-0.5 text-center font-bold rounded transition cursor-pointer ${
+                      data.photo2Gender === 'male'
+                        ? 'bg-amber-500 text-black shadow'
+                        : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    👨 男声
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => data.onChange({ photo2Gender: 'female' })}
+                    className={`flex-1 py-0.5 text-center font-bold rounded transition cursor-pointer ${
+                      (data.photo2Gender === 'female' || (!data.photo2Gender && data.photo1Gender === 'male'))
+                        ? 'bg-rose-500 text-white shadow'
+                        : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    👩 女声
+                  </button>
+                </div>
               </div>
             )}
           </div>
