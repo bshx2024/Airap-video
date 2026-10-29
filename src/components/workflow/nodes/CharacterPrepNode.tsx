@@ -278,28 +278,47 @@ export async function detectFaceFit(imageSrc: string): Promise<FaceFitResult | n
 
           const faceCenterX = totalXWeight > 0 ? (sumWeightedX / totalXWeight) / sw : 0.5;
 
-          // 寻找垂直人脸高强度峰值 (通常在额头下方至鼻梁)
+          // 1. 扫描人脸垂直分布区间 [faceTopY, faceBottomY] (不受特写/半身像限制)
           let maxRowWeight = 0;
-          let peakY = Math.round(sh * 0.45);
-          for (let y = Math.round(sh * 0.28); y < Math.round(sh * 0.65); y++) {
-            if (rowWeights[y] > maxRowWeight) {
-              maxRowWeight = rowWeights[y];
-              peakY = y;
+          for (let y = 0; y < sh; y++) {
+            if (rowWeights[y] > maxRowWeight) maxRowWeight = rowWeights[y];
+          }
+
+          let faceTopY = Math.round(sh * 0.20);
+          let faceBottomY = Math.round(sh * 0.55);
+
+          if (maxRowWeight > 0.5) {
+            const rowThresh = maxRowWeight * 0.20;
+            for (let y = Math.round(sh * 0.10); y < sh - 2; y++) {
+              if (rowWeights[y] >= rowThresh) {
+                faceTopY = y;
+                break;
+              }
+            }
+            for (let y = sh - 2; y >= Math.round(sh * 0.10); y--) {
+              if (rowWeights[y] >= rowThresh) {
+                faceBottomY = y;
+                break;
+              }
             }
           }
 
-          // 结合眼窝/眉毛与镜框暗谷检测 (Haar-like Eye Valley)
-          // 双眼/眉毛行必定比额头与脸颊具有明显更暗的灰度低谷
-          let bestEyeY = Math.round(sh * 0.45);
+          const faceH = Math.max(sh * 0.18, faceBottomY - faceTopY);
+
+          // 2. 基于人体面部生理力学解算眼睛初始高度 (眼睛自然位于发际线至下巴的 34%~38% 处)
+          const approxEyeY = Math.round(faceTopY + faceH * 0.36);
+
+          // 3. 在眼睛初始高度邻域 (±5% 画面高度) 精确进行 Haar-like 眼窝/眉毛/瞳孔暗谷微调扫描
+          let bestEyeY = approxEyeY;
           let minBrightness = 999;
-          const searchStart = Math.max(Math.round(sh * 0.38), Math.round(peakY - sh * 0.08));
-          const searchEnd = Math.min(Math.round(sh * 0.52), Math.round(peakY + sh * 0.06));
+          const searchStart = Math.max(2, Math.round(approxEyeY - sh * 0.05));
+          const searchEnd = Math.min(sh - 2, Math.round(approxEyeY + sh * 0.06));
 
           for (let y = searchStart; y <= searchEnd; y++) {
             let rowLum = 0;
             let count = 0;
-            const xMin = Math.round(sw * 0.30);
-            const xMax = Math.round(sw * 0.70);
+            const xMin = Math.round(sw * 0.25);
+            const xMax = Math.round(sw * 0.75);
             for (let x = xMin; x <= xMax; x++) {
               const idx = (y * sw + x) * 4;
               const lum = data[idx] * 0.299 + data[idx + 1] * 0.587 + data[idx + 2] * 0.114;
@@ -313,7 +332,8 @@ export async function detectFaceFit(imageSrc: string): Promise<FaceFitResult | n
             }
           }
 
-          const estimatedEyeY = Math.max(0.42, Math.min(0.48, bestEyeY / sh));
+          // 无论特写自拍(0.45)还是半身肖像(0.32)，精准还原真实双眼高度
+          const estimatedEyeY = Math.max(0.18, Math.min(0.65, bestEyeY / sh));
 
           // 4. 精确测量双眼与颧骨处的真实脸宽 (Temple-to-Temple Width)
           let sumFaceWidth = 0;
@@ -491,11 +511,10 @@ export function CharacterPrepNode({ data }: { data: CharacterPrepNodeData }) {
     try {
       const fit = await detectFaceFit(displayPhoto);
       if (fit) {
-        // 解算基于基准 (50%, 45%) 的微调相对偏移
+        // 解算基于基准 (50%, 45%) 的微调相对偏移 (兼容半身像、特写与全身自拍)
         const rawOffsetY = Math.round(((fit.eyeCenterYRatio - 0.45) / 0.35) * 100);
-        // 严格约束在自然微调区间 (-12px ~ +12px)
-        const newOffsetY = Math.max(-12, Math.min(12, rawOffsetY));
-        const newOffsetX = Math.round(Math.max(-15, Math.min(15, ((fit.eyeCenterXRatio - 0.5) / 0.35) * 100)));
+        const newOffsetY = Math.max(-45, Math.min(45, rawOffsetY));
+        const newOffsetX = Math.round(Math.max(-30, Math.min(30, ((fit.eyeCenterXRatio - 0.5) / 0.35) * 100)));
         // 根据人脸真实脸宽自适应贴合脸型：
         // 脸宽比例 0.36 对应自然贴合缩放 ~88% (刚好包覆双眼与太阳穴边缘，不突兀外扩)
         const newScale = Math.round(Math.max(72, Math.min(125, (fit.faceWidthRatio / 0.36) * 88)));
@@ -504,7 +523,7 @@ export function CharacterPrepNode({ data }: { data: CharacterPrepNodeData }) {
         // 3D 拓扑网格同步自适应 (基准 50%, 46%)
         const newMeshOffsetX = newOffsetX;
         const rawMeshOffsetY = Math.round(((fit.eyeCenterYRatio - 0.45) / 0.35) * 100);
-        const newMeshOffsetY = Math.max(-10, Math.min(10, rawMeshOffsetY));
+        const newMeshOffsetY = Math.max(-45, Math.min(45, rawMeshOffsetY));
         const newMeshScale = Math.round(Math.max(75, Math.min(125, (fit.faceWidthRatio / 0.36) * 92)));
 
         setOffsetX(newOffsetX);
@@ -653,14 +672,14 @@ export function CharacterPrepNode({ data }: { data: CharacterPrepNodeData }) {
     const dy = e.clientY - dragStartRef.current.mouseY;
 
     if (style !== 'none') {
-      const newX = Math.round(Math.max(-40, Math.min(40, dragStartRef.current.startOffsetX + dx * 0.6)));
-      const newY = Math.round(Math.max(-50, Math.min(50, dragStartRef.current.startOffsetY + dy * 0.6)));
+      const newX = Math.round(Math.max(-40, Math.min(40, dragStartRef.current.startOffsetX + dx * 1.1)));
+      const newY = Math.round(Math.max(-50, Math.min(50, dragStartRef.current.startOffsetY + dy * 1.3)));
       setOffsetX(newX);
       setOffsetY(newY);
       notifyChanges({ sunglassesOffsetX: newX, sunglassesOffsetY: newY });
     } else {
-      const newX = Math.round(Math.max(-35, Math.min(35, dragStartRef.current.startOffsetX + dx * 0.6)));
-      const newY = Math.round(Math.max(-40, Math.min(40, dragStartRef.current.startOffsetY + dy * 0.6)));
+      const newX = Math.round(Math.max(-35, Math.min(35, dragStartRef.current.startOffsetX + dx * 1.1)));
+      const newY = Math.round(Math.max(-50, Math.min(50, dragStartRef.current.startOffsetY + dy * 1.3)));
       setMeshOffsetX(newX);
       setMeshOffsetY(newY);
       notifyChanges({ meshOffsetX: newX, meshOffsetY: newY });
@@ -986,8 +1005,8 @@ export function CharacterPrepNode({ data }: { data: CharacterPrepNodeData }) {
                 <div
                   className="absolute pointer-events-none select-none"
                   style={{
-                    left: `calc(50% + ${offsetX * 1.5}px)`,
-                    top: `calc(45% + ${offsetY * 1.5}px)`,
+                    left: `calc(50% + ${(offsetX * 0.35).toFixed(2)}%)`,
+                    top: `calc(45% + ${(offsetY * 0.35).toFixed(2)}%)`,
                     transform: `translate(-50%, -50%) scale(${scale / 100}) rotate(${rotate}deg)`,
                     width: `${SUNGLASSES_PRESETS[style].baseWidth}px`,
                   }}
@@ -1000,8 +1019,8 @@ export function CharacterPrepNode({ data }: { data: CharacterPrepNodeData }) {
                 <div
                   className="absolute pointer-events-none select-none transition-transform"
                   style={{
-                    left: `calc(50% + ${meshOffsetX * 1.5}px)`,
-                    top: `calc(46% + ${meshOffsetY * 1.5}px)`,
+                    left: `calc(50% + ${(meshOffsetX * 0.35).toFixed(2)}%)`,
+                    top: `calc(46% + ${(meshOffsetY * 0.35).toFixed(2)}%)`,
                     transform: `translate(-50%, -50%) scale(${meshScale / 100})`,
                     width: '118px',
                   }}
