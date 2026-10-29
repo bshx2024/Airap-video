@@ -171,10 +171,14 @@ export interface FaceFitResult {
  * 2. 备用高精度 Canvas 肤色多尺度质心与眼窝暗度检测 (零外部依赖，100% 浏览器兼容，~8ms 执行完毕)
  */
 export async function detectFaceFit(imageSrc: string): Promise<FaceFitResult | null> {
+  if (typeof window === 'undefined' || typeof document === 'undefined' || !imageSrc) {
+    return null;
+  }
   return new Promise((resolve) => {
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.onload = async () => {
+    try {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = async () => {
       const width = img.naturalWidth || img.width || 800;
       const height = img.naturalHeight || img.height || 800;
 
@@ -278,8 +282,11 @@ export async function detectFaceFit(imageSrc: string): Promise<FaceFitResult | n
 
       resolve(null);
     };
-    img.onerror = () => resolve(null);
-    img.src = imageSrc;
+      img.onerror = () => resolve(null);
+      img.src = imageSrc;
+    } catch {
+      resolve(null);
+    }
   });
 }
 
@@ -446,14 +453,6 @@ export function CharacterPrepNode({ data }: { data: CharacterPrepNodeData }) {
       setIsAutoFitting(false);
     }
   }, [displayPhoto, notifyChanges]);
-
-  // 当照片初次载入或切换新照片时，自动执行一次静默智能识别人脸并自适应
-  useEffect(() => {
-    if (displayPhoto && displayPhoto !== lastFittedPhotoRef.current) {
-      lastFittedPhotoRef.current = displayPhoto;
-      handleAutoFitFace(true);
-    }
-  }, [displayPhoto, handleAutoFitFace]);
 
   // Parameter updaters (updates local state instantly + syncs to workflow)
   const handleUpdateStyle = (newStyle: string) => {
