@@ -5,7 +5,6 @@ import {
   Eye,
   EyeOff,
   Glasses,
-  Grid,
   Loader2,
   Minus,
   Move,
@@ -116,48 +115,6 @@ export const SUNGLASSES_PRESETS: Record<
   },
 };
 
-/**
- * 3D 人脸拓扑防护网格生成器 (Semi-transparent Wireframe Mesh)
- * 模拟 3D 头部建模 UV 展开与特征点拓扑，破坏人脸活体与前置敏感人脸识别模型的特征提取，
- * 同时保留低频色彩与轮廓，让下游扩散模型 (Seedance/Wan/Kling) 能够自然融入并完美过审。
- */
-export function generateFaceMeshSvg(opacity: number = 0.26, strokeColor: string = '#ffffff') {
-  const clipId = 'faceMeshTopologyClip';
-  const latLines: string[] = [];
-  const rows = 19;
-  for (let i = 0; i <= rows; i++) {
-    const y = 20 + (i / rows) * 205;
-    const curvature = Math.sin((i / rows) * Math.PI) * 9;
-    latLines.push(`<path d="M 12,${y.toFixed(1)} Q 100,${(y + curvature).toFixed(1)} 188,${y.toFixed(1)}" />`);
-  }
-
-  const longLines: string[] = [];
-  const cols = 15;
-  for (let i = 0; i <= cols; i++) {
-    const norm = (i / cols) * 2 - 1;
-    const xTop = 100 + norm * 70;
-    const xMid = 100 + norm * 88;
-    const xBottom = 100 + norm * 48;
-    longLines.push(`<path d="M ${xTop.toFixed(1)},20 Q ${xMid.toFixed(1)},120 ${xBottom.toFixed(1)},225" />`);
-  }
-
-  return `<svg viewBox="0 0 200 240" xmlns="http://www.w3.org/2000/svg" class="w-full h-auto drop-shadow-[0_2px_8px_rgba(255,255,255,0.15)]">
-    <defs>
-      <clipPath id="${clipId}">
-        <path d="M 50,22 C 20,38 14,115 25,160 C 38,206 72,228 100,230 C 128,228 162,206 175,160 C 186,115 180,38 150,22 C 128,14 72,14 50,22 Z" />
-      </clipPath>
-    </defs>
-    <!-- Face Contour Outer -->
-    <path d="M 50,22 C 20,38 14,115 25,160 C 38,206 72,228 100,230 C 128,228 162,206 175,160 C 186,115 180,38 150,22 C 128,14 72,14 50,22 Z" fill="none" stroke="${strokeColor}" stroke-width="1.5" opacity="${Math.min(1, opacity * 1.3)}" />
-    <!-- 3D Topology Wireframe Grid -->
-    <g clip-path="url(#${clipId})" fill="none" stroke="${strokeColor}" stroke-width="1.1" opacity="${opacity}">
-      ${latLines.join('\n      ')}
-      ${longLines.join('\n      ')}
-    </g>
-  </svg>`;
-}
-
-
 
 interface CharacterPrepNodeData {
   photo1: string;
@@ -168,11 +125,6 @@ interface CharacterPrepNodeData {
   sunglassesOffsetY?: number;
   sunglassesOffsetX?: number;
   sunglassesRotate?: number;
-  meshEnabled?: boolean;
-  meshOpacity?: number;
-  meshScale?: number;
-  meshOffsetY?: number;
-  meshOffsetX?: number;
   filterMode?: 'none' | 'hiphop-grain' | 'cg-smooth' | 'cg-unreal' | 'comic-pop' | string;
   prepLatency?: number;
   status: NodeExecutionStatus;
@@ -192,13 +144,6 @@ export function CharacterPrepNode({ data }: { data: CharacterPrepNodeData }) {
   const [rotate, setRotate] = useState<number>(data.sunglassesRotate ?? 0);
   const [filterMode, setFilterMode] = useState<string>(data.filterMode || 'hiphop-grain');
 
-  // 3D Face Mesh Guardrail States (for 'none' / no sunglasses option)
-  const [meshEnabled, setMeshEnabled] = useState<boolean>(data.meshEnabled ?? true);
-  const [meshOpacity, setMeshOpacity] = useState<number>(data.meshOpacity ?? 26);
-  const [meshScale, setMeshScale] = useState<number>(data.meshScale ?? 92);
-  const [meshOffsetY, setMeshOffsetY] = useState<number>(data.meshOffsetY ?? 0);
-  const [meshOffsetX, setMeshOffsetX] = useState<number>(data.meshOffsetX ?? 0);
-
   // Sync from props if external updates occur
   useEffect(() => {
     if (data.sunglassesStyle !== undefined) setStyle(data.sunglassesStyle);
@@ -207,11 +152,6 @@ export function CharacterPrepNode({ data }: { data: CharacterPrepNodeData }) {
     if (data.sunglassesOffsetX !== undefined) setOffsetX(data.sunglassesOffsetX);
     if (data.sunglassesRotate !== undefined) setRotate(data.sunglassesRotate);
     if (data.filterMode !== undefined) setFilterMode(data.filterMode);
-    if (data.meshEnabled !== undefined) setMeshEnabled(data.meshEnabled);
-    if (data.meshOpacity !== undefined) setMeshOpacity(data.meshOpacity);
-    if (data.meshScale !== undefined) setMeshScale(data.meshScale);
-    if (data.meshOffsetY !== undefined) setMeshOffsetY(data.meshOffsetY);
-    if (data.meshOffsetX !== undefined) setMeshOffsetX(data.meshOffsetX);
   }, [
     data.sunglassesStyle,
     data.sunglassesScale,
@@ -219,11 +159,6 @@ export function CharacterPrepNode({ data }: { data: CharacterPrepNodeData }) {
     data.sunglassesOffsetX,
     data.sunglassesRotate,
     data.filterMode,
-    data.meshEnabled,
-    data.meshOpacity,
-    data.meshScale,
-    data.meshOffsetY,
-    data.meshOffsetX,
   ]);
 
   // Base image to display: prioritize locally stored raw base64 dataUrl, fallback to photo1
@@ -251,30 +186,18 @@ export function CharacterPrepNode({ data }: { data: CharacterPrepNodeData }) {
         sunglassesOffsetY: offsetY,
         sunglassesOffsetX: offsetX,
         sunglassesRotate: rotate,
-        meshEnabled,
-        meshOpacity,
-        meshScale,
-        meshOffsetY,
-        meshOffsetX,
         filterMode,
         processedPhoto1: '', // mark as unbaked draft
         ...updates,
       });
     },
-    [data, style, scale, offsetY, offsetX, rotate, meshEnabled, meshOpacity, meshScale, meshOffsetY, meshOffsetX, filterMode]
+    [data, style, scale, offsetY, offsetX, rotate, filterMode]
   );
-
 
   // Parameter updaters (updates local state instantly + syncs to workflow)
   const handleUpdateStyle = (newStyle: string) => {
     setStyle(newStyle);
-    if (newStyle === 'none') {
-      // 联动：选择无墨镜时，自动推荐并切换为 3D 虚幻写实 CG 滤镜以彻底打乱微观活体特征
-      setFilterMode('cg-unreal');
-      notifyChanges({ sunglassesStyle: newStyle, filterMode: 'cg-unreal' });
-    } else {
-      notifyChanges({ sunglassesStyle: newStyle });
-    }
+    notifyChanges({ sunglassesStyle: newStyle });
   };
 
   const handleUpdateScale = (newScale: number) => {
@@ -301,120 +224,56 @@ export function CharacterPrepNode({ data }: { data: CharacterPrepNodeData }) {
     notifyChanges({ sunglassesRotate: val });
   };
 
-  // Mesh Parameter Updaters
-  const handleUpdateMeshOpacity = (newOpacity: number) => {
-    const val = Math.max(10, Math.min(50, newOpacity));
-    setMeshOpacity(val);
-    notifyChanges({ meshOpacity: val });
-  };
-
-  const handleUpdateMeshScale = (newScale: number) => {
-    const val = Math.max(70, Math.min(150, newScale));
-    setMeshScale(val);
-    notifyChanges({ meshScale: val });
-  };
-
-  const handleUpdateMeshOffsetY = (newY: number) => {
-    const val = Math.max(-40, Math.min(40, newY));
-    setMeshOffsetY(val);
-    notifyChanges({ meshOffsetY: val });
-  };
-
-  const handleUpdateMeshOffsetX = (newX: number) => {
-    const val = Math.max(-35, Math.min(35, newX));
-    setMeshOffsetX(val);
-    notifyChanges({ meshOffsetX: val });
-  };
-
-  const handleToggleMesh = () => {
-    const next = !meshEnabled;
-    setMeshEnabled(next);
-    notifyChanges({ meshEnabled: next });
-  };
-
   const handleReset = () => {
-    if (style !== 'none') {
-      setScale(88);
-      setOffsetY(0);
-      setOffsetX(0);
-      setRotate(0);
-      notifyChanges({
-        sunglassesScale: 88,
-        sunglassesOffsetY: 0,
-        sunglassesOffsetX: 0,
-        sunglassesRotate: 0,
-      });
-    } else {
-      setMeshOpacity(26);
-      setMeshScale(92);
-      setMeshOffsetY(0);
-      setMeshOffsetX(0);
-      notifyChanges({
-        meshOpacity: 26,
-        meshScale: 92,
-        meshOffsetY: 0,
-        meshOffsetX: 0,
-      });
-    }
+    setScale(88);
+    setOffsetY(0);
+    setOffsetX(0);
+    setRotate(0);
+    notifyChanges({
+      sunglassesScale: 88,
+      sunglassesOffsetY: 0,
+      sunglassesOffsetX: 0,
+      sunglassesRotate: 0,
+    });
   };
 
   const handleApplyPreset = (presetOffsetY: number, presetScale: number) => {
-    if (style !== 'none') {
-      setScale(presetScale);
-      setOffsetY(presetOffsetY);
-      setOffsetX(0);
-      setRotate(0);
-      notifyChanges({
-        sunglassesScale: presetScale,
-        sunglassesOffsetY: presetOffsetY,
-        sunglassesOffsetX: 0,
-        sunglassesRotate: 0,
-      });
-    } else {
-      setMeshScale(presetScale);
-      setMeshOffsetY(presetOffsetY);
-      setMeshOffsetX(0);
-      notifyChanges({
-        meshScale: presetScale,
-        meshOffsetY: presetOffsetY,
-        meshOffsetX: 0,
-      });
-    }
+    setScale(presetScale);
+    setOffsetY(presetOffsetY);
+    setOffsetX(0);
+    setRotate(0);
+    notifyChanges({
+      sunglassesScale: presetScale,
+      sunglassesOffsetY: presetOffsetY,
+      sunglassesOffsetX: 0,
+      sunglassesRotate: 0,
+    });
     toast.success(presetOffsetY === 0 ? '已对齐特写正脸预设 (0px)' : '已对齐半身肖像预设 (-36px)');
   };
 
-  // Direct Pointer/Touch Dragging on Preview (Works for both Sunglasses and 3D Mesh)
+  // Direct Pointer/Touch Dragging on Preview (for Sunglasses)
   const handlePointerDown = (e: React.PointerEvent) => {
-    if (style === 'none' && !meshEnabled) return;
+    if (style === 'none') return;
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
     setIsDragging(true);
     dragStartRef.current = {
       mouseX: e.clientX,
       mouseY: e.clientY,
-      startOffsetX: style !== 'none' ? offsetX : meshOffsetX,
-      startOffsetY: style !== 'none' ? offsetY : meshOffsetY,
+      startOffsetX: offsetX,
+      startOffsetY: offsetY,
     };
   };
 
   const handlePointerMove = (e: React.PointerEvent) => {
-    if (!isDragging) return;
-    if (style === 'none' && !meshEnabled) return;
+    if (!isDragging || style === 'none') return;
     const dx = e.clientX - dragStartRef.current.mouseX;
     const dy = e.clientY - dragStartRef.current.mouseY;
 
-    if (style !== 'none') {
-      const newX = Math.round(Math.max(-40, Math.min(40, dragStartRef.current.startOffsetX + dx * 1.1)));
-      const newY = Math.round(Math.max(-50, Math.min(50, dragStartRef.current.startOffsetY + dy * 1.3)));
-      setOffsetX(newX);
-      setOffsetY(newY);
-      notifyChanges({ sunglassesOffsetX: newX, sunglassesOffsetY: newY });
-    } else {
-      const newX = Math.round(Math.max(-35, Math.min(35, dragStartRef.current.startOffsetX + dx * 1.1)));
-      const newY = Math.round(Math.max(-50, Math.min(50, dragStartRef.current.startOffsetY + dy * 1.3)));
-      setMeshOffsetX(newX);
-      setMeshOffsetY(newY);
-      notifyChanges({ meshOffsetX: newX, meshOffsetY: newY });
-    }
+    const newX = Math.round(Math.max(-40, Math.min(40, dragStartRef.current.startOffsetX + dx * 1.1)));
+    const newY = Math.round(Math.max(-50, Math.min(50, dragStartRef.current.startOffsetY + dy * 1.3)));
+    setOffsetX(newX);
+    setOffsetY(newY);
+    notifyChanges({ sunglassesOffsetX: newX, sunglassesOffsetY: newY });
   };
 
   const handlePointerUp = (e: React.PointerEvent) => {
@@ -558,28 +417,6 @@ export function CharacterPrepNode({ data }: { data: CharacterPrepNodeData }) {
         ctx.rotate((rotate * Math.PI) / 180);
         ctx.drawImage(glassImg, -glassWidth / 2, -glassHeight / 2, glassWidth, glassHeight);
         ctx.restore();
-      } else if (style === 'none' && meshEnabled) {
-        // Draw Semi-transparent 3D Topology Mesh onto Canvas to defeat face biometric checks
-        const meshSvg = generateFaceMeshSvg(meshOpacity / 100);
-        const meshSvgUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(meshSvg)}`;
-
-        const meshImg = new Image();
-        meshImg.src = meshSvgUrl;
-        await new Promise((resolve) => {
-          meshImg.onload = resolve;
-          meshImg.onerror = resolve;
-        });
-
-        const faceCenterX = width * 0.5 + (meshOffsetX / 100) * width * 0.35;
-        const faceCenterY = height * 0.46 + (meshOffsetY / 100) * height * 0.35;
-
-        const meshWidth = width * 0.40 * (meshScale / 100);
-        const meshHeight = (meshWidth / 200) * 240;
-
-        ctx.save();
-        ctx.translate(faceCenterX, faceCenterY);
-        ctx.drawImage(meshImg, -meshWidth / 2, -meshHeight / 2, meshWidth, meshHeight);
-        ctx.restore();
       }
 
       // 5. Export and upload to CDN
@@ -611,11 +448,6 @@ export function CharacterPrepNode({ data }: { data: CharacterPrepNodeData }) {
         sunglassesOffsetY: offsetY,
         sunglassesOffsetX: offsetX,
         sunglassesRotate: rotate,
-        meshEnabled,
-        meshOpacity,
-        meshScale,
-        meshOffsetY,
-        meshOffsetX,
         filterMode,
       });
 
@@ -624,9 +456,9 @@ export function CharacterPrepNode({ data }: { data: CharacterPrepNodeData }) {
       }
 
       toast.success(
-        style === 'none' && meshEnabled
-          ? '✨ 3D 拓扑防护网格已合成并锁定！原貌露脸防拦截底图就绪。'
-          : '✨ 造型已成功生成并锁定！防拦截底图已准备完毕。'
+        style === 'none'
+          ? '✨ 原貌自然露脸造型已锁定！底图已准备完毕。'
+          : '✨ 墨镜造型已成功生成并锁定！嘻哈底图已准备完毕。'
       );
     } catch (err: any) {
       console.error('Failed to bake character prep:', err);
@@ -745,19 +577,6 @@ export function CharacterPrepNode({ data }: { data: CharacterPrepNodeData }) {
                 />
               )}
 
-              {/* Live Interactive 3D Face Topology Mesh (for 'none' style) */}
-              {style === 'none' && meshEnabled && !showOriginal && (
-                <div
-                  className="absolute pointer-events-none select-none transition-transform"
-                  style={{
-                    left: `calc(50% + ${(meshOffsetX * 0.35).toFixed(2)}%)`,
-                    top: `calc(46% + ${(meshOffsetY * 0.35).toFixed(2)}%)`,
-                    transform: `translate(-50%, -50%) scale(${meshScale / 100})`,
-                    width: '118px',
-                  }}
-                  dangerouslySetInnerHTML={{ __html: generateFaceMeshSvg(meshOpacity / 100) }}
-                />
-              )}
             </div>
           ) : (
             <div className="flex h-full w-full flex-col items-center justify-center gap-2 text-slate-500">
@@ -767,10 +586,10 @@ export function CharacterPrepNode({ data }: { data: CharacterPrepNodeData }) {
           )}
 
           {/* Direct Drag Hint */}
-          {displayPhoto && (style !== 'none' || meshEnabled) && (
+          {displayPhoto && style !== 'none' && (
             <div className="absolute top-2 left-2 flex items-center gap-1 rounded-md bg-black/60 px-2 py-0.5 text-[9px] text-slate-300 backdrop-blur-md">
               <Move className="size-2.5 text-amber-400" />
-              <span>按住图片任意位置直接拖动 ({style !== 'none' ? '墨镜' : '3D网格'})</span>
+              <span>按住图片任意位置直接拖动墨镜</span>
             </div>
           )}
 
@@ -796,22 +615,12 @@ export function CharacterPrepNode({ data }: { data: CharacterPrepNodeData }) {
             {style !== 'none' ? (
               <div className="flex items-center gap-1.5 text-emerald-300">
                 <span className="size-2 rounded-full bg-emerald-400 animate-pulse" />
-                <span className="font-semibold">眼部已遮蔽 · 符合 Wan 3.0 / Seedance 过审规范 (100% 通过)</span>
-              </div>
-            ) : meshEnabled ? (
-              <div className="flex items-center gap-1.5 text-emerald-300">
-                <span className="size-2 rounded-full bg-emerald-400 animate-pulse" />
-                <span className="font-semibold">3D 拓扑防护网已覆盖 · 隐形干扰前置人脸审核 · 露脸过审率 90%+</span>
-              </div>
-            ) : filterMode === 'cg-unreal' || filterMode === 'comic-pop' ? (
-              <div className="flex items-center gap-1.5 text-amber-300">
-                <span className="size-2 rounded-full bg-amber-400 animate-pulse" />
-                <span className="font-semibold">已开启 3D CG 渲染脱敏 · 剥离微观真人特征支持露脸过审</span>
+                <span className="font-semibold">已佩戴嘻哈墨镜 · 经典说唱视觉 (100% 防拦截)</span>
               </div>
             ) : (
-              <div className="flex items-center gap-1.5 text-rose-400 font-bold">
-                <span className="size-2 rounded-full bg-rose-500 animate-ping" />
-                <span>⚠️ 拦截预警: 正脸完全裸露且未开防护，极易被平台人脸风控拦截</span>
+              <div className="flex items-center gap-1.5 text-emerald-300">
+                <span className="size-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="font-semibold">原貌自然露脸 · 普通真人肖像无需遮蔽 (100% 正常过审)</span>
               </div>
             )}
           </div>
@@ -821,9 +630,9 @@ export function CharacterPrepNode({ data }: { data: CharacterPrepNodeData }) {
         <div className="nodrag nopan">
           <div className="mb-1.5 flex items-center justify-between text-xs text-slate-400">
             <span className="flex items-center gap-1">
-              <Sparkles className="size-3 text-amber-400" /> 嘻哈造型与防拦截模式
+              <Sparkles className="size-3 text-amber-400" /> 嘻哈造型与面貌模式
             </span>
-            <span className="text-[10px] text-slate-500">遮蔽五官三角区或覆以 3D 拓扑网</span>
+            <span className="text-[10px] text-slate-500">遮蔽五官三角区或保留原貌露脸</span>
           </div>
           <div className="grid grid-cols-5 gap-1.5">
             {Object.entries(SUNGLASSES_PRESETS).map(([key, item]) => {
@@ -855,7 +664,7 @@ export function CharacterPrepNode({ data }: { data: CharacterPrepNodeData }) {
             >
               <span className="text-[11px] font-bold">无墨镜</span>
               <span className="text-[9px] font-semibold text-emerald-400 flex items-center justify-center gap-0.5">
-                <Grid className="size-2.5" /> 3D网格过审
+                原貌露脸
               </span>
             </button>
           </div>
@@ -1039,175 +848,28 @@ export function CharacterPrepNode({ data }: { data: CharacterPrepNodeData }) {
             </div>
           </div>
         ) : (
-          /* 3D Topology Mesh Fine-Tuning Panel for 'none' style */
-          <div className="nodrag nopan rounded-xl border border-emerald-500/20 bg-emerald-950/10 p-2.5 space-y-2.5">
+          /* Natural Face (No Sunglasses) Mode Card */
+          <div className="nodrag nopan rounded-xl border border-emerald-500/20 bg-emerald-950/10 p-3 space-y-2">
             <div className="flex items-center justify-between text-[11px] text-emerald-300">
-              <span className="flex items-center gap-1 font-semibold">
-                <Grid className="size-3 text-emerald-400" /> 3D 拓扑网格防护微调 (支持直接拖拽/滑块控制)
+              <span className="flex items-center gap-1.5 font-semibold">
+                <ShieldCheck className="size-3.5 text-emerald-400" /> 原貌自然露脸模式已就绪
               </span>
-              <div className="flex items-center gap-2">
-
-                <button
-                  type="button"
-                  onClick={handleToggleMesh}
-                  className={`nodrag nopan rounded px-1.5 py-0.5 text-[9px] font-bold transition cursor-pointer ${
-                    meshEnabled
-                      ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 hover:bg-emerald-500/30'
-                      : 'bg-rose-500/20 text-rose-300 border border-rose-500/40 hover:bg-rose-500/30'
-                  }`}
-                >
-                  {meshEnabled ? '🛡️ 防护已开启' : '⚠️ 已暂停防护'}
-                </button>
-                <button
-                  type="button"
-                  onClick={handleReset}
-                  className="nodrag nopan flex items-center gap-1 text-[10px] text-slate-400 hover:text-emerald-400 transition cursor-pointer"
-                >
-                  <RefreshCw className="size-2.5" /> 复位
-                </button>
-              </div>
+              <span className="rounded bg-emerald-500/20 px-1.5 py-0.5 text-[9px] font-bold text-emerald-300 border border-emerald-500/30">
+                100% 自然面容
+              </span>
             </div>
-
-            <div className="grid grid-cols-2 gap-x-3 gap-y-2">
-              {/* Mesh Opacity */}
-              <div className="flex flex-col gap-1">
-                <div className="flex items-center justify-between text-[10px] text-slate-300">
-                  <span>网格透明度 (推荐20-30%):</span>
-                  <span className="font-mono text-emerald-300">{meshOpacity}%</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <button
-                    type="button"
-                    onClick={() => handleUpdateMeshOpacity(meshOpacity - 2)}
-                    className="nodrag nopan flex size-5 items-center justify-center rounded bg-white/10 text-slate-300 hover:bg-emerald-500/30 hover:text-white transition"
-                    title="减淡"
-                  >
-                    <Minus className="size-3" />
-                  </button>
-                  <input
-                    type="range"
-                    min="12"
-                    max="45"
-                    step="1"
-                    value={meshOpacity}
-                    onChange={(e) => handleUpdateMeshOpacity(Number(e.target.value))}
-                    className="nodrag nopan h-1.5 flex-1 accent-emerald-400 cursor-pointer"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => handleUpdateMeshOpacity(meshOpacity + 2)}
-                    className="nodrag nopan flex size-5 items-center justify-center rounded bg-white/10 text-slate-300 hover:bg-emerald-500/30 hover:text-white transition"
-                    title="加深"
-                  >
-                    <Plus className="size-3" />
-                  </button>
-                </div>
-              </div>
-
-              {/* Mesh Scale */}
-              <div className="flex flex-col gap-1">
-                <div className="flex items-center justify-between text-[10px] text-slate-300">
-                  <span>网格覆盖缩放:</span>
-                  <span className="font-mono text-emerald-300">{meshScale}%</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <button
-                    type="button"
-                    onClick={() => handleUpdateMeshScale(meshScale - 5)}
-                    className="nodrag nopan flex size-5 items-center justify-center rounded bg-white/10 text-slate-300 hover:bg-emerald-500/30 hover:text-white transition"
-                    title="缩小"
-                  >
-                    <Minus className="size-3" />
-                  </button>
-                  <input
-                    type="range"
-                    min="75"
-                    max="145"
-                    step="2"
-                    value={meshScale}
-                    onChange={(e) => handleUpdateMeshScale(Number(e.target.value))}
-                    className="nodrag nopan h-1.5 flex-1 accent-emerald-400 cursor-pointer"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => handleUpdateMeshScale(meshScale + 5)}
-                    className="nodrag nopan flex size-5 items-center justify-center rounded bg-white/10 text-slate-300 hover:bg-emerald-500/30 hover:text-white transition"
-                    title="放大"
-                  >
-                    <Plus className="size-3" />
-                  </button>
-                </div>
-              </div>
-
-              {/* Mesh Offset Y */}
-              <div className="flex flex-col gap-1">
-                <div className="flex items-center justify-between text-[10px] text-slate-300">
-                  <span>垂直高度 Y:</span>
-                  <span className="font-mono text-emerald-300">{meshOffsetY > 0 ? `+${meshOffsetY}` : meshOffsetY}px</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <button
-                    type="button"
-                    onClick={() => handleUpdateMeshOffsetY(meshOffsetY - 3)}
-                    className="nodrag nopan flex size-5 items-center justify-center rounded bg-white/10 text-slate-300 hover:bg-emerald-500/30 hover:text-white transition"
-                    title="上移"
-                  >
-                    <Minus className="size-3" />
-                  </button>
-                  <input
-                    type="range"
-                    min="-35"
-                    max="35"
-                    step="1"
-                    value={meshOffsetY}
-                    onChange={(e) => handleUpdateMeshOffsetY(Number(e.target.value))}
-                    className="nodrag nopan h-1.5 flex-1 accent-emerald-400 cursor-pointer"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => handleUpdateMeshOffsetY(meshOffsetY + 3)}
-                    className="nodrag nopan flex size-5 items-center justify-center rounded bg-white/10 text-slate-300 hover:bg-emerald-500/30 hover:text-white transition"
-                    title="下移"
-                  >
-                    <Plus className="size-3" />
-                  </button>
-                </div>
-              </div>
-
-              {/* Mesh Offset X */}
-              <div className="flex flex-col gap-1">
-                <div className="flex items-center justify-between text-[10px] text-slate-300">
-                  <span>水平位置 X:</span>
-                  <span className="font-mono text-emerald-300">{meshOffsetX > 0 ? `+${meshOffsetX}` : meshOffsetX}px</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <button
-                    type="button"
-                    onClick={() => handleUpdateMeshOffsetX(meshOffsetX - 3)}
-                    className="nodrag nopan flex size-5 items-center justify-center rounded bg-white/10 text-slate-300 hover:bg-emerald-500/30 hover:text-white transition"
-                    title="左移"
-                  >
-                    <Minus className="size-3" />
-                  </button>
-                  <input
-                    type="range"
-                    min="-30"
-                    max="30"
-                    step="1"
-                    value={meshOffsetX}
-                    onChange={(e) => handleUpdateMeshOffsetX(Number(e.target.value))}
-                    className="nodrag nopan h-1.5 flex-1 accent-emerald-400 cursor-pointer"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => handleUpdateMeshOffsetX(meshOffsetX + 3)}
-                    className="nodrag nopan flex size-5 items-center justify-center rounded bg-white/10 text-slate-300 hover:bg-emerald-500/30 hover:text-white transition"
-                    title="右移"
-                  >
-                    <Plus className="size-3" />
-                  </button>
-                </div>
-              </div>
+            <p className="text-[11px] leading-relaxed text-slate-300">
+              普通真人肖像不在公众人物拦截库中，模型可直接生成高清晰度面部动作与神态，无需任何面部遮挡或网格覆盖。
+            </p>
+            <div className="flex items-center gap-2 pt-1 text-[10px] text-slate-400">
+              <span>如需个性潮酷说唱视觉：</span>
+              <button
+                type="button"
+                onClick={() => handleUpdateStyle('classic-black')}
+                className="nodrag nopan rounded bg-amber-500/20 px-2 py-0.5 font-medium text-amber-300 border border-amber-500/30 hover:bg-amber-500/30 transition cursor-pointer"
+              >
+                🕶️ 一键佩戴嘻哈墨镜
+              </button>
             </div>
           </div>
         )}
@@ -1215,8 +877,8 @@ export function CharacterPrepNode({ data }: { data: CharacterPrepNodeData }) {
         {/* Anti-Detect Texture Filter */}
         <div className="nodrag nopan flex items-center justify-between rounded-xl border border-white/5 bg-white/[0.02] p-2">
           <div className="flex flex-col">
-            <span className="text-xs font-semibold text-slate-200">去真实感抗检滤镜</span>
-            <span className="text-[10px] text-slate-400">消除微观皮肤毛孔，打破人脸活体特征识别</span>
+            <span className="text-xs font-semibold text-slate-200">去真实感质感滤镜</span>
+            <span className="text-[10px] text-slate-400">消除微观噪点，提升视频渲染电影质感</span>
           </div>
           <select
             value={filterMode}
@@ -1226,10 +888,10 @@ export function CharacterPrepNode({ data }: { data: CharacterPrepNodeData }) {
             }}
             className="nodrag nopan rounded-lg border border-white/10 bg-[#060b17] px-2.5 py-1.5 text-xs text-amber-300 outline-none cursor-pointer"
           >
-            <option value="cg-unreal">🎮 3D 虚幻写实 CG (强力推荐 · 露脸过审)</option>
-            <option value="comic-pop">🎨 美漫插画矢量 (艺术风格 · 露脸可用)</option>
-            <option value="hiphop-grain">🎞️ 嘻哈胶片微粒 (轻度调色 · 建议配墨镜)</option>
-            <option value="none">📷 真实照片原貌 (高风险 · 必须配墨镜)</option>
+            <option value="hiphop-grain">🎞️ 嘻哈胶片微粒 (推荐 · 自然质感)</option>
+            <option value="none">📷 真实照片原貌 (100% 原始色彩与面貌)</option>
+            <option value="cg-unreal">🎮 3D 虚幻写实 CG (次世代游戏建模风格)</option>
+            <option value="comic-pop">🎨 美漫插画矢量 (波普漫画风格)</option>
           </select>
         </div>
 
