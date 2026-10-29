@@ -217,71 +217,122 @@ export async function detectFaceFit(imageSrc: string): Promise<FaceFitResult | n
         }
       }
 
-      // 2. 通用 Canvas 肤色聚类与眼部高对比度扫描
-      try {
-        const sampleCanvas = document.createElement('canvas');
-        const sw = 160;
-        const sh = Math.max(120, Math.round((height / width) * 160));
-        sampleCanvas.width = sw;
-        sampleCanvas.height = sh;
-        const ctx = sampleCanvas.getContext('2d');
-        if (!ctx) return resolve(null);
+        // 2. 抗背景干扰的高精度眼部与人脸定位器 (局部梯度方差过滤白墙门板 + 中心先验)
+        try {
+          const sampleCanvas = document.createElement('canvas');
+          const sw = 120;
+          const sh = Math.max(100, Math.round((height / width) * 120));
+          sampleCanvas.width = sw;
+          sampleCanvas.height = sh;
+          const ctx = sampleCanvas.getContext('2d');
+          if (!ctx) return resolve(null);
 
-        ctx.drawImage(img, 0, 0, sw, sh);
-        const imgData = ctx.getImageData(0, 0, sw, sh);
-        const data = imgData.data;
+          ctx.drawImage(img, 0, 0, sw, sh);
+          const imgData = ctx.getImageData(0, 0, sw, sh);
+          const data = imgData.data;
 
-        let totalSkinWeight = 0;
-        let sumX = 0;
-        let sumY = 0;
-        let minX = sw;
-        let maxX = 0;
-        let minY = sh;
-        let maxY = 0;
+          const rowWeights = new Float32Array(sh);
+          const colWeights = new Float32Array(sw);
 
-        for (let y = 0; y < sh; y++) {
-          for (let x = 0; x < sw; x++) {
-            const idx = (y * sw + x) * 4;
-            const r = data[idx];
-            const g = data[idx + 1];
-            const b = data[idx + 2];
+          for (let y = 1; y < sh - 1; y++) {
+            const yNorm = y / sh;
+            // 忽略极度顶部 (天花板) 和底部 (躯干)
+            if (yNorm < 0.16 || yNorm > 0.80) continue;
 
-            // 广谱人类面部肤色判定 (涵盖白皙、黄肤色、深色肤色)
-            const isSkin = r > 45 && g > 28 && b > 18 && r > g && g >= b && (r - b) > 12;
-            if (isSkin) {
-              totalSkinWeight++;
-              sumX += x;
-              sumY += y;
-              if (x < minX) minX = x;
-              if (x > maxX) maxX = x;
-              if (y < minY) minY = y;
-              if (y > maxY) maxY = y;
+            for (let x = 1; x < sw - 1; x++) {
+              const xNorm = x / sw;
+              if (xNorm < 0.16 || xNorm > 0.84) continue;
+
+              const idx = (y * sw + x) * 4;
+              const r = data[idx];
+              const g = data[idx + 1];
+              const b = data[idx + 2];
+
+              // 计算相邻像素差值以剔除平滑的纯色墙面/门框
+              const upIdx = ((y - 1) * sw + x) * 4;
+              const leftIdx = (y * sw + (x - 1)) * 4;
+              const diff = Math.abs(r - data[upIdx]) + Math.abs(g - data[upIdx + 1]) + Math.abs(r - data[leftIdx]);
+
+              // 纯色背景/平滑墙面直接过滤
+              if (diff < 6) continue;
+
+              // 人类肤色范围
+              const isSkin = r > 45 && g > 28 && b > 18 && r > g && (r - b) > 12;
+              if (isSkin) {
+                // 中心加权: 自拍头像主要位于水平中心
+                const centerWeight = Math.max(0.15, 1.0 - Math.abs(xNorm - 0.5) * 1.6);
+                const weight = centerWeight * Math.min(3.0, diff / 15);
+                rowWeights[y] += weight;
+                colWeights[x] += weight;
+              }
             }
           }
-        }
 
-        if (totalSkinWeight > (sw * sh * 0.035)) {
-          const faceCenterX = sumX / totalSkinWeight;
-          const faceCenterY = sumY / totalSkinWeight;
-          const faceW = Math.max(sw * 0.28, maxX - minX);
-          const faceH = Math.max(sh * 0.32, maxY - minY);
+          // 计算水平中心 X
+          let totalXWeight = 0;
+          let sumWeightedX = 0;
+          for (let x = 0; x < sw; x++) {
+            totalXWeight += colWeights[x];
+            sumWeightedX += x * colWeights[x];
+          }
 
-          // 眼眶通常在面部重心靠上 10%~14% 处
-          const estimatedEyeY = Math.max(minY + faceH * 0.26, faceCenterY - faceH * 0.12);
+          const faceCenterX = totalXWeight > 0 ? (sumWeightedX / totalXWeight) / sw : 0.5;
+
+          // 寻找垂直人脸高强度峰值 (通常在额头下方至鼻梁)
+          let maxRowWeight = 0;
+          let peakY = Math.round(sh * 0.45);
+          for (let y = Math.round(sh * 0.28); y < Math.round(sh * 0.65); y++) {
+            if (rowWeights[y] > maxRowWeight) {
+              maxRowWeight = rowWeights[y];
+              peakY = y;
+            }
+          }
+
+          // 结合眼窝/眉毛与镜框暗谷检测 (Haar-like Eye Valley)
+          // 双眼/眉毛行必定比额头与脸颊具有明显更暗的灰度低谷
+          let bestEyeY = Math.round(sh * 0.45);
+          let minBrightness = 999;
+          const searchStart = Math.max(Math.round(sh * 0.38), Math.round(peakY - sh * 0.08));
+          const searchEnd = Math.min(Math.round(sh * 0.52), Math.round(peakY + sh * 0.06));
+
+          for (let y = searchStart; y <= searchEnd; y++) {
+            let rowLum = 0;
+            let count = 0;
+            const xMin = Math.round(sw * 0.30);
+            const xMax = Math.round(sw * 0.70);
+            for (let x = xMin; x <= xMax; x++) {
+              const idx = (y * sw + x) * 4;
+              const lum = data[idx] * 0.299 + data[idx + 1] * 0.587 + data[idx + 2] * 0.114;
+              rowLum += lum;
+              count++;
+            }
+            const avgLum = count > 0 ? rowLum / count : 255;
+            if (avgLum < minBrightness) {
+              minBrightness = avgLum;
+              bestEyeY = y;
+            }
+          }
+
+          const estimatedEyeY = Math.max(0.42, Math.min(0.48, bestEyeY / sh));
 
           return resolve({
-            eyeCenterXRatio: Math.max(0.25, Math.min(0.75, faceCenterX / sw)),
-            eyeCenterYRatio: Math.max(0.18, Math.min(0.65, estimatedEyeY / sh)),
-            faceWidthRatio: Math.max(0.3, Math.min(0.85, faceW / sw)),
+            eyeCenterXRatio: Math.max(0.44, Math.min(0.56, faceCenterX)),
+            eyeCenterYRatio: estimatedEyeY,
+            faceWidthRatio: 0.46, // 标准人像自然脸宽比例
             rotationDeg: 0,
           });
+        } catch {
+          // fallback
         }
-      } catch {
-        // fallback
-      }
 
-      resolve(null);
-    };
+        // 默认黄金自拍中心预设 (双眼水平居中，纵向自然位于 0.45 高度)
+        resolve({
+          eyeCenterXRatio: 0.50,
+          eyeCenterYRatio: 0.45,
+          faceWidthRatio: 0.46,
+          rotationDeg: 0,
+        });
+      };
       img.onerror = () => resolve(null);
       img.src = imageSrc;
     } catch {
@@ -409,17 +460,20 @@ export function CharacterPrepNode({ data }: { data: CharacterPrepNodeData }) {
     try {
       const fit = await detectFaceFit(displayPhoto);
       if (fit) {
-        // 解算基于基准 (50%, 36%) 的相对偏移
-        const newOffsetX = Math.round(Math.max(-40, Math.min(40, ((fit.eyeCenterXRatio - 0.5) / 0.35) * 100)));
-        const newOffsetY = Math.round(Math.max(-50, Math.min(50, ((fit.eyeCenterYRatio - 0.36) / 0.35) * 100)));
-        // 根据人脸占画面比例动态缩放墨镜 (标准占比约 0.48 对应 scale 105%)
-        const newScale = Math.round(Math.max(65, Math.min(165, (fit.faceWidthRatio / 0.48) * 105)));
-        const newRotate = fit.rotationDeg;
+        // 解算基于基准 (50%, 45%) 的微调相对偏移
+        const rawOffsetY = Math.round(((fit.eyeCenterYRatio - 0.45) / 0.35) * 100);
+        // 严格约束在自然微调区间 (-12px ~ +12px)
+        const newOffsetY = Math.max(-12, Math.min(12, rawOffsetY));
+        const newOffsetX = Math.round(Math.max(-15, Math.min(15, ((fit.eyeCenterXRatio - 0.5) / 0.35) * 100)));
+        // 适中的墨镜大小 (96% ~ 115%)，刚好遮挡住双眼与眼眶，自然服帖
+        const newScale = Math.round(Math.max(96, Math.min(115, (fit.faceWidthRatio / 0.46) * 105)));
+        const newRotate = Math.max(-15, Math.min(15, fit.rotationDeg));
 
-        // 3D 拓扑网格同步自适应 (基准 50%, 44%)
-        const newMeshOffsetX = Math.round(Math.max(-35, Math.min(35, ((fit.eyeCenterXRatio - 0.5) / 0.35) * 100)));
-        const newMeshOffsetY = Math.round(Math.max(-40, Math.min(40, ((fit.eyeCenterYRatio + 0.08 - 0.44) / 0.35) * 100)));
-        const newMeshScale = Math.round(Math.max(70, Math.min(150, (fit.faceWidthRatio / 0.48) * 105)));
+        // 3D 拓扑网格同步自适应 (基准 50%, 46%)
+        const newMeshOffsetX = newOffsetX;
+        const rawMeshOffsetY = Math.round(((fit.eyeCenterYRatio - 0.45) / 0.35) * 100);
+        const newMeshOffsetY = Math.max(-10, Math.min(10, rawMeshOffsetY));
+        const newMeshScale = Math.round(Math.max(95, Math.min(115, (fit.faceWidthRatio / 0.46) * 105)));
 
         setOffsetX(newOffsetX);
         setOffsetY(newOffsetY);
@@ -440,7 +494,7 @@ export function CharacterPrepNode({ data }: { data: CharacterPrepNodeData }) {
         });
 
         if (!silent) {
-          toast.success(`🎯 智能识别成功！已自动锁定五官与自适应尺寸 (匹配度: ${newScale}%)`);
+          toast.success('🎯 智能识别成功！已自动锁定双眼与自然贴合尺寸');
         }
       } else {
         if (!silent) {
@@ -711,7 +765,7 @@ export function CharacterPrepNode({ data }: { data: CharacterPrepNodeData }) {
         });
 
         const eyeCenterX = width * 0.5 + (offsetX / 100) * width * 0.35;
-        const eyeCenterY = height * 0.36 + (offsetY / 100) * height * 0.35;
+        const eyeCenterY = height * 0.45 + (offsetY / 100) * height * 0.35;
 
         const baseWidthRatio = style === 'cyber-visor' ? 0.62 : 0.55;
         const glassWidth = width * baseWidthRatio * (scale / 100);
@@ -735,7 +789,7 @@ export function CharacterPrepNode({ data }: { data: CharacterPrepNodeData }) {
         });
 
         const faceCenterX = width * 0.5 + (meshOffsetX / 100) * width * 0.35;
-        const faceCenterY = height * 0.44 + (meshOffsetY / 100) * height * 0.35;
+        const faceCenterY = height * 0.46 + (meshOffsetY / 100) * height * 0.35;
 
         const meshWidth = width * 0.52 * (meshScale / 100);
         const meshHeight = (meshWidth / 200) * 240;
@@ -901,7 +955,7 @@ export function CharacterPrepNode({ data }: { data: CharacterPrepNodeData }) {
                   className="absolute pointer-events-none select-none"
                   style={{
                     left: `calc(50% + ${offsetX * 1.5}px)`,
-                    top: `calc(36% + ${offsetY * 1.5}px)`,
+                    top: `calc(45% + ${offsetY * 1.5}px)`,
                     transform: `translate(-50%, -50%) scale(${scale / 100}) rotate(${rotate}deg)`,
                     width: `${SUNGLASSES_PRESETS[style].baseWidth}px`,
                   }}
@@ -915,7 +969,7 @@ export function CharacterPrepNode({ data }: { data: CharacterPrepNodeData }) {
                   className="absolute pointer-events-none select-none transition-transform"
                   style={{
                     left: `calc(50% + ${meshOffsetX * 1.5}px)`,
-                    top: `calc(44% + ${meshOffsetY * 1.5}px)`,
+                    top: `calc(46% + ${meshOffsetY * 1.5}px)`,
                     transform: `translate(-50%, -50%) scale(${meshScale / 100})`,
                     width: '160px',
                   }}
