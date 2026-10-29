@@ -63,6 +63,9 @@ export function WorkflowEditor() {
     studioMode: 'duo',
     photo1: DEMO_PHOTO_1,
     photo2: DEMO_PHOTO_2,
+    photo1Gender: 'male',
+    photo2Gender: 'female',
+    vocalGender: 'auto',
 
     // Character Prep State
     processedPhoto1: '',
@@ -143,10 +146,33 @@ Big one. Yeah, we keep it in the booth.`,
 
   const [nodeLatencies, setNodeLatencies] = useState<Record<string, number>>({});
 
+  // Dynamically derive effective vocal gender based on studioMode & uploaded photos
+  const effectiveVocalGender = useMemo(() => {
+    if (workflowState.vocalGender && workflowState.vocalGender !== 'auto') {
+      return workflowState.vocalGender;
+    }
+    if (workflowState.studioMode === 'duo') {
+      if (workflowState.photo1Gender === 'female' && workflowState.photo2Gender === 'female') {
+        return 'female';
+      }
+      if (workflowState.photo1Gender === 'male' && workflowState.photo2Gender === 'male') {
+        return 'male';
+      }
+      return 'duet';
+    }
+    return workflowState.photo1Gender || 'male';
+  }, [workflowState.vocalGender, workflowState.studioMode, workflowState.photo1Gender, workflowState.photo2Gender]);
+
   // 1. Single Step: Run Lyrics
   const runLyricsStep = useCallback(async () => {
     setNodeStatuses((prev) => ({ ...prev, lyrics: 'running' }));
-    addLog(`🚀 [Step 1] 触发作词引擎: 模型 ${workflowState.lyricsModel}, 语言: ${workflowState.lyricsLanguage || 'en'}, 主题: "${workflowState.topic.slice(0, 15)}..."`);
+    const genderDesc =
+      effectiveVocalGender === 'duet'
+        ? '👥 男女双人'
+        : effectiveVocalGender === 'female'
+          ? '👩 女声'
+          : '👨 男声';
+    addLog(`🚀 [Step 1] 触发作词引擎: 模型 ${workflowState.lyricsModel}, 声部: ${genderDesc}, 语言: ${workflowState.lyricsLanguage || 'en'}, 主题: "${workflowState.topic.slice(0, 15)}..."`);
     const startTime = Date.now();
 
     try {
@@ -155,6 +181,7 @@ Big one. Yeah, we keep it in the booth.`,
         styleId: workflowState.styleId,
         language: workflowState.lyricsLanguage || 'en',
         model: workflowState.lyricsModel,
+        vocalGender: effectiveVocalGender,
       });
 
       const latency = Date.now() - startTime;
@@ -167,7 +194,7 @@ Big one. Yeah, we keep it in the booth.`,
           generatedTitle: res.title || prev.generatedTitle,
         }));
         setNodeStatuses((prev) => ({ ...prev, lyrics: 'success' }));
-        addLog(`✅ [Step 1] 作词完成 (${latency}ms) - 生成 ${res.lyrics.split('\n').length} 行押韵双押唱词`);
+        addLog(`✅ [Step 1] 作词完成 (${latency}ms) - 生成 ${res.lyrics.split('\n').length} 行声部分轨唱词`);
         toast.success('✨ 唱词生成成功！可直接在节点中手动编辑。');
       } else {
         throw new Error('未返回有效歌词');
@@ -178,7 +205,7 @@ Big one. Yeah, we keep it in the booth.`,
       toast.error(`作词失败: ${err.message}`);
       throw err;
     }
-  }, [workflowState.topic, workflowState.styleId, workflowState.lyricsModel, workflowState.lyricsLanguage, addLog]);
+  }, [workflowState.topic, workflowState.styleId, workflowState.lyricsModel, workflowState.lyricsLanguage, effectiveVocalGender, addLog]);
 
   // 2. Single Step: Run Music
   const runMusicStep = useCallback(async () => {
@@ -188,15 +215,30 @@ Big one. Yeah, we keep it in the booth.`,
     }
 
     setNodeStatuses((prev) => ({ ...prev, music: 'running' }));
-    addLog(`🚀 [Step 2] 调度 Suno 编曲: 选用模型 ${workflowState.musicModel}, 风格: ${workflowState.styleId}`);
+    const genderTag =
+      effectiveVocalGender === 'female'
+        ? 'female vocal, melodic rap flow, '
+        : effectiveVocalGender === 'duet'
+          ? 'male and female rap duet, back and forth cypher, alternating vocalists, '
+          : 'male vocal, aggressive rap flow, deep voice, ';
+
+    const stylePrompt = `${genderTag}${workflowState.styleId}, 808 bass, 140 bpm, hiphop flow`;
+    const genderDesc =
+      effectiveVocalGender === 'duet'
+        ? '👥 男女声双人对唱'
+        : effectiveVocalGender === 'female'
+          ? '👩 纯女声说唱'
+          : '👨 纯男声说唱';
+    addLog(`🚀 [Step 2] 调度 Suno 编曲: 选用模型 ${workflowState.musicModel}, 人声: ${genderDesc}, 风格: ${workflowState.styleId}`);
     const startTime = Date.now();
 
     try {
       const res = await apiPost<any>('/api/ai/workflow/music', {
         lyrics: workflowState.generatedLyrics,
         title: workflowState.generatedTitle,
-        style: `${workflowState.styleId}, 808 bass, 140 bpm, hiphop flow`,
+        style: stylePrompt,
         model: workflowState.musicModel,
+        vocalGender: effectiveVocalGender,
         mock: workflowState.mock,
       });
 
@@ -255,6 +297,7 @@ Big one. Yeah, we keep it in the booth.`,
     workflowState.styleId,
     workflowState.musicModel,
     workflowState.mock,
+    effectiveVocalGender,
     addLog,
   ]);
 
@@ -576,6 +619,7 @@ Big one. Yeah, we keep it in the booth.`,
         position: { x: 910, y: 40 },
         data: {
           ...workflowState,
+          effectiveVocalGender,
           status: nodeStatuses.music,
           latency: nodeLatencies.music,
           onChange: updateState,
@@ -619,6 +663,7 @@ Big one. Yeah, we keep it in the booth.`,
     ],
     [
       workflowState,
+      effectiveVocalGender,
       nodeStatuses,
       nodeLatencies,
       updateState,

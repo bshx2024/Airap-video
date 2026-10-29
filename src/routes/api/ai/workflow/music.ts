@@ -15,6 +15,7 @@ async function POST({ request }: { request: Request }) {
       style = 'boom-bap, heavy 808 bass, 95 bpm',
       instrumental = false,
       model = 'suno-v4',
+      vocalGender = 'auto',
       mock: reqMock,
     } = body;
 
@@ -67,7 +68,7 @@ async function POST({ request }: { request: Request }) {
             prompt: style || 'heavy 808 bass, 140 bpm, hiphop flow, rap beat',
             lyrics: lyrics || undefined,
             is_instrumental: Boolean(instrumental),
-            gender: 'male',
+            gender: vocalGender === 'female' ? 'female' : 'male',
           },
         }),
       });
@@ -116,6 +117,15 @@ async function POST({ request }: { request: Request }) {
 
     const callbackUrl = `${envConfigs.app_url || 'https://airap.video'}/api/ai/task`;
 
+    let finalStyle = style;
+    if (vocalGender === 'female' && !finalStyle.toLowerCase().includes('female vocal')) {
+      finalStyle = `female vocal, melodic rap flow, ${finalStyle}`;
+    } else if (vocalGender === 'duet' && !finalStyle.toLowerCase().includes('duet')) {
+      finalStyle = `male and female rap duet, back and forth cypher, alternating vocalists, ${finalStyle}`;
+    } else if (vocalGender === 'male' && !finalStyle.toLowerCase().includes('male vocal')) {
+      finalStyle = `male vocal, aggressive rap flow, ${finalStyle}`;
+    }
+
     const res = await provider.generate({
       params: {
         mediaType: 'music' as any,
@@ -125,7 +135,7 @@ async function POST({ request }: { request: Request }) {
         options: {
           customMode: true,
           title,
-          style,
+          style: finalStyle,
           lyrics,
           instrumental: Boolean(instrumental),
         },

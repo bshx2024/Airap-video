@@ -11,6 +11,8 @@ interface StartNodeData {
   studioMode: 'duo' | 'solo';
   photo1: string;
   photo2?: string;
+  photo1Gender?: 'male' | 'female';
+  photo2Gender?: 'male' | 'female';
   status: NodeExecutionStatus;
   onChange: (updates: any) => void;
   onRunStep?: () => void;
@@ -104,8 +106,32 @@ export function StartNode({ data }: { data: StartNodeData }) {
 
       if (slot === 1) {
         data.onChange({ photo1: finalUrl, rawPhoto1: dataUrl, processedPhoto1: '' });
+        fetch('/api/ai/workflow/detect-gender', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ imageUrl: finalUrl }),
+        })
+          .then((r) => r.json())
+          .then((res) => {
+            if (res?.data?.gender) {
+              data.onChange({ photo1Gender: res.data.gender });
+            }
+          })
+          .catch(() => {});
       } else {
         data.onChange({ photo2: finalUrl, rawPhoto2: dataUrl, processedPhoto2: '' });
+        fetch('/api/ai/workflow/detect-gender', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ imageUrl: finalUrl }),
+        })
+          .then((r) => r.json())
+          .then((res) => {
+            if (res?.data?.gender) {
+              data.onChange({ photo2Gender: res.data.gender });
+            }
+          })
+          .catch(() => {});
       }
     } catch (err) {
       console.error('Photo upload process failed:', err);
@@ -210,7 +236,20 @@ export function StartNode({ data }: { data: StartNodeData }) {
                   <span className="text-[10px] font-medium">优化上传中...</span>
                 </div>
               ) : data.photo1 ? (
-                <img src={data.photo1} alt="Rapper 1" className="h-full w-full object-cover" />
+                <>
+                  <img src={data.photo1} alt="Rapper 1" className="h-full w-full object-cover" />
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      data.onChange({ photo1Gender: data.photo1Gender === 'female' ? 'male' : 'female' });
+                    }}
+                    className="nodrag nopan absolute bottom-1 right-1 rounded bg-black/80 px-1.5 py-0.5 text-[9px] font-bold text-amber-300 backdrop-blur-md border border-white/20 hover:border-amber-400 hover:bg-black transition cursor-pointer"
+                    title="点击切换歌手性别 (男声 / 女声)"
+                  >
+                    {data.photo1Gender === 'female' ? '👩 女声' : '👨 男声'}
+                  </button>
+                </>
               ) : (
                 <div className="flex flex-col items-center gap-1 text-slate-400">
                   <Upload className="size-4" />
@@ -239,7 +278,20 @@ export function StartNode({ data }: { data: StartNodeData }) {
                     <span className="text-[10px] font-medium">优化上传中...</span>
                   </div>
                 ) : data.photo2 ? (
-                  <img src={data.photo2} alt="Rapper 2" className="h-full w-full object-cover" />
+                  <>
+                    <img src={data.photo2} alt="Rapper 2" className="h-full w-full object-cover" />
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        data.onChange({ photo2Gender: data.photo2Gender === 'female' ? 'male' : 'female' });
+                      }}
+                      className="nodrag nopan absolute bottom-1 right-1 rounded bg-black/80 px-1.5 py-0.5 text-[9px] font-bold text-amber-300 backdrop-blur-md border border-white/20 hover:border-amber-400 hover:bg-black transition cursor-pointer"
+                      title="点击切换歌手性别 (男声 / 女声)"
+                    >
+                      {data.photo2Gender === 'female' ? '👩 女声' : '👨 男声'}
+                    </button>
+                  </>
                 ) : (
                   <div className="flex flex-col items-center gap-1 text-slate-400">
                     <Upload className="size-4" />

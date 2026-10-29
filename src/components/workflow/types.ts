@@ -8,6 +8,8 @@ export interface WorkflowState {
   studioMode: 'duo' | 'solo';
   photo1: string;
   photo2?: string;
+  photo1Gender?: 'male' | 'female';
+  photo2Gender?: 'male' | 'female';
   rawPhoto1?: string;
   rawPhoto2?: string;
 
@@ -23,6 +25,7 @@ export interface WorkflowState {
   musicTaskId?: string;
   generatedAudioUrl?: string;
   musicLatency?: number;
+  vocalGender?: 'auto' | 'male' | 'female' | 'duet';
 
   // Video Node Data
   videoModel: string;

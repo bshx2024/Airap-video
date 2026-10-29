@@ -5,8 +5,7 @@ import { respData, respErr } from '@/lib/resp';
 
 async function POST({ request }: { request: Request }) {
   try {
-    const body = await request.json().catch(() => ({}));
-    const { topic = '', styleId = 'boom-bap', language = 'zh', model } = body;
+    const { topic = '', styleId = 'boom-bap', language = 'zh', model, vocalGender = 'auto' } = body;
 
     if (!topic || typeof topic !== 'string') {
       return respErr('Topic is required');
@@ -17,6 +16,7 @@ async function POST({ request }: { request: Request }) {
       styleId,
       language,
       model,
+      vocalGender,
     });
 
     return respData(result);

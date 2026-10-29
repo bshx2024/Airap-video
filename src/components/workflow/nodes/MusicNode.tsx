@@ -11,6 +11,8 @@ interface MusicNodeData {
   latency?: number;
   status: NodeExecutionStatus;
   mock: boolean;
+  vocalGender?: 'auto' | 'male' | 'female' | 'duet';
+  effectiveVocalGender?: 'male' | 'female' | 'duet';
   onChange: (updates: any) => void;
   onRunStep: () => Promise<void>;
 }
@@ -48,6 +50,11 @@ export function MusicNode({ data }: { data: MusicNodeData }) {
 
   const isRunning = data.status === 'running';
   const isSuccess = data.status === 'success' || Boolean(data.generatedAudioUrl);
+
+  const effectiveGender =
+    data.vocalGender && data.vocalGender !== 'auto'
+      ? data.vocalGender
+      : data.effectiveVocalGender || 'male';
 
   return (
     <div
@@ -110,6 +117,70 @@ export function MusicNode({ data }: { data: MusicNodeData }) {
             <option value="suno-v4">Suno v4 (高燃 808 与卡点说唱·需 KIE 密钥)</option>
             <option value="suno-v3.5">Suno v3.5 (旋律嘻哈标准版·需 KIE 密钥)</option>
           </select>
+        </div>
+
+        {/* Vocal Gender Selector */}
+        <div>
+          <div className="mb-1 flex items-center justify-between text-slate-300 font-medium">
+            <span>演唱人声与音色</span>
+            <span className="text-[10px] text-rose-300 font-semibold">
+              当前: {
+                effectiveGender === 'duet'
+                  ? '👥 双人对唱'
+                  : effectiveGender === 'female'
+                    ? '👩 纯女声'
+                    : '👨 纯男声'
+              }
+            </span>
+          </div>
+          <div className="grid grid-cols-4 gap-1">
+            <button
+              type="button"
+              onClick={() => data.onChange({ vocalGender: 'auto' })}
+              className={`rounded-lg border px-1.5 py-1.5 text-center text-[10px] font-bold transition cursor-pointer ${
+                (data.vocalGender === 'auto' || !data.vocalGender)
+                  ? 'border-rose-400 bg-rose-500/20 text-rose-300 shadow-[0_0_8px_rgba(244,63,94,0.3)]'
+                  : 'border-white/10 bg-white/[0.02] text-slate-400 hover:border-white/20 hover:text-slate-200'
+              }`}
+              title="根据 Start 节点上传的人物照片自动匹配男女声"
+            >
+              🤖 自适应
+            </button>
+            <button
+              type="button"
+              onClick={() => data.onChange({ vocalGender: 'male' })}
+              className={`rounded-lg border px-1.5 py-1.5 text-center text-[10px] font-bold transition cursor-pointer ${
+                data.vocalGender === 'male'
+                  ? 'border-amber-400 bg-amber-500/20 text-amber-300 shadow-[0_0_8px_rgba(251,191,36,0.3)]'
+                  : 'border-white/10 bg-white/[0.02] text-slate-400 hover:border-white/20 hover:text-slate-200'
+              }`}
+            >
+              👨 男声
+            </button>
+            <button
+              type="button"
+              onClick={() => data.onChange({ vocalGender: 'female' })}
+              className={`rounded-lg border px-1.5 py-1.5 text-center text-[10px] font-bold transition cursor-pointer ${
+                data.vocalGender === 'female'
+                  ? 'border-pink-400 bg-pink-500/20 text-pink-300 shadow-[0_0_8px_rgba(244,114,182,0.3)]'
+                  : 'border-white/10 bg-white/[0.02] text-slate-400 hover:border-white/20 hover:text-slate-200'
+              }`}
+            >
+              👩 女声
+            </button>
+            <button
+              type="button"
+              onClick={() => data.onChange({ vocalGender: 'duet' })}
+              className={`rounded-lg border px-1.5 py-1.5 text-center text-[10px] font-bold transition cursor-pointer ${
+                data.vocalGender === 'duet'
+                  ? 'border-purple-400 bg-purple-500/20 text-purple-300 shadow-[0_0_8px_rgba(192,132,252,0.3)]'
+                  : 'border-white/10 bg-white/[0.02] text-slate-400 hover:border-white/20 hover:text-slate-200'
+              }`}
+              title="男女声轮流交替演唱与副歌合唱"
+            >
+              👥 双人对唱
+            </button>
+          </div>
         </div>
 
         {/* Action Button: Single-step debug */}

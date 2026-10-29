@@ -57,8 +57,9 @@ export async function generateRapLyrics(params: {
   styleId?: string;
   language?: string;
   model?: string;
+  vocalGender?: string;
 }): Promise<RapLyricsResult> {
-  const { topic, styleId = 'boom-bap', language = 'zh', model: reqModel } = params;
+  const { topic, styleId = 'boom-bap', language = 'zh', model: reqModel, vocalGender = 'auto' } = params;
   const stylePreset =
     RAP_STYLE_PRESETS.find((s) => s.id === styleId) || RAP_STYLE_PRESETS[0];
 
@@ -101,34 +102,88 @@ export async function generateRapLyrics(params: {
   const isEs = language === 'es';
   const isFr = language === 'fr';
 
-  const systemPrompt = isEn
-    ? `You are a world-class hip-hop rap producer and lyricist (inspired by Quavo, Takeoff, Drake, Kendrick Lamar).
+  let systemPrompt = '';
+  if (vocalGender === 'duet') {
+    systemPrompt = isEn
+      ? `You are a world-class hip-hop rap producer and lyricist (inspired by Quavo, Drake, Cardi B, Nicki Minaj).
+Write an energetic, rhythm-locked rap battle / cypher duet between a Male rapper and a Female rapper strictly in ENGLISH, perfectly suited for Suno 808 Trap / Drill beats.
+Format output strictly with gender section tags so Suno v4 alternates between male and female voices without any conversational preamble:
+[Intro: Male Vocal]
+(1-2 punchy spoken lines or hype ad-libs)
+[Verse 1: Male Vocal]
+(4-6 hard-hitting bars by the male rapper)
+[Verse 2: Female Vocal]
+(4-6 fast-paced, sharp response bars by the female rapper)
+[Chorus: Both Vocals]
+(2-4 catchy, anthemic lines sung/rapped together)
+[Outro: Both Vocals]
+(1 short fade-out line)`
+      : `你是一位顶级嘻哈说唱制作人与作词人。请根据用户给出的主题和风格，创作一段充满节奏感的男女声双人说唱对决 (Rap Battle Cypher) 唱词。
+格式严格遵循以下声部标记（让音乐引擎自动分轨为男女声交替演唱，直接输出，不要附加闲聊）：
+[Intro: 男声]
+(简短1-2句男声口白引子)
+[Verse 1: 男声]
+(4-6句韵脚密集、卡点的男声主攻说唱)
+[Verse 2: 女声]
+(4-6句快嘴凌厉、反击的女声主歌)
+[Chorus: 男女合唱]
+(2-4句抓耳有力的男女声双人副歌)
+[Outro: 男女合唱]
+(1句淡出收尾)`;
+  } else if (vocalGender === 'female') {
+    systemPrompt = isEn
+      ? `You are a world-class female hip-hop rap superstar and lyricist (inspired by Nicki Minaj, Cardi B, Megan Thee Stallion).
+Write hard-hitting, confident, rhythm-locked rap lyrics strictly in ENGLISH, tailored for a FEMALE vocal flow, perfectly suited for Suno 808 Trap / Drill beats.
+Format output strictly without conversational preamble:
+[Intro: Female Vocal]
+(1-2 punchy spoken lines or hype ad-libs)
+[Verse 1: Female Vocal]
+(4-6 rhythm-locked female rap bars with dense internal and end rhymes)
+[Chorus: Female Vocal]
+(2-4 catchy, anthemic lines)
+[Outro: Female Vocal]
+(1 short fade-out line)`
+      : `你是一位顶级女性嘻哈说唱女王与作词人（参考 Cardi B, Nicki Minaj, 万妮达）。请创作一段气场全开、自信凌厉的纯女声 Rap 唱词。
+格式严格遵循（直接输出，不要附加闲聊）：
+[Intro: 女声]
+(简短1-2句女声口白)
+[Verse 1: 女声]
+(4-6句韵脚紧密、节奏感极强的女声主歌)
+[Chorus: 女声]
+(2-4句抓耳有力的女声副歌)
+[Outro: 女声]
+(1句淡出收尾)`;
+  } else {
+    // Default male or auto
+    systemPrompt = isEn
+      ? `You are a world-class hip-hop rap producer and lyricist (inspired by Quavo, Takeoff, Drake, Kendrick Lamar).
 Write hard-hitting, rhythm-locked, multi-syllable rhyming rap lyrics strictly in ENGLISH, perfectly suited for Suno 808 Trap / Drill beats.
 Format output strictly as follows without any conversational preamble:
-[Intro]
+[Intro: Male Vocal]
 (1-2 punchy spoken lines or hype ad-libs)
-[Verse 1]
+[Verse 1: Male Vocal]
 (4-6 rhythm-locked rap bars with dense internal and end rhymes)
-[Chorus]
+[Chorus: Male Vocal]
 (2-4 catchy, anthemic lines)
-[Outro]
+[Outro: Male Vocal]
 (1 short fade-out line)`
-    : isEs
-      ? `Eres un productor y letrista de hip-hop y trap latino de primer nivel. Escribe rimas contundentes y pegajosas en ESPAÑOL con formato [Intro], [Verse 1], [Chorus], [Outro].`
-      : isFr
-        ? `Tu es un producteur et parolier de rap/drill français d'élite. Écris des rimes percutantes et rythmées en FRANÇAIS avec format [Intro], [Verse 1], [Chorus], [Outro].`
-        : `你是一位顶级嘻哈说唱制作人与作词人。请根据用户给出的主题和风格，直接创作并输出一段充满节奏感、双押/单押韵脚紧密、适合用 Suno 生成的精悍 Rap 唱词。
+      : isEs
+        ? `Eres un productor y letrista de hip-hop y trap latino de primer nivel. Escribe rimas contundentes y pegajosas en ESPAÑOL con formato [Intro: Voz Masculina], [Verse 1], [Chorus], [Outro].`
+        : isFr
+          ? `Tu es un producteur et parolier de rap/drill français d'élite. Écris des rimes percutantes et rythmées en FRANÇAIS avec format [Intro: Voix d'Homme], [Verse 1], [Chorus], [Outro].`
+          : `你是一位顶级嘻哈说唱制作人与作词人。请根据用户给出的主题和风格，直接创作并输出一段充满节奏感、双押/单押韵脚紧密、适合用 Suno 生成的精悍 Rap 唱词。
 输出格式严格遵循以下结构（直接输出，不要附加任何闲聊或长篇思考）：
-[Intro]
+[Intro: 男声]
 (简短1-2句口白引子)
-[Verse 1]
+[Verse 1: 男声]
 (4-6句韵脚密集、卡点的说唱主歌)
-[Chorus]
+[Chorus: 男声]
 (2-4句抓耳有力的副歌)
-[Outro]
+[Outro: 男声]
 (1句淡出收尾)`;
+  }
 
-  const userPrompt = `Topic / Theme: ${topic}\nMusic Style: ${stylePreset.name} (${stylePreset.enName})\nTarget BPM: ${stylePreset.bpm}\nLanguage: ${language.toUpperCase()}`;
+  const userPrompt = `Topic / Theme: ${topic}\nVocal Gender: ${vocalGender}\nMusic Style: ${stylePreset.name} (${stylePreset.enName})\nTarget BPM: ${stylePreset.bpm}\nLanguage: ${language.toUpperCase()}`;
 
   const res = await fetch(`${baseUrl}/chat/completions`, {
     method: 'POST',
