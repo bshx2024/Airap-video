@@ -5,6 +5,7 @@ import { respData, respErr } from '@/lib/resp';
 
 async function POST({ request }: { request: Request }) {
   try {
+    const body = await request.json().catch(() => ({}));
     const { topic = '', styleId = 'boom-bap', language = 'zh', model, vocalGender = 'auto' } = body;
 
     if (!topic || typeof topic !== 'string') {
