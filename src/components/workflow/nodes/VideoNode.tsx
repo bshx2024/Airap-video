@@ -6,11 +6,11 @@ import { NodeExecutionStatus } from '../types';
 
 export const PROMPT_PRESETS = {
   leftLead:
-    'Replace the left rapper in [Video 1] with the character shown in [Image 1]. The new left character [Image 1] is the energetic LEAD VOCALIST, delivering aggressive punchline rap vocals directly into the hanging mic with wide pronounced syllable mouth articulation, energetic head nods, and body bounce in sync with the 808 beat. Keep the orange cyclorama studio, lighting, camera framing, and right character [Image 2] strictly unchanged. Motion transfer: Strictly transfer the head gestures, pointing hand motions, and microphone cypher choreography from [Video 1], with flawless syllable lip-sync matching the rap audio track, 4K cinematic quality.',
+    'Replace the left rapper in [Video 1] with the character shown in [Image 1]. The new left character [Image 1] is the energetic LEAD VOCALIST, delivering aggressive punchline rap vocals directly into the hanging mic with wide pronounced syllable mouth articulation, energetic head nods, and body bounce in sync with the 808 beat. Keep the orange cyclorama studio, lighting, camera framing, and right character strictly unchanged. Motion transfer: Strictly transfer the head gestures, pointing hand motions, and microphone cypher choreography from [Video 1], with flawless syllable lip-sync matching the rap audio track, 4K cinematic quality.',
   dualLead:
-    'Replace the left rapper in [Video 1] with the character from [Image 1], and the right rapper with [Image 2]. Both characters perform high-energy rap cypher, vigorously bouncing knees and tilting toward the hanging mic, with wide pronounced mouth lip-sync articulation matching the audio vocals. Keep the orange studio setting unchanged. Motion transfer: Strictly transfer the pointing hand gestures, head nods, and microphone choreography from [Video 1], flawless rap lip-sync, 4K cinematic quality.',
+    'Replace the left rapper in [Video 1] with the character from [Image 1], and replace the right rapper in [Video 1] with the character from [Image 2]. Both characters perform high-energy rap cypher, with [Image 1] on the left and [Image 2] on the right, vigorously bouncing knees and tilting toward the hanging mic, with wide pronounced mouth lip-sync articulation matching the audio vocals. Keep the orange studio setting unchanged. Motion transfer: Strictly transfer the pointing hand gestures, head nods, and microphone choreography from [Video 1], flawless rap lip-sync, 4K cinematic quality.',
   rightLead:
-    'Replace the right rapper in [Video 1] with the character shown in [Image 2]. The right character [Image 2] is the primary lead vocalist pointing forward and rapping into the mic with pronounced mouth lip-sync, while Left rapper heavily bounces with rhythmic head nods. Keep the studio setting and motion timing from [Video 1] strictly preserved, 4K cinematic quality.',
+    'Replace the right rapper in [Video 1] with the character shown in [Image 2]. Keep the left character strictly unchanged. The right character [Image 2] is the primary lead vocalist pointing forward and rapping into the mic with pronounced mouth lip-sync, while Left rapper heavily bounces with rhythmic head nods. Keep the studio setting and motion timing from [Video 1] strictly preserved, 4K cinematic quality.',
   freeStyle:
     'A high-energy hip-hop rapper shown in [Image 1] performing dynamically in the studio, free rhythmic body bounce, energetic natural hand gestures pointing at camera, expressive facial expressions, singing passionately with mouth lip-sync matching the 808 trap beat, cinematic studio lighting, 4K quality.',
 };
@@ -291,9 +291,9 @@ export function VideoNode({ data }: { data: VideoNodeData }) {
                     ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40'
                     : 'bg-white/5 text-slate-300 hover:bg-white/10'
                 }`}
-                title="重点对齐左边替换人物的歌唱大口型与动作 (配合 Wan 3.0 原版姿态)"
+                title="重点对齐左边替换人物的歌唱大口型与动作 (右边保持原版不变)"
               >
-                🔥 左主唱
+                🔥 仅换左侧
               </button>
               <button
                 type="button"
@@ -304,10 +304,14 @@ export function VideoNode({ data }: { data: VideoNodeData }) {
                     videoModel: 'wan3.0-video',
                   })
                 }
-                className="rounded bg-white/5 px-1.5 py-0.5 text-[9px] font-semibold text-slate-300 hover:bg-white/10 transition cursor-pointer"
-                title="双人高能量对唱与口型 (配合 Wan 3.0 原版姿态)"
+                className={`rounded px-1.5 py-0.5 text-[9px] font-semibold transition cursor-pointer ${
+                  data.motionSyncEnabled !== false && data.videoPrompt === PROMPT_PRESETS.dualLead
+                    ? 'bg-cyan-500/25 text-cyan-300 border border-cyan-500/50 shadow-[0_0_8px_rgba(6,182,212,0.25)]'
+                    : 'bg-white/5 text-slate-300 hover:bg-white/10'
+                }`}
+                title="双人全部替换：图1替换左边人物，图2替换右边人物 (双人同框对唱)"
               >
-                🎙️ 双主唱
+                🎙️ 双人全换
               </button>
               <button
                 type="button"
@@ -318,10 +322,14 @@ export function VideoNode({ data }: { data: VideoNodeData }) {
                     videoModel: 'wan3.0-video',
                   })
                 }
-                className="rounded bg-white/5 px-1.5 py-0.5 text-[9px] font-semibold text-slate-300 hover:bg-white/10 transition cursor-pointer"
-                title="重点对齐右侧人物 (配合 Wan 3.0 原版姿态)"
+                className={`rounded px-1.5 py-0.5 text-[9px] font-semibold transition cursor-pointer ${
+                  data.motionSyncEnabled !== false && data.videoPrompt === PROMPT_PRESETS.rightLead
+                    ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40'
+                    : 'bg-white/5 text-slate-300 hover:bg-white/10'
+                }`}
+                title="仅替换右侧人物：将右侧人物替换为图2人像 (左边保持原版不变)"
               >
-                右主唱
+                仅换右侧
               </button>
             </div>
           </div>
