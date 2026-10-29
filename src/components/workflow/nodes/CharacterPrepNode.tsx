@@ -16,7 +16,6 @@ import {
   ShieldCheck,
   Sliders,
   Sparkles,
-  Wand2,
   Zap,
 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -158,243 +157,7 @@ export function generateFaceMeshSvg(opacity: number = 0.26, strokeColor: string 
   </svg>`;
 }
 
-export interface FaceFitResult {
-  eyeCenterXRatio: number;
-  eyeCenterYRatio: number;
-  faceWidthRatio: number;
-  rotationDeg: number;
-}
 
-/**
- * 智能人脸关键点与尺寸探测器
- * 1. 优先调用浏览器硬件级原生 FaceDetector (Shape Detection API)
- * 2. 备用高精度 Canvas 肤色多尺度质心与眼窝暗度检测 (零外部依赖，100% 浏览器兼容，~8ms 执行完毕)
- */
-export async function detectFaceFit(imageSrc: string): Promise<FaceFitResult | null> {
-  if (typeof window === 'undefined' || typeof document === 'undefined' || !imageSrc) {
-    return null;
-  }
-  return new Promise((resolve) => {
-    try {
-      const img = new Image();
-      img.crossOrigin = 'anonymous';
-      img.onload = async () => {
-      const width = img.naturalWidth || img.width || 800;
-      const height = img.naturalHeight || img.height || 800;
-
-      // 1. 优先尝试浏览器原生 Shape Detection API
-      if (typeof window !== 'undefined' && 'FaceDetector' in window) {
-        try {
-          const detector = new (window as any).FaceDetector({ fastMode: false, maxDetectedFaces: 1 });
-          const faces = await detector.detect(img);
-          if (faces && faces.length > 0) {
-            const box = faces[0].boundingBox;
-            const landmarks = faces[0].landmarks || [];
-            const leftEye = landmarks.find((l: any) => l.type === 'eye' && l.location.x < box.x + box.width / 2);
-            const rightEye = landmarks.find((l: any) => l.type === 'eye' && l.location.x >= box.x + box.width / 2);
-
-            let eyeX = box.x + box.width * 0.5;
-            let eyeY = box.y + box.height * 0.38;
-            let rot = 0;
-
-            if (leftEye && rightEye) {
-              eyeX = (leftEye.location.x + rightEye.location.x) / 2;
-              eyeY = (leftEye.location.y + rightEye.location.y) / 2;
-              const dx = rightEye.location.x - leftEye.location.x;
-              const dy = rightEye.location.y - leftEye.location.y;
-              rot = Math.round((Math.atan2(dy, dx) * 180) / Math.PI);
-            }
-
-            return resolve({
-              eyeCenterXRatio: Math.max(0.2, Math.min(0.8, eyeX / width)),
-              eyeCenterYRatio: Math.max(0.15, Math.min(0.7, eyeY / height)),
-              faceWidthRatio: Math.max(0.25, Math.min(0.9, box.width / width)),
-              rotationDeg: Math.max(-25, Math.min(25, rot)),
-            });
-          }
-        } catch {
-          // fallback to canvas detector
-        }
-      }
-
-        // 2. 抗背景干扰的高精度眼部与人脸定位器 (局部梯度方差过滤白墙门板 + 中心先验)
-        try {
-          const sampleCanvas = document.createElement('canvas');
-          const sw = 120;
-          const sh = Math.max(100, Math.round((height / width) * 120));
-          sampleCanvas.width = sw;
-          sampleCanvas.height = sh;
-          const ctx = sampleCanvas.getContext('2d');
-          if (!ctx) return resolve(null);
-
-          ctx.drawImage(img, 0, 0, sw, sh);
-          const imgData = ctx.getImageData(0, 0, sw, sh);
-          const data = imgData.data;
-
-          const rowWeights = new Float32Array(sh);
-          const colWeights = new Float32Array(sw);
-
-          for (let y = 1; y < sh - 1; y++) {
-            const yNorm = y / sh;
-            // 忽略极度顶部 (天花板) 和底部 (躯干)
-            if (yNorm < 0.16 || yNorm > 0.80) continue;
-
-            for (let x = 1; x < sw - 1; x++) {
-              const xNorm = x / sw;
-              if (xNorm < 0.16 || xNorm > 0.84) continue;
-
-              const idx = (y * sw + x) * 4;
-              const r = data[idx];
-              const g = data[idx + 1];
-              const b = data[idx + 2];
-
-              // 计算相邻像素差值以剔除平滑的纯色墙面/门框
-              const upIdx = ((y - 1) * sw + x) * 4;
-              const leftIdx = (y * sw + (x - 1)) * 4;
-              const diff = Math.abs(r - data[upIdx]) + Math.abs(g - data[upIdx + 1]) + Math.abs(r - data[leftIdx]);
-
-              // 纯色背景/平滑墙面直接过滤
-              if (diff < 6) continue;
-
-              // 人类肤色范围
-              const isSkin = r > 45 && g > 28 && b > 18 && r > g && (r - b) > 12;
-              if (isSkin) {
-                // 中心加权: 自拍头像主要位于水平中心
-                const centerWeight = Math.max(0.15, 1.0 - Math.abs(xNorm - 0.5) * 1.6);
-                const weight = centerWeight * Math.min(3.0, diff / 15);
-                rowWeights[y] += weight;
-                colWeights[x] += weight;
-              }
-            }
-          }
-
-          // 计算水平中心 X 与水平面部跨度
-          let maxColWeight = 0;
-          for (let x = 0; x < sw; x++) {
-            if (colWeights[x] > maxColWeight) maxColWeight = colWeights[x];
-          }
-
-          let faceLeftX = Math.round(sw * 0.25);
-          let faceRightX = Math.round(sw * 0.75);
-          if (maxColWeight > 0.5) {
-            const colThresh = maxColWeight * 0.20;
-            for (let x = 2; x < sw - 2; x++) {
-              if (colWeights[x] >= colThresh) {
-                faceLeftX = x;
-                break;
-              }
-            }
-            for (let x = sw - 2; x >= 2; x--) {
-              if (colWeights[x] >= colThresh) {
-                faceRightX = x;
-                break;
-              }
-            }
-          }
-
-          const faceW = Math.max(sw * 0.22, faceRightX - faceLeftX);
-          const faceCenterX = Math.max(0.38, Math.min(0.62, (faceLeftX + faceRightX) / 2 / sw));
-          const cx = Math.round(faceCenterX * sw);
-          // 瞳距约为面部宽度的 48% (中心到单侧眼睛约为 0.24)
-          const eyeSpan = Math.max(4, Math.round(faceW * 0.24));
-
-          // 扫描垂直人脸顶端发际线 (faceTopY)
-          let maxRowWeight = 0;
-          for (let y = 0; y < sh; y++) {
-            if (rowWeights[y] > maxRowWeight) maxRowWeight = rowWeights[y];
-          }
-          let faceTopY = Math.round(sh * 0.18);
-          if (maxRowWeight > 0.5) {
-            const rowThresh = maxRowWeight * 0.22;
-            for (let y = Math.round(sh * 0.08); y < sh - 2; y++) {
-              if (rowWeights[y] >= rowThresh) {
-                faceTopY = y;
-                break;
-              }
-            }
-          }
-
-          // 2. 解剖学生理铁律：双眼必定位于发际线 (faceTopY) 下方约 0.26 ~ 0.48 个脸宽距离
-          // 嘴巴牙齿位于 0.65~0.85 脸宽处，因此将扫描窗口严格锁定在 [0.22*faceW, 0.48*faceW]，
-          // 从物理上彻底杜绝嘴唇、牙齿、下巴及衣领任何误入检测的可能！
-          let bestEyeY = Math.round(faceTopY + faceW * 0.36);
-          let maxEyeScore = -9999;
-
-          const scanStart = Math.max(2, Math.round(faceTopY + faceW * 0.20));
-          const scanEnd = Math.min(sh - 2, Math.round(faceTopY + faceW * 0.48));
-
-          for (let y = scanStart; y <= scanEnd; y++) {
-            // 中心鼻梁区域亮度 (宽 3px)
-            let centerLum = 0;
-            let cCount = 0;
-            for (let x = Math.max(0, cx - 1); x <= Math.min(sw - 1, cx + 1); x++) {
-              const idx = (y * sw + x) * 4;
-              centerLum += data[idx] * 0.299 + data[idx + 1] * 0.587 + data[idx + 2] * 0.114;
-              cCount++;
-            }
-            const avgCenterLum = cCount > 0 ? centerLum / cCount : 128;
-
-            // 左眼区域亮度 (宽 5px)
-            let leftLum = 0;
-            let lCount = 0;
-            const lx = Math.max(0, cx - eyeSpan);
-            for (let x = Math.max(0, lx - 2); x <= Math.min(sw - 1, lx + 2); x++) {
-              const idx = (y * sw + x) * 4;
-              leftLum += data[idx] * 0.299 + data[idx + 1] * 0.587 + data[idx + 2] * 0.114;
-              lCount++;
-            }
-            const avgLeftLum = lCount > 0 ? leftLum / lCount : 128;
-
-            // 右眼区域亮度 (宽 5px)
-            let rightLum = 0;
-            let rCount = 0;
-            const rx = Math.min(sw - 1, cx + eyeSpan);
-            for (let x = Math.max(0, rx - 2); x <= Math.min(sw - 1, rx + 2); x++) {
-              const idx = (y * sw + x) * 4;
-              rightLum += data[idx] * 0.299 + data[idx + 1] * 0.587 + data[idx + 2] * 0.114;
-              rCount++;
-            }
-            const avgRightLum = rCount > 0 ? rightLum / rCount : 128;
-
-            // 双眼特征分：鼻梁亮且双眼暗 (加上双眼暗度加权，绝对吸附在眉毛与眼球)
-            const eyesAvg = (avgLeftLum + avgRightLum) / 2;
-            const eyeScore = (avgCenterLum - eyesAvg) + (255 - eyesAvg) * 0.4;
-
-            if (eyeScore > maxEyeScore) {
-              maxEyeScore = eyeScore;
-              bestEyeY = y;
-            }
-          }
-
-          // 无论特写自拍(0.45)还是半身肖像(0.30)，精准锁定真实双眼高度
-          const estimatedEyeY = Math.max(0.18, Math.min(0.55, bestEyeY / sh));
-          const detectedFaceWidthRatio = Math.max(0.28, Math.min(0.48, faceW / sw));
-
-          return resolve({
-            eyeCenterXRatio: faceCenterX,
-            eyeCenterYRatio: estimatedEyeY,
-            faceWidthRatio: detectedFaceWidthRatio,
-            rotationDeg: 0,
-          });
-        } catch {
-          // fallback
-        }
-
-        // 默认黄金自拍中心预设 (双眼水平居中，纵向自然位于 0.45 高度)
-        resolve({
-          eyeCenterXRatio: 0.50,
-          eyeCenterYRatio: 0.45,
-          faceWidthRatio: 0.36,
-          rotationDeg: 0,
-        });
-      };
-      img.onerror = () => resolve(null);
-      img.src = imageSrc;
-    } catch {
-      resolve(null);
-    }
-  });
-}
 
 interface CharacterPrepNodeData {
   photo1: string;
@@ -468,8 +231,6 @@ export function CharacterPrepNode({ data }: { data: CharacterPrepNodeData }) {
 
   const [showOriginal, setShowOriginal] = useState(false);
   const [localProcessing, setLocalProcessing] = useState(false);
-  const [isAutoFitting, setIsAutoFitting] = useState(false);
-  const lastFittedPhotoRef = useRef<string>('');
 
   const [isDragging, setIsDragging] = useState(false);
   const dragStartRef = useRef<{ mouseX: number; mouseY: number; startOffsetX: number; startOffsetY: number }>({
@@ -503,65 +264,6 @@ export function CharacterPrepNode({ data }: { data: CharacterPrepNodeData }) {
     [data, style, scale, offsetY, offsetX, rotate, meshEnabled, meshOpacity, meshScale, meshOffsetY, meshOffsetX, filterMode]
   );
 
-  /**
-   * 智能识别人脸双眼位置与尺寸自适应贴合
-   */
-  const handleAutoFitFace = useCallback(async (silent = false) => {
-    if (!displayPhoto) {
-      if (!silent) toast.error('请先在开始节点上传人像照片');
-      return;
-    }
-    setIsAutoFitting(true);
-    try {
-      const fit = await detectFaceFit(displayPhoto);
-      if (fit) {
-        // 解算基于基准 (50%, 45%) 的微调相对偏移 (兼容半身像、特写与全身自拍)
-        const rawOffsetY = Math.round(((fit.eyeCenterYRatio - 0.45) / 0.35) * 100);
-        const newOffsetY = Math.max(-50, Math.min(50, rawOffsetY));
-        const newOffsetX = Math.round(Math.max(-35, Math.min(35, ((fit.eyeCenterXRatio - 0.5) / 0.35) * 100)));
-        // 根据人脸真实脸宽自适应贴合脸型：
-        // 脸宽比例 0.36 对应自然贴合缩放 ~88% (刚好包覆双眼与太阳穴边缘，不突兀外扩)
-        const newScale = Math.round(Math.max(72, Math.min(125, (fit.faceWidthRatio / 0.36) * 88)));
-        const newRotate = Math.max(-15, Math.min(15, fit.rotationDeg));
-
-        // 3D 拓扑网格同步自适应 (基准 50%, 46%)
-        const newMeshOffsetX = newOffsetX;
-        const rawMeshOffsetY = Math.round(((fit.eyeCenterYRatio - 0.45) / 0.35) * 100);
-        const newMeshOffsetY = Math.max(-50, Math.min(50, rawMeshOffsetY));
-        const newMeshScale = Math.round(Math.max(75, Math.min(125, (fit.faceWidthRatio / 0.36) * 92)));
-
-        setOffsetX(newOffsetX);
-        setOffsetY(newOffsetY);
-        setScale(newScale);
-        setRotate(newRotate);
-        setMeshOffsetX(newMeshOffsetX);
-        setMeshOffsetY(newMeshOffsetY);
-        setMeshScale(newMeshScale);
-
-        notifyChanges({
-          sunglassesOffsetX: newOffsetX,
-          sunglassesOffsetY: newOffsetY,
-          sunglassesScale: newScale,
-          sunglassesRotate: newRotate,
-          meshOffsetX: newMeshOffsetX,
-          meshOffsetY: newMeshOffsetY,
-          meshScale: newMeshScale,
-        });
-
-        if (!silent) {
-          toast.success(`🎯 智能识别成功！已匹配脸型尺寸 (${newScale}%) 并锁定双眼`);
-        }
-      } else {
-        if (!silent) {
-          toast.info('未扫描到显著人脸特征，已保留当前预设位置');
-        }
-      }
-    } catch {
-      if (!silent) toast.error('人脸智能识别异常，已保持当前设置');
-    } finally {
-      setIsAutoFitting(false);
-    }
-  }, [displayPhoto, notifyChanges]);
 
   // Parameter updaters (updates local state instantly + syncs to workflow)
   const handleUpdateStyle = (newStyle: string) => {
@@ -1183,16 +885,7 @@ export function CharacterPrepNode({ data }: { data: CharacterPrepNodeData }) {
                 >
                   特写像
                 </button>
-                <button
-                  type="button"
-                  onClick={() => handleAutoFitFace(false)}
-                  disabled={isAutoFitting || !displayPhoto}
-                  className="nodrag nopan flex items-center gap-1 rounded bg-amber-500/20 px-2 py-0.5 text-[10px] font-semibold text-amber-300 border border-amber-500/30 hover:bg-amber-500/30 transition cursor-pointer disabled:opacity-50"
-                  title="智能识别人脸双眼位置，自动缩放对齐"
-                >
-                  {isAutoFitting ? <Loader2 className="size-2.5 animate-spin" /> : <Wand2 className="size-2.5" />}
-                  <span>✨ 智能对齐</span>
-                </button>
+
                 <button
                   type="button"
                   onClick={handleReset}
@@ -1353,16 +1046,7 @@ export function CharacterPrepNode({ data }: { data: CharacterPrepNodeData }) {
                 <Grid className="size-3 text-emerald-400" /> 3D 拓扑网格防护微调 (支持直接拖拽/滑块控制)
               </span>
               <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => handleAutoFitFace(false)}
-                  disabled={isAutoFitting || !displayPhoto}
-                  className="nodrag nopan flex items-center gap-1 rounded bg-emerald-500/20 px-2 py-0.5 text-[9px] font-semibold text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/30 transition cursor-pointer disabled:opacity-50"
-                  title="智能识别面部并自动缩放贴合"
-                >
-                  {isAutoFitting ? <Loader2 className="size-2.5 animate-spin" /> : <Wand2 className="size-2.5" />}
-                  <span>✨ 智能对齐</span>
-                </button>
+
                 <button
                   type="button"
                   onClick={handleToggleMesh}
