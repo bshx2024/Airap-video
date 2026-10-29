@@ -14,6 +14,8 @@ interface StartNodeData {
   photo2?: string;
   photo1Gender?: 'male' | 'female';
   photo2Gender?: 'male' | 'female';
+  motionSyncEnabled?: boolean;
+  videoModel?: string;
   status: NodeExecutionStatus;
   onChange: (updates: any) => void;
   onRunStep?: () => void;
@@ -250,7 +252,14 @@ export function StartNode({ data }: { data: StartNodeData }) {
             <div className="flex gap-1 rounded-md bg-white/5 p-0.5">
               <button
                 type="button"
-                onClick={() => data.onChange({ studioMode: 'solo', videoPrompt: PROMPT_PRESETS.leftLead })}
+                onClick={() => {
+                  const isFree = data.motionSyncEnabled === false;
+                  data.onChange({
+                    studioMode: 'solo',
+                    videoPrompt: isFree ? PROMPT_PRESETS.freeStyle : PROMPT_PRESETS.leftLead,
+                    videoModel: isFree ? 'happyhorse-1.1-i2v' : 'wan3.0-video',
+                  });
+                }}
                 className={`rounded px-1.5 py-0.5 text-[10px] font-semibold transition ${
                   data.studioMode === 'solo' ? 'bg-amber-500 text-black' : 'text-slate-400'
                 }`}
@@ -259,7 +268,14 @@ export function StartNode({ data }: { data: StartNodeData }) {
               </button>
               <button
                 type="button"
-                onClick={() => data.onChange({ studioMode: 'duo', videoPrompt: PROMPT_PRESETS.dualLead })}
+                onClick={() => {
+                  const isFree = data.motionSyncEnabled === false;
+                  data.onChange({
+                    studioMode: 'duo',
+                    videoPrompt: isFree ? PROMPT_PRESETS.freeStyleDual : PROMPT_PRESETS.dualLead,
+                    videoModel: isFree ? 'happyhorse-1.1-r2v' : 'wan3.0-video',
+                  });
+                }}
                 className={`rounded px-1.5 py-0.5 text-[10px] font-semibold transition ${
                   data.studioMode === 'duo' ? 'bg-amber-500 text-black' : 'text-slate-400'
                 }`}

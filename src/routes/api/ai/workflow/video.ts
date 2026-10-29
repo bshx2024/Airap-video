@@ -220,9 +220,20 @@ async function POST({ request }: { request: Request }) {
       // Check whether reference video motion transfer should be active
       let useReferenceVideo = Boolean(motionSyncEnabled !== false && publicReferenceVideoUrl);
 
-      // If user enabled motion transfer, the model must be wan3.0-video (HappyHorse I2V is pure image-to-video only)
-      if (useReferenceVideo && selectedModel.includes('happyhorse-1.1-i2v')) {
-        selectedModel = 'wan3.0-video';
+      // Auto-switch model based on motion mode:
+      if (useReferenceVideo) {
+        // Motion transfer mode requires Wan 3.0 video-to-video
+        if (selectedModel.toLowerCase().includes('happyhorse')) {
+          selectedModel = 'wan3.0-video';
+        }
+      } else {
+        // AI自由发挥 (解绑骨骼): pure generation without motion reference video.
+        // Wan 3.0 requires reference_video; for free generation, automatically switch to HappyHorse:
+        // - Multiple images (Duo): happyhorse-1.1-r2v
+        // - Single image (Solo): happyhorse-1.1-i2v
+        if (selectedModel.toLowerCase().includes('wan') || selectedModel === 'happyhorse-1.1-i2v') {
+          selectedModel = publicImages.length > 1 ? 'happyhorse-1.1-r2v' : 'happyhorse-1.1-i2v';
+        }
       }
 
       // If model is happyhorse-1.1-i2v, it strictly requires first_frame only (never reference_video)
@@ -265,19 +276,39 @@ async function POST({ request }: { request: Request }) {
       }
 
       const mediaPayload: any[] = [];
+      const targetImages = selectedModel === 'happyhorse-1.1-i2v' ? publicImages.slice(0, 1) : publicImages;
+
       if (useReferenceVideo) {
         mediaPayload.push({
           type: 'reference_video',
           url: publicReferenceVideoUrl,
         });
-      }
-      const targetImages = selectedModel === 'happyhorse-1.1-i2v' ? publicImages.slice(0, 1) : publicImages;
-      targetImages.forEach((url, idx) => {
-        mediaPayload.push({
-          type: selectedModel.includes('r2v') ? 'reference_image' : (idx === 0 && !useReferenceVideo ? 'first_frame' : 'reference_image'),
-          url,
+        // In video-to-video motion transfer, character images must be reference_image
+        targetImages.forEach((url) => {
+          mediaPayload.push({
+            type: 'reference_image',
+            url,
+          });
         });
-      });
+      } else {
+        // In AI自由发挥 mode (no reference video):
+        if (targetImages.length <= 1) {
+          // Single-image I2V: first_frame is required by HappyHorse 1.1 I2V
+          mediaPayload.push({
+            type: 'first_frame',
+            url: targetImages[0],
+          });
+        } else {
+          // Duo / Multi-image: DashScope strictly prohibits mixing first_frame with other media types.
+          // All images must be reference_image for HappyHorse 1.1 R2V
+          targetImages.forEach((url) => {
+            mediaPayload.push({
+              type: 'reference_image',
+              url,
+            });
+          });
+        }
+      }
 
       const selectedAspect = ['9:16', '16:9', '1:1'].includes(aspectRatio) ? aspectRatio : '9:16';
 
@@ -285,8 +316,7 @@ async function POST({ request }: { request: Request }) {
         model: selectedModel,
         input: {
           prompt: effectivePrompt,
-          img_url: firstImage,
-          media: mediaPayload,
+          ...(mediaPayload.length ? { media: mediaPayload } : { img_url: firstImage }),
           ...(publicAudioUrl ? { audio_url: publicAudioUrl } : {}),
         },
         parameters: {

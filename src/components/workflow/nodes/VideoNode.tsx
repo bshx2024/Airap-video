@@ -145,7 +145,14 @@ export function VideoNode({ data }: { data: VideoNodeData }) {
             <label className="mb-1 block font-medium text-slate-300">驱动模型</label>
             <select
               value={data.videoModel || 'wan3.0-video'}
-              onChange={(e) => data.onChange({ videoModel: e.target.value })}
+              onChange={(e) => {
+                const newModel = e.target.value;
+                const isFreeStyle = newModel.includes('happyhorse');
+                data.onChange({
+                  videoModel: newModel,
+                  motionSyncEnabled: !isFreeStyle,
+                });
+              }}
               className="w-full rounded-lg border border-white/15 bg-slate-900 px-2 py-1.5 text-[11px] text-white focus:border-cyan-400 focus:outline-none"
             >
               <option value="happyhorse-1.1-i2v">HappyHorse 1.1 I2V (单人自由生成·推荐)</option>
@@ -239,7 +246,14 @@ export function VideoNode({ data }: { data: VideoNodeData }) {
               <input
                 type="checkbox"
                 checked={data.motionSyncEnabled !== false}
-                onChange={(e) => data.onChange({ motionSyncEnabled: e.target.checked })}
+                onChange={(e) => {
+                  const enabled = e.target.checked;
+                  const isDuo = data.studioMode === 'duo' || Boolean(data.photo2);
+                  data.onChange({
+                    motionSyncEnabled: enabled,
+                    videoModel: enabled ? 'wan3.0-video' : (isDuo ? 'happyhorse-1.1-r2v' : 'happyhorse-1.1-i2v'),
+                  });
+                }}
                 className="rounded border-white/20 bg-slate-900 text-cyan-500 focus:ring-0"
               />
               <span>骨骼姿态迁移 (Motion)</span>
@@ -265,16 +279,17 @@ export function VideoNode({ data }: { data: VideoNodeData }) {
                 type="button"
                 onClick={() => {
                   const isDuo = data.studioMode === 'duo' || Boolean(data.photo2);
+                  const targetModel = isDuo ? 'happyhorse-1.1-r2v' : 'happyhorse-1.1-i2v';
                   data.onChange({
                     videoPrompt: isDuo ? PROMPT_PRESETS.freeStyleDual : PROMPT_PRESETS.freeStyle,
                     motionSyncEnabled: false,
                     lipSyncEnabled: true,
-                    videoModel: isDuo ? 'wan3.0-video' : 'happyhorse-1.1-i2v',
+                    videoModel: targetModel,
                   });
                   toast.success(
                     isDuo
-                      ? '已切换为双人 AI 自由发挥模式：解绑原版骨骼约束，男女歌手自由律动对唱！'
-                      : '已切换为 AI 自由发挥模式：解绑原版骨骼约束，由 AI 自由演化动作与律动！'
+                      ? '已切换为双人 AI 自由发挥模式：自动同步切换为 HappyHorse 1.1 R2V (双人同框)，解绑原版骨骼约束！'
+                      : '已切换为 AI 自由发挥模式：自动同步切换为 HappyHorse 1.1 I2V，解绑原版骨骼约束！'
                   );
                 }}
                 className={`rounded px-1.5 py-0.5 text-[9px] font-semibold transition cursor-pointer ${
