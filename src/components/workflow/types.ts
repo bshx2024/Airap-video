@@ -50,6 +50,11 @@ export interface WorkflowState {
   sunglassesOffsetY?: number;
   sunglassesOffsetX?: number;
   sunglassesRotate?: number;
-  filterMode?: 'none' | 'hiphop-grain' | 'cg-smooth';
+  meshEnabled?: boolean;
+  meshOpacity?: number;
+  meshScale?: number;
+  meshOffsetY?: number;
+  meshOffsetX?: number;
+  filterMode?: 'none' | 'hiphop-grain' | 'cg-smooth' | 'cg-unreal' | 'comic-pop' | string;
   prepLatency?: number;
 }
