@@ -13,12 +13,16 @@ export const PROMPT_PRESETS = {
     'Replace the right rapper in [Video 1] with the character shown in [Image 2]. Keep the left character strictly unchanged. The right character [Image 2] is the primary lead vocalist pointing forward and rapping into the mic with pronounced mouth lip-sync, while Left rapper heavily bounces with rhythmic head nods. Keep the studio setting and motion timing from [Video 1] strictly preserved, 4K cinematic quality.',
   freeStyle:
     'A high-energy hip-hop rapper shown in [Image 1] performing dynamically in the studio, free rhythmic body bounce, energetic natural hand gestures pointing at camera, expressive facial expressions, singing passionately with mouth lip-sync matching the 808 trap beat, cinematic studio lighting, 4K quality.',
+  freeStyleDual:
+    'Two high-energy hip-hop rappers, [Image 1] on the left and [Image 2] on the right, performing dynamically together in the orange studio, free rhythmic body bounce, alternating cypher rap gestures pointing at the camera, expressive facial lip-sync matching the rap vocals, 4K cinematic quality.',
 };
 
 export const DEFAULT_VIDEO_PROMPT = PROMPT_PRESETS.leftLead;
 
 interface VideoNodeData {
   photo1: string;
+  photo2?: string;
+  studioMode?: 'solo' | 'duo';
   generatedAudioUrl?: string;
   referenceVideoUrl?: string;
   motionSyncEnabled?: boolean;
@@ -260,13 +264,18 @@ export function VideoNode({ data }: { data: VideoNodeData }) {
               <button
                 type="button"
                 onClick={() => {
+                  const isDuo = data.studioMode === 'duo' || Boolean(data.photo2);
                   data.onChange({
-                    videoPrompt: PROMPT_PRESETS.freeStyle,
+                    videoPrompt: isDuo ? PROMPT_PRESETS.freeStyleDual : PROMPT_PRESETS.freeStyle,
                     motionSyncEnabled: false,
                     lipSyncEnabled: true,
-                    videoModel: 'happyhorse-1.1-i2v',
+                    videoModel: isDuo ? 'wan3.0-video' : 'happyhorse-1.1-i2v',
                   });
-                  toast.success('已切换为 AI 自由发挥模式：解绑原版骨骼约束，由 AI 自由演化动作与律动！');
+                  toast.success(
+                    isDuo
+                      ? '已切换为双人 AI 自由发挥模式：解绑原版骨骼约束，男女歌手自由律动对唱！'
+                      : '已切换为 AI 自由发挥模式：解绑原版骨骼约束，由 AI 自由演化动作与律动！'
+                  );
                 }}
                 className={`rounded px-1.5 py-0.5 text-[9px] font-semibold transition cursor-pointer ${
                   data.motionSyncEnabled === false
@@ -309,9 +318,9 @@ export function VideoNode({ data }: { data: VideoNodeData }) {
                     ? 'bg-cyan-500/25 text-cyan-300 border border-cyan-500/50 shadow-[0_0_8px_rgba(6,182,212,0.25)]'
                     : 'bg-white/5 text-slate-300 hover:bg-white/10'
                 }`}
-                title="双人全部替换：图1替换左边人物，图2替换右边人物 (双人同框对唱)"
+                title="双人全部替换：图1替换左边人物，图2替换右边人物 (男女双人同框对唱)"
               >
-                🎙️ 双人全换
+                👥 双人全景 (全换)
               </button>
               <button
                 type="button"
