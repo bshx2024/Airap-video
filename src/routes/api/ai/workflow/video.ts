@@ -195,7 +195,12 @@ async function POST({ request }: { request: Request }) {
         : '480P';
 
       const selectedDuration = Number(duration) || Number(configs.alibaba_video_duration) || 5;
-      const selectedModel = model || configs.alibaba_video_model || 'wan3.0-video';
+      let selectedModel = model || configs.alibaba_video_model || 'wan3.0-video';
+
+      // DashScope International Maas (us-east-1) uses happyhorse-1.1-i2v for single-image and happyhorse-1.1-r2v for duo
+      if (selectedModel.toLowerCase().includes('wan2.1')) {
+        selectedModel = publicImages.length > 1 ? 'happyhorse-1.1-r2v' : 'happyhorse-1.1-i2v';
+      }
 
       const firstImage = publicImages[0];
       let effectivePrompt = prompt;
@@ -219,7 +224,8 @@ async function POST({ request }: { request: Request }) {
           url: publicReferenceVideoUrl,
         });
       }
-      publicImages.forEach((url, idx) => {
+      const targetImages = selectedModel === 'happyhorse-1.1-i2v' ? publicImages.slice(0, 1) : publicImages;
+      targetImages.forEach((url, idx) => {
         mediaPayload.push({
           type: selectedModel.includes('r2v') ? 'reference_image' : (idx === 0 && !useReferenceVideo ? 'first_frame' : 'reference_image'),
           url,

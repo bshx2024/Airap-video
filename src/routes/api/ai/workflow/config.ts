@@ -18,10 +18,9 @@ async function GET() {
       lyricsModel: configs.alibaba_model || envConfigs.alibaba_model || 'deepseek-v4.1-flash-1017',
       styles: RAP_STYLE_PRESETS,
       availableVideoModels: [
-        { id: 'happyhorse-1.1-r2v', name: 'HappyHorse 1.1 R2V (阿里·480p调试约$0.02/s·推荐)' },
-        { id: 'happyhorse-1.1-i2v', name: 'HappyHorse 1.1 I2V (单人人像·480p调试)' },
-        { id: 'wan3.0-video', name: 'Wan 3.0 Video (万象3.0·720p最高性价比)' },
-        { id: 'wan2.1-i2v-plus', name: 'Wan 2.1 Plus (万象2.1高品质图生视频)' },
+        { id: 'happyhorse-1.1-i2v', name: 'HappyHorse 1.1 I2V (单人人像·自由生成·推荐)' },
+        { id: 'wan3.0-video', name: 'Wan 3.0 Video (万相3.0·原版姿态/高保真)' },
+        { id: 'happyhorse-1.1-r2v', name: 'HappyHorse 1.1 R2V (阿里双人·多图驱动)' },
       ],
       availableMusicModels: [
         { id: 'fun-music-v1', name: 'Fun-Music v1 (阿里百炼·说唱谱曲与伴奏)' },

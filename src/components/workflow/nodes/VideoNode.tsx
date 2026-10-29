@@ -144,10 +144,10 @@ export function VideoNode({ data }: { data: VideoNodeData }) {
               onChange={(e) => data.onChange({ videoModel: e.target.value })}
               className="w-full rounded-lg border border-white/15 bg-slate-900 px-2 py-1.5 text-[11px] text-white focus:border-cyan-400 focus:outline-none"
             >
-              <option value="wan3.0-video">Wan 3.0 (原版姿态驱动+生成·推荐)</option>
+              <option value="happyhorse-1.1-i2v">HappyHorse 1.1 I2V (单人自由生成·推荐)</option>
+              <option value="wan3.0-video">Wan 3.0 (原版姿态驱动/高保真·推荐)</option>
+              <option value="happyhorse-1.1-r2v">HappyHorse 1.1 R2V (双人同框·推荐)</option>
               <option value="seedance-2-5">Seedance 2.5 (音素级口型咬字对齐)</option>
-              <option value="happyhorse-1.1-r2v">HappyHorse 1.1 R2V (阿里多图)</option>
-              <option value="wan2.1-i2v-plus">Wan 2.1 Plus (万象高品质)</option>
             </select>
           </div>
           <div>
@@ -264,7 +264,7 @@ export function VideoNode({ data }: { data: VideoNodeData }) {
                     videoPrompt: PROMPT_PRESETS.freeStyle,
                     motionSyncEnabled: false,
                     lipSyncEnabled: true,
-                    videoModel: data.videoModel === 'wan3.0-video' ? 'wan2.1-i2v-plus' : data.videoModel,
+                    videoModel: 'happyhorse-1.1-i2v',
                   });
                   toast.success('已切换为 AI 自由发挥模式：解绑原版骨骼约束，由 AI 自由演化动作与律动！');
                 }}
