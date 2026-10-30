@@ -447,7 +447,7 @@ export function AiRapHeroGenerator() {
           studioMode,
           prompt: prompt.trim() || currentChip.prompt,
           videoPrompt: currentChip.prompt,
-          scenarioId: selectedChip,
+          scenarioId: currentChip.id || activeChipId || 'hotel-lobby',
           styleId: selectedStyle.id,
           customLyrics: lyrics.trim(),
         }
