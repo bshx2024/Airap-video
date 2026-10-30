@@ -181,9 +181,14 @@ export function AiRapHeroGenerator() {
     queryKey: ['credits', 'balance', session?.user?.id],
     queryFn: () => apiGet<{ balance: number }>('/api/credits?summary=1'),
     enabled: Boolean(session?.user),
-    staleTime: 10_000,
+    staleTime: 2_000,
   });
-  const balance = session?.user ? creditsQuery.data?.balance ?? 0 : null;
+  const isAdmin = session?.user?.role === 'admin';
+  const balance = session?.user
+    ? isAdmin
+      ? 999999
+      : (creditsQuery.data?.balance ?? 0)
+    : null;
 
   // Studio Mode & Occasion States (Using chip.id for strict matching)
   const [studioMode, setStudioMode] = useState<StudioMode>('duo');
@@ -403,11 +408,17 @@ export function AiRapHeroGenerator() {
       setShowAuthModal(true);
       return;
     }
-    if (balance != null && balance < RAP_COST_CREDITS) {
-      toast.error(
-        `Insufficient credits. This generation requires ${RAP_COST_CREDITS} credits. Current balance: ${balance}`
-      );
-      return;
+
+    // 非管理员用户，先强制刷新一次最新的 credits 数据（防止后台刚充值但前端缓存未过期）
+    if (!isAdmin) {
+      const freshRes = await creditsQuery.refetch();
+      const realBalance = freshRes.data?.balance ?? balance ?? 0;
+      if (realBalance < RAP_COST_CREDITS) {
+        toast.error(
+          `Insufficient credits. This generation requires ${RAP_COST_CREDITS} credits. Current balance: ${realBalance}`
+        );
+        return;
+      }
     }
 
     const currentPhotos =
@@ -699,7 +710,7 @@ export function AiRapHeroGenerator() {
                           <p className="truncate text-xs font-medium text-white/90">
                             {photo2Name}
                           </p>
-                          <div className="mt-1 flex items-center gap-2">
+                          <div className="mt-1 flex flex-wrap items-center gap-1.5">
                             <button
                               type="button"
                               onClick={() => fileInputRef2.current?.click()}
@@ -1052,7 +1063,9 @@ export function AiRapHeroGenerator() {
                   <>
                     <Wand2 className="size-4 animate-pulse" />
                     <span>
-                      {session?.user
+                      {isAdmin
+                        ? 'Direct Rap MV (Admin Free)'
+                        : session?.user
                         ? `Direct Rap MV (${RAP_COST_CREDITS} Credits)`
                         : `Direct Rap MV (Get Free Signup Credits)`}
                     </span>
@@ -1064,7 +1077,11 @@ export function AiRapHeroGenerator() {
                 <span>
                   Credit Balance:{' '}
                   <strong className="text-amber-300">
-                    {balance != null ? balance : 'Not Logged In'}
+                    {isAdmin
+                      ? 'Unlimited (Admin)'
+                      : balance != null
+                      ? balance
+                      : 'Not Logged In'}
                   </strong>
                 </span>
               </div>

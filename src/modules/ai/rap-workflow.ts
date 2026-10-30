@@ -9,7 +9,7 @@ import {
 } from '@/core/ai/types';
 import { db } from '@/core/db';
 import { envConfigs } from '@/config';
-import { aiTask } from '@/config/db/schema';
+import { aiTask, user } from '@/config/db/schema';
 import {
   HOMEPAGE_THEMES,
   RAP_COST_CREDITS,
@@ -267,27 +267,38 @@ export async function startRapTask(params: {
 
   const costCredits = RAP_COST_CREDITS;
   const balance = await getBalance(userId);
-  if (balance < costCredits) {
-    throw new Error(
-      `Insufficient credits (requires ${costCredits} credits, current balance: ${balance}).`
-    );
+
+  // 检查是否管理员特权
+  const [userRecord] = await db()
+    .select({ role: user.role })
+    .from(user)
+    .where(eq(user.id, userId));
+  const isAdmin = userRecord?.role === 'admin';
+
+  let creditId: string | undefined;
+  if (!isAdmin) {
+    if (balance < costCredits) {
+      throw new Error(
+        `Insufficient credits (requires ${costCredits} credits, current balance: ${balance}).`
+      );
+    }
+
+    // 预扣除积分
+    const consumeRes = await consume({
+      userId,
+      userEmail,
+      credits: costCredits,
+      scene: 'rap_video',
+      description: `AI Rap Video Generation (${styleId})`,
+      metadata: JSON.stringify({ prompt, styleId, studioMode }),
+    });
+
+    if (!consumeRes.success || !consumeRes.consumedCredit) {
+      throw new Error('Failed to deduct credits, please try again.');
+    }
+    creditId = consumeRes.consumedCredit.id;
   }
 
-  // 预扣除积分
-  const consumeRes = await consume({
-    userId,
-    userEmail,
-    credits: costCredits,
-    scene: 'rap_video',
-    description: `AI Rap Video Generation (${styleId})`,
-    metadata: JSON.stringify({ prompt, styleId, studioMode }),
-  });
-
-  if (!consumeRes.success || !consumeRes.consumedCredit) {
-    throw new Error('Failed to deduct credits, please try again.');
-  }
-
-  const creditId = consumeRes.consumedCredit.id;
   const dbTaskId = getUuid();
   const isMock = await isMockMode();
 
