@@ -567,6 +567,58 @@ export async function syncRapWorkflowTask(
 
           const isDuo = taskInfo.studioMode === 'duo' && publicImages.length > 1;
 
+          // Determine scenario-specific scene description based on scenarioId, videoPrompt, and prompt
+          let sceneBackground = '';
+          const scenario = (taskInfo.scenarioId || '').toLowerCase();
+          const rawUserPrompt = `${taskInfo.videoPrompt || ''} ${taskInfo.prompt || ''}`.toLowerCase();
+
+          if (
+            scenario.includes('hotel') ||
+            rawUserPrompt.includes('hotel') ||
+            rawUserPrompt.includes('orange')
+          ) {
+            sceneBackground =
+              'inside an iconic bright vibrant monochromatic orange cyclorama studio with solid warm orange curved walls, bright orange floor, and warm studio lighting, with a single vintage chrome studio microphone hanging down from the ceiling directly in the center between the rappers, inspired by the Quavo & Takeoff Hotel Lobby rap cypher music video aesthetic';
+          } else if (
+            scenario.includes('radar') ||
+            rawUserPrompt.includes('radar') ||
+            rawUserPrompt.includes('green')
+          ) {
+            sceneBackground =
+              'inside the legendary On The Radar dark underground radio studio booth with bright glowing neon green vertical fluorescent tube lights along the dark acoustic walls and a central standing studio microphone, intense UK drill cypher setting';
+          } else if (
+            scenario.includes('roast') ||
+            rawUserPrompt.includes('roast') ||
+            rawUserPrompt.includes('battle')
+          ) {
+            sceneBackground =
+              'in an underground urban cypher street alley at night with dramatic golden streetlights, wet asphalt reflections, and an energetic crowd cheering in the background';
+          } else if (
+            scenario.includes('pet') ||
+            rawUserPrompt.includes('pet') ||
+            rawUserPrompt.includes('cat') ||
+            rawUserPrompt.includes('dog')
+          ) {
+            sceneBackground =
+              'in an upscale hip-hop music video studio with bright spotlights, shiny gold chains, and playful viral party confetti';
+          } else if (
+            scenario.includes('neon') ||
+            rawUserPrompt.includes('neon') ||
+            rawUserPrompt.includes('cyber')
+          ) {
+            sceneBackground =
+              'in a rain-slicked cyberpunk street alley with glowing neon cyan and magenta signage reflections on the wet asphalt, handheld microphone';
+          } else if (taskInfo.videoPrompt || taskInfo.prompt) {
+            sceneBackground = `in the following scene: ${taskInfo.videoPrompt || taskInfo.prompt}`;
+          } else {
+            sceneBackground =
+              'in an iconic bright orange hip-hop studio with warm orange atmospheric lights and a hanging studio microphone';
+          }
+
+          const effectivePrompt = isDuo
+            ? `Two rappers perform a high-energy rap cypher battle ${sceneBackground}. [Image 1] is the rapper on the left and [Image 2] is the rapper on the right. Both rappers lean into the hanging microphone in the center, trading punchy rap bars, rhythmic body bounces, head nods, expressive hip-hop hand gestures, clear wide-open mouth articulation and lip-syncing strictly matching the 808 trap beat, 9:16 vertical TikTok framing, cinematic vivid colors, 4K quality.`
+            : `A high-energy hip-hop rapper shown in [Image 1] performs an intense rap delivery ${sceneBackground}. Expressive delivery, leaning into the microphone, wide mouth articulation and lip-syncing strictly matching the rap audio track, rhythmic head nods and body bounce, 9:16 vertical framing, cinematic vivid colors, 4K quality.`;
+
           if (alibabaApiKey) {
             // 阿里百炼 DashScope 官方生视频驱动 (HappyHorse 1.1)
             const origin = new URL(alibabaBaseUrl).origin;
@@ -582,14 +634,12 @@ export async function syncRapWorkflowTask(
               mediaPayload.push({ type: 'first_frame', url: publicImages[0] });
             }
 
-            const effectivePrompt = isDuo
-              ? 'Two high-energy hip-hop rappers perform dynamically together, [Image 1] on the left and [Image 2] on the right, alternating rap cypher gestures, rhythmic bounce, expressive facial lipsync matching the 808 trap beat, studio lighting, 4K quality'
-              : 'An energetic hip-hop rapper shown in [Image 1] performs dynamic rap delivery, rhythmic bounce, expressive facial lipsync matching the 808 trap beat, studio lighting, 4K quality';
-
             const payload = {
               model: selectedModel,
               input: {
                 prompt: effectivePrompt,
+                negative_prompt:
+                  'dark black background, blue background, plain grey wall, outdoor nature, deformed face, blurry, extra limbs, bad anatomy, distorted hands, static image, no motion',
                 media: mediaPayload,
                 audio_url: publicAudioUrl,
               },
@@ -644,7 +694,7 @@ export async function syncRapWorkflowTask(
               const vidRes = await provider.generate({
                 params: {
                   mediaType: 'video' as any,
-                  prompt: taskInfo.videoPrompt || matchedTheme?.videoPrompt || 'Hip-hop rap video',
+                  prompt: effectivePrompt,
                   model: effectiveModel,
                   options: {
                     image_url: publicImages[0],
