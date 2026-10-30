@@ -567,57 +567,131 @@ export async function syncRapWorkflowTask(
 
           const isDuo = taskInfo.studioMode === 'duo' && publicImages.length > 1;
 
-          // Determine scenario-specific scene description based on scenarioId, videoPrompt, and prompt
-          let sceneBackground = '';
-          const scenario = (taskInfo.scenarioId || '').toLowerCase();
-          const rawUserPrompt = `${taskInfo.videoPrompt || ''} ${taskInfo.prompt || ''}`.toLowerCase();
+          // Modular scene presets ensuring each trending scenario renders with exact visual aesthetic, props, and lighting
+          const SCENARIO_PRESETS: Record<
+            string,
+            {
+              sceneBackground: string;
+              actionDirectivesDuo: string;
+              actionDirectivesSolo: string;
+              negativePrompt: string;
+            }
+          > = {
+            'hotel-lobby': {
+              sceneBackground:
+                'inside an iconic bright vibrant monochromatic orange cyclorama studio with solid warm orange curved walls, bright orange floor, and warm studio wash lighting, with a single vintage chrome studio microphone hanging down from the ceiling directly in the center between the rappers, inspired by the Quavo & Takeoff Hotel Lobby rap cypher music video aesthetic',
+              actionDirectivesDuo:
+                'Both rappers lean toward the central hanging microphone, trading punchy roast bars, rhythmic body bounces, head nods, expressive hip-hop hand gestures, clear wide-open mouth articulation and lip-syncing strictly matching the 808 trap beat',
+              actionDirectivesSolo:
+                'The rapper delivers an energetic rap performance into the hanging microphone, with rhythmic head nods, body bounces, and expressive lip-syncing matching the beat',
+              negativePrompt:
+                'dark black background, blue background, cold lighting, plain grey wall, outdoor nature, deformed face, blurry, extra limbs, bad anatomy, distorted hands, static image, no motion',
+            },
+            'on-the-radar': {
+              sceneBackground:
+                'inside the legendary On The Radar dark underground radio studio booth with bright glowing neon green vertical fluorescent tube lights along the dark acoustic walls and a central standing studio microphone with pop filter, intense UK drill cypher setting',
+              actionDirectivesDuo:
+                'Both rappers stand around the central standing microphone, trading fast aggressive drill verses, sharp syncopated hand gestures, sliding 808 bass head nods, intense facial focus and clear mouth articulation',
+              actionDirectivesSolo:
+                'The rapper stands by the central standing microphone under the neon green tubes, spitting aggressive UK drill flows with rapid hand gestures and sharp head nods',
+              negativePrompt:
+                'bright daylight, sunny outdoor, orange background, pastel colors, white wall, deformed face, blurry, extra limbs, bad anatomy, distorted hands, static image, no motion',
+            },
+            'friends-roast': {
+              sceneBackground:
+                'in an underground urban cypher street alley at night with dramatic golden streetlights, brick walls with subtle graffiti, wet asphalt with golden reflections, and an energetic circle of friends hyping and cheering in the background',
+              actionDirectivesDuo:
+                'Both best friends face each other and the camera in a witty roast battle, laughing, pointing, animated hip-hop gestures, boom-bap rhythm bounce, and sharp mouth articulation',
+              actionDirectivesSolo:
+                'The rapper performs in the center of the underground street cypher, engaging the cheering crowd with classic boom-bap swagger and expressive gestures',
+              negativePrompt:
+                'empty white room, daylight, sunny afternoon, corporate office, studio cyc, deformed face, blurry, extra limbs, bad anatomy, distorted hands, static image, no motion',
+            },
+            'pet-rap': {
+              sceneBackground:
+                'in an upscale viral hip-hop music video studio with bright spotlights, shiny gold chains, cool sunglasses, floating confetti, and vibrant party colors',
+              actionDirectivesDuo:
+                'Both characters deliver hypersonic fast chopper flow, wearing hip-hop sunglasses and chains, energetic rhythmic head bobbing, bouncing to bouncy trap drums with hilarious viral confidence',
+              actionDirectivesSolo:
+                'The character delivers hypersonic fast chopper flow, wearing hip-hop shades and shiny gold chain, energetic head bobbing and bouncing to the trap beat',
+              negativePrompt:
+                'sad, dark blurry, muted colors, plain grey, deformed face, extra limbs, bad anatomy, distorted hands, static image, no motion',
+            },
+            'birthday-hype': {
+              sceneBackground:
+                'in a luxurious golden VIP hip-hop lounge and concert stage, golden balloon arches, shimmering gold streamer backdrop, falling golden confetti, and sparkling warm concert stage lights',
+              actionDirectivesDuo:
+                'Both friends celebrate and perform high-energy party rap together, raising gold cups, laughing, trading witty birthday roasts, bouncing to the 808 party beat with concert-level hype',
+              actionDirectivesSolo:
+                'The rapper performs high-energy birthday party hype, surrounded by falling golden confetti and stage lights, delivering celebratory verses with infectious charisma',
+              negativePrompt:
+                'dark cemetery, gloomy lighting, dull colors, plain grey, sad expression, deformed face, blurry, extra limbs, bad anatomy, distorted hands, static image, no motion',
+            },
+            'choreo-drill': {
+              sceneBackground:
+                'in a futuristic high-contrast dance studio with moody rim lighting, LED strobe light bars on dark walls, glossy reflective floor, and cinematic wide space for dynamic movement',
+              actionDirectivesDuo:
+                'Both performers execute synchronized hip-hop choreography and sharp beat-synced body isolations, aggressive UK drill sliding footwork and arm glides matching the heavy sliding 808 bass, expressive facial delivery',
+              actionDirectivesSolo:
+                'The performer executes full-body hip-hop choreography with sharp beat-synced isolations, fluid arm waves, and aggressive drill footwork matching the sliding 808 bass',
+              negativePrompt:
+                'standing completely still, talking head only, bright cartoon, sunny outdoor, deformed face, blurry, extra limbs, bad anatomy, distorted hands, static image, no motion',
+            },
+            'neon-freestyle': {
+              sceneBackground:
+                'in a rain-slicked cyberpunk street alley at night with glowing neon cyan and magenta signage reflections on the wet asphalt, subtle rising steam, holding a vintage silver microphone',
+              actionDirectivesDuo:
+                'Both rappers share the rain-slicked neon street session, relaxed effortless head nods, melodic delivery, smooth hand gestures flowing to the lo-fi boombap rhythm, cinematic depth of field',
+              actionDirectivesSolo:
+                'The rapper flows effortlessly in the rain-slicked neon alley with a handheld microphone, relaxed head nods, smooth melodic delivery, and vintage cyberpunk ambiance',
+              negativePrompt:
+                'indoor living room, plain white background, bright sunny daylight, office cubicle, deformed face, blurry, extra limbs, bad anatomy, distorted hands, static image, no motion',
+            },
+          };
 
-          if (
-            scenario.includes('hotel') ||
-            rawUserPrompt.includes('hotel') ||
-            rawUserPrompt.includes('orange')
-          ) {
-            sceneBackground =
-              'inside an iconic bright vibrant monochromatic orange cyclorama studio with solid warm orange curved walls, bright orange floor, and warm studio lighting, with a single vintage chrome studio microphone hanging down from the ceiling directly in the center between the rappers, inspired by the Quavo & Takeoff Hotel Lobby rap cypher music video aesthetic';
-          } else if (
-            scenario.includes('radar') ||
-            rawUserPrompt.includes('radar') ||
-            rawUserPrompt.includes('green')
-          ) {
-            sceneBackground =
-              'inside the legendary On The Radar dark underground radio studio booth with bright glowing neon green vertical fluorescent tube lights along the dark acoustic walls and a central standing studio microphone, intense UK drill cypher setting';
-          } else if (
-            scenario.includes('roast') ||
-            rawUserPrompt.includes('roast') ||
-            rawUserPrompt.includes('battle')
-          ) {
-            sceneBackground =
-              'in an underground urban cypher street alley at night with dramatic golden streetlights, wet asphalt reflections, and an energetic crowd cheering in the background';
-          } else if (
-            scenario.includes('pet') ||
-            rawUserPrompt.includes('pet') ||
-            rawUserPrompt.includes('cat') ||
-            rawUserPrompt.includes('dog')
-          ) {
-            sceneBackground =
-              'in an upscale hip-hop music video studio with bright spotlights, shiny gold chains, and playful viral party confetti';
-          } else if (
-            scenario.includes('neon') ||
-            rawUserPrompt.includes('neon') ||
-            rawUserPrompt.includes('cyber')
-          ) {
-            sceneBackground =
-              'in a rain-slicked cyberpunk street alley with glowing neon cyan and magenta signage reflections on the wet asphalt, handheld microphone';
-          } else if (taskInfo.videoPrompt || taskInfo.prompt) {
-            sceneBackground = `in the following scene: ${taskInfo.videoPrompt || taskInfo.prompt}`;
-          } else {
-            sceneBackground =
-              'in an iconic bright orange hip-hop studio with warm orange atmospheric lights and a hanging studio microphone';
+          const scenarioId = (taskInfo.scenarioId || '').toLowerCase();
+          const rawText = `${taskInfo.videoPrompt || ''} ${taskInfo.prompt || ''}`.toLowerCase();
+
+          let matchedKey = 'hotel-lobby';
+          if (scenarioId.includes('radar') || rawText.includes('radar') || rawText.includes('green booth')) {
+            matchedKey = 'on-the-radar';
+          } else if (scenarioId.includes('roast') || rawText.includes('roast battle')) {
+            matchedKey = 'friends-roast';
+          } else if (scenarioId.includes('pet') || rawText.includes('pet chopper') || rawText.includes('cat') || rawText.includes('dog')) {
+            matchedKey = 'pet-rap';
+          } else if (scenarioId.includes('birthday') || rawText.includes('birthday roast')) {
+            matchedKey = 'birthday-hype';
+          } else if (scenarioId.includes('choreo') || rawText.includes('drill dance')) {
+            matchedKey = 'choreo-drill';
+          } else if (scenarioId.includes('neon') || rawText.includes('neon street')) {
+            matchedKey = 'neon-freestyle';
+          } else if (scenarioId.includes('hotel') || rawText.includes('hotel lobby') || rawText.includes('orange')) {
+            matchedKey = 'hotel-lobby';
           }
 
+          const preset = SCENARIO_PRESETS[matchedKey] || SCENARIO_PRESETS['hotel-lobby'];
+
+          const isCustomUserPrompt =
+            taskInfo.prompt &&
+            !taskInfo.prompt.startsWith('Two rappers in an iconic bright orange') &&
+            !taskInfo.prompt.startsWith('A rapper inside the legendary On The Radar') &&
+            !taskInfo.prompt.startsWith('Two best friends roasting') &&
+            !taskInfo.prompt.startsWith('Cute cat wearing heavy gold chain') &&
+            !taskInfo.prompt.startsWith('Two friends celebrating a milestone birthday') &&
+            !taskInfo.prompt.startsWith('Full-body hip-hop choreography') &&
+            !taskInfo.prompt.startsWith('Solo rapper flowing effortlessly');
+
+          const finalScene = isCustomUserPrompt
+            ? `in the following scene: ${taskInfo.prompt}`
+            : preset.sceneBackground;
+
+          const action = isDuo ? preset.actionDirectivesDuo : preset.actionDirectivesSolo;
+
           const effectivePrompt = isDuo
-            ? `Two rappers perform a high-energy rap cypher battle ${sceneBackground}. [Image 1] is the rapper on the left and [Image 2] is the rapper on the right. Both rappers lean into the hanging microphone in the center, trading punchy rap bars, rhythmic body bounces, head nods, expressive hip-hop hand gestures, clear wide-open mouth articulation and lip-syncing strictly matching the 808 trap beat, 9:16 vertical TikTok framing, cinematic vivid colors, 4K quality.`
-            : `A high-energy hip-hop rapper shown in [Image 1] performs an intense rap delivery ${sceneBackground}. Expressive delivery, leaning into the microphone, wide mouth articulation and lip-syncing strictly matching the rap audio track, rhythmic head nods and body bounce, 9:16 vertical framing, cinematic vivid colors, 4K quality.`;
+            ? `Two rappers perform a high-energy rap cypher battle ${finalScene}. [Image 1] is the rapper on the left and [Image 2] is the rapper on the right. ${action}, 9:16 vertical TikTok framing, cinematic vivid colors, 4K quality.`
+            : `A high-energy hip-hop rapper shown in [Image 1] performs an intense rap delivery ${finalScene}. ${action}, 9:16 vertical framing, cinematic vivid colors, 4K quality.`;
+
+          const effectiveNegativePrompt = preset.negativePrompt;
 
           if (alibabaApiKey) {
             // 阿里百炼 DashScope 官方生视频驱动 (HappyHorse 1.1)
@@ -638,8 +712,7 @@ export async function syncRapWorkflowTask(
               model: selectedModel,
               input: {
                 prompt: effectivePrompt,
-                negative_prompt:
-                  'dark black background, blue background, plain grey wall, outdoor nature, deformed face, blurry, extra limbs, bad anatomy, distorted hands, static image, no motion',
+                negative_prompt: effectiveNegativePrompt,
                 media: mediaPayload,
                 audio_url: publicAudioUrl,
               },
