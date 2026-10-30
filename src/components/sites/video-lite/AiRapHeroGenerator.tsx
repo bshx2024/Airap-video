@@ -68,7 +68,7 @@ const OCCASION_CHIPS: OccasionChipItem[] = [
     title: 'Hotel Lobby · Migos Orange Studio Stage',
     desc: 'The viral Quavo & Takeoff "Hotel Lobby" aesthetic: 2 rappers trading punchy roast bars on a hanging mic, heavy 808 Trap beat, 9:16 vertical framing.',
     image: '/imgs/scenes/hotel-lobby-studio.jpg',
-    video: '/videos/showcase/generated/web-acrobat.mp4',
+    video: '/videos/showcase/duo-migos-hero.mp4',
     prompt:
       'Two rappers in an iconic bright orange studio with a single hanging microphone, inspired by Quavo and Takeoff Hotel Lobby, trading punchy roast bars, heavy 808 trap beat, rhythmic head nods, hip-hop hand gestures, 9:16 vertical TikTok style',
     styleId: 'trap-808',
