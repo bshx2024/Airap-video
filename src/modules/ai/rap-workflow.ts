@@ -304,17 +304,35 @@ export async function startRapTask(params: {
     title = lyrObj.title;
   }
 
+  // Immediately upload base64 images to public R2 storage so DB rows remain tiny (<5KB)
+  const { ensurePublicMediaUrl } = await import('@/modules/ai/public-media');
+  let publicPrimaryImage = primaryImageUrl;
+  let publicImageUrls = validImageUrls;
+  try {
+    if (primaryImageUrl.startsWith('data:')) {
+      publicPrimaryImage = await ensurePublicMediaUrl(primaryImageUrl, 'image');
+    }
+    publicImageUrls = await Promise.all(
+      validImageUrls.map(async (u) => (u.startsWith('data:') ? ensurePublicMediaUrl(u, 'image') : u))
+    );
+    if (!publicPrimaryImage && publicImageUrls.length > 0) {
+      publicPrimaryImage = publicImageUrls[0];
+    }
+  } catch (upErr) {
+    console.warn('Failed to upload portraits to public R2 during task start:', upErr);
+  }
+
   const initialTaskInfo: RapTaskInfo = {
     scene: 'rap_video',
     stage: 'lyrics',
     progress: 20,
-    stageMessage: '已完成双押作词与节拍设计，正在送入 Suno 编曲...',
+    stageMessage: 'Composed lyrics and beat design, sending to Suno arranger...',
     prompt,
     videoPrompt,
     scenarioId,
     styleId,
-    imageUrl: primaryImageUrl,
-    imageUrls: validImageUrls,
+    imageUrl: publicPrimaryImage,
+    imageUrls: publicImageUrls,
     studioMode,
     lyrics,
     title,
@@ -331,8 +349,8 @@ export async function startRapTask(params: {
       model: 'ai-rap-v1',
       prompt: `AI Rap: ${title}`,
       options: JSON.stringify({
-        imageUrl: primaryImageUrl,
-        imageUrls: validImageUrls,
+        imageUrl: publicPrimaryImage,
+        imageUrls: publicImageUrls,
         studioMode,
         styleId,
         styleTags: stylePreset.sunoStyle,
@@ -350,7 +368,7 @@ export async function startRapTask(params: {
     if (isMock) {
       initialTaskInfo.stage = 'music';
       initialTaskInfo.progress = 40;
-      initialTaskInfo.stageMessage = 'Suno 正在生成爆燃伴奏与 Rap Flow... (Mock)';
+      initialTaskInfo.stageMessage = 'Generating Suno 808 beat & rap flow... (Mock)';
       initialTaskInfo.musicTaskId = `mock_music_${dbTaskId}`;
       await db()
         .update(aiTask)
@@ -384,7 +402,7 @@ export async function startRapTask(params: {
 
       initialTaskInfo.stage = 'music';
       initialTaskInfo.progress = 40;
-      initialTaskInfo.stageMessage = 'Suno 正在生成爆燃伴奏与 Rap Flow...';
+      initialTaskInfo.stageMessage = 'Generating Suno 808 beat & rap vocals...';
       initialTaskInfo.musicTaskId = musicRes.taskId;
 
       await db()
@@ -522,7 +540,7 @@ export async function syncRapWorkflowTask(
       taskInfo.audioUrl = audioUrl;
       taskInfo.stage = 'video';
       taskInfo.progress = 70;
-      taskInfo.stageMessage = '音频已生成，正在驱动面部表情、嘴型咬字与身体节拍...';
+      taskInfo.stageMessage = 'Vocals & 808 beat ready, directing performance & lip-sync...';
 
       // 触发真实视频生成模型 (Alibaba DashScope HappyHorse / KIE / Fal / Mock)
       if (isMock) {
@@ -606,7 +624,7 @@ export async function syncRapWorkflowTask(
 
             taskInfo.videoTaskId = aliTaskId;
             taskInfo.videoProvider = 'alibaba';
-            taskInfo.stageMessage = 'AI 人像已送入阿里生视频引擎，正在渲染说唱 MV...';
+            taskInfo.stageMessage = 'Characters queued into AI video engine, rendering studio rap MV...';
           } else {
             // 通用三方服务商驱动 (KIE / Fal / Replicate)
             const provider = await getAIProvider();
@@ -713,7 +731,7 @@ export async function syncRapWorkflowTask(
           } else if (status === 'FAILED') {
             throw new Error(out.message || qJson.message || '阿里视频驱动生成失败 (FAILED)');
           } else {
-            taskInfo.stageMessage = 'AI 人像已送入阿里生视频引擎，正在渲染说唱 MV...';
+            taskInfo.stageMessage = 'Characters queued into AI video engine, rendering studio rap MV...';
           }
         } else {
           // 通用 Provider 轮询
@@ -754,7 +772,7 @@ export async function syncRapWorkflowTask(
       taskInfo.videoUrl = videoUrl;
       taskInfo.stage = 'completed';
       taskInfo.progress = 100;
-      taskInfo.stageMessage = 'AI Rap MV 制作完成！';
+      taskInfo.stageMessage = 'AI Rap MV rendered successfully!';
 
       await db()
         .update(aiTask)

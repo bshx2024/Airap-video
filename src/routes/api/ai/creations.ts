@@ -18,12 +18,10 @@ async function GET({ request }: { request: Request }) {
       return respData({ items: [] });
     }
 
-    await expireTimedOutTasks();
-
     const url = new URL(request.url);
     const mediaType = url.searchParams.get('mediaType');
     const modelParam = url.searchParams.get('model');
-    const limitParam = Number(url.searchParams.get('limit')) || 50;
+    const limitParam = Number(url.searchParams.get('limit')) || 24;
 
     const conditions = [
       eq(aiTask.userId, session.user.id),
@@ -39,126 +37,122 @@ async function GET({ request }: { request: Request }) {
       conditions.push(eq(aiTask.model, modelParam));
     }
 
+    // Select only lightweight columns to avoid loading multi-megabyte base64 strings in options/payloads
     const tasks = await db()
-      .select()
+      .select({
+        id: aiTask.id,
+        taskId: aiTask.taskId,
+        userId: aiTask.userId,
+        mediaType: aiTask.mediaType,
+        model: aiTask.model,
+        prompt: aiTask.prompt,
+        status: aiTask.status,
+        scene: aiTask.scene,
+        taskInfo: aiTask.taskInfo,
+        taskResult: aiTask.taskResult,
+        createdAt: aiTask.createdAt,
+      })
       .from(aiTask)
       .where(and(...conditions))
       .orderBy(desc(aiTask.createdAt))
-      .limit(Math.min(limitParam, 100));
+      .limit(Math.min(limitParam, 30));
 
-    const creations = (
-      await Promise.all(
-        tasks.map(async (t: any) => {
-          let parsedResult: any = null;
+    const creations = tasks
+      .map((t: any) => {
+        let parsedResult: any = null;
+        try {
+          if (t.taskResult) {
+            parsedResult = JSON.parse(t.taskResult);
+          }
+        } catch {}
+
+        const isMusic = t.mediaType === 'music';
+        let mediaUrl = parsedResult
+          ? isMusic
+            ? extractAudioUrl(parsedResult)
+            : extractMediaUrl(parsedResult)
+          : '';
+
+        let parsedInfo: any = null;
+        if (t.taskInfo) {
           try {
-            if (t.taskResult) {
-              parsedResult = JSON.parse(t.taskResult);
-            }
+            parsedInfo = JSON.parse(t.taskInfo);
           } catch {}
+        }
 
-          const isMusic = t.mediaType === 'music';
-          let mediaUrl = parsedResult
-            ? isMusic
-              ? extractAudioUrl(parsedResult)
-              : extractMediaUrl(parsedResult)
-            : '';
+        if (!mediaUrl && parsedInfo) {
+          mediaUrl = isMusic
+            ? extractAudioUrl(parsedInfo)
+            : extractMediaUrl(parsedInfo);
+        }
 
-          let parsedInfo: any = null;
-          if (t.taskInfo) {
-            try {
-              parsedInfo = JSON.parse(t.taskInfo);
-            } catch {}
+        // Never return massive data URIs in list
+        if (mediaUrl && mediaUrl.startsWith('data:')) {
+          mediaUrl = '';
+        }
+
+        const taskStatus = t.status || 'success';
+
+        // Drop empty pre-flight failures
+        if (
+          taskStatus === 'failed' &&
+          !mediaUrl &&
+          !parsedInfo &&
+          !parsedResult
+        ) {
+          return null;
+        }
+
+        if (
+          !mediaUrl &&
+          taskStatus !== 'failed' &&
+          taskStatus !== 'pending' &&
+          taskStatus !== 'processing'
+        ) {
+          return null;
+        }
+
+        let itemMode =
+          !t.scene?.startsWith('ai_') ? t.scene : undefined;
+        if (!itemMode) {
+          if (t.mediaType === 'video') {
+            itemMode = 'image-to-video';
+          } else if (t.mediaType === 'music') {
+            itemMode = 'text-to-music';
+          } else {
+            itemMode = 'text-to-image';
           }
+        }
 
-          if (!mediaUrl && parsedInfo) {
-            mediaUrl = isMusic
-              ? extractAudioUrl(parsedInfo)
-              : extractMediaUrl(parsedInfo);
-          }
+        let thumb = parsedResult?.thumbnailUrl || undefined;
+        if (thumb && thumb.startsWith('data:')) {
+          thumb = undefined;
+        }
 
-          const taskStatus = t.status || 'success';
-
-          // Drop empty pre-flight failures (reserved then aborted before
-          // provider/mock ran) — they only show as generic "generation failed".
-          if (
-            taskStatus === 'failed' &&
-            !mediaUrl &&
-            !parsedInfo &&
-            !parsedResult
-          ) {
-            return null;
-          }
-
-          if (
-            !mediaUrl &&
-            taskStatus !== 'failed' &&
-            taskStatus !== 'pending' &&
-            taskStatus !== 'processing'
-          ) {
-            return null;
-          }
-
-          let options: any = {};
-          try {
-            if (t.options) options = JSON.parse(t.options);
-          } catch {}
-
-          let itemMode =
-            options.mode || (!t.scene?.startsWith('ai_') ? t.scene : undefined);
-          if (!itemMode) {
-            if (t.mediaType === 'video') {
-              itemMode =
-                options.image_urls?.length || options.image_input?.length
-                  ? 'image-to-video'
-                  : 'text-to-video';
-            } else if (t.mediaType === 'music') {
-              itemMode = 'text-to-music';
-            } else {
-              if (
-                t.prompt?.includes('移除图片主体之外的所有背景') ||
-                t.prompt?.toLowerCase().includes('png')
-              ) {
-                itemMode = 'png-maker';
-              } else if (
-                options.image_urls?.length ||
-                options.image_input?.length
-              ) {
-                itemMode = 'image-to-image';
-              } else {
-                itemMode = 'text-to-image';
-              }
-            }
-          }
-
-          return {
-            id: t.taskId || t.id,
-            dbId: t.id,
-            mediaType: (t.mediaType as 'image' | 'video' | 'music') || 'image',
-            mode: itemMode,
-            status: taskStatus,
-            errorCode:
-              taskStatus === 'failed'
-                ? getPublicTaskErrorCode({
-                    taskInfo: parsedInfo,
-                    taskResult: parsedResult,
-                  })
-                : undefined,
-            prompt: t.prompt,
-            model: t.model,
-            url: mediaUrl,
-            thumbnailUrl: parsedResult?.thumbnailUrl || undefined,
-            aspectRatio: options.ratio || options.aspect_ratio || undefined,
-            duration: options.duration || undefined,
-            visibility:
-              (options.visibility as 'public' | 'private') || 'public',
-            createdAt:
-              t.createdAt instanceof Date
-                ? t.createdAt.getTime()
-                : Number(t.createdAt) || Date.now(),
-          };
-        })
-      )
-    ).filter(Boolean);
+        return {
+          id: t.taskId || t.id,
+          dbId: t.id,
+          mediaType: (t.mediaType as 'image' | 'video' | 'music') || 'video',
+          mode: itemMode,
+          status: taskStatus,
+          errorCode:
+            taskStatus === 'failed'
+              ? getPublicTaskErrorCode({
+                  taskInfo: parsedInfo,
+                  taskResult: parsedResult,
+                })
+              : undefined,
+          prompt: t.prompt,
+          model: t.model,
+          url: mediaUrl,
+          thumbnailUrl: thumb,
+          createdAt:
+            t.createdAt instanceof Date
+              ? t.createdAt.getTime()
+              : Number(t.createdAt) || Date.now(),
+        };
+      })
+      .filter(Boolean);
 
     return respData({ items: creations });
   } catch (error: any) {

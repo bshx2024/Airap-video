@@ -5,6 +5,7 @@ import { createFileRoute } from '@tanstack/react-router';
 import { WorkspaceRecentCreations } from '@/components/sites/workspace/WorkspaceRecentCreations';
 
 export const Route = createFileRoute('/settings/creations')({
+  ssr: false,
   validateSearch: (
     search: Record<string, unknown>
   ): { page?: number; model?: string } => ({
