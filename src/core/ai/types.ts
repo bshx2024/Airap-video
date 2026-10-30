@@ -155,6 +155,7 @@ export function extractMediaUrl(val: any): string {
     if (
       trimmed.startsWith('http://') ||
       trimmed.startsWith('https://') ||
+      trimmed.startsWith('/') ||
       trimmed.startsWith('data:')
     ) {
       return trimmed;
@@ -200,7 +201,9 @@ export function extractAudioUrl(val: any): string {
     const url = extractMediaUrl(val);
     if (!url) return '';
     try {
-      const pathname = new URL(url).pathname.toLowerCase();
+      const pathname = url.startsWith('/')
+        ? url.toLowerCase().split('?')[0]
+        : new URL(url).pathname.toLowerCase();
       return /(?:\.mp3|\.wav|\.m4a|\.aac|\.ogg|\.flac)(?:$|\?)/.test(
         pathname
       ) || pathname.includes('/audio/')

@@ -300,19 +300,6 @@ export async function startRapTask(params: {
       throw new Error('Failed to deduct credits, please try again.');
     }
     creditId = consumeRes.consumedCredit.id;
-  } else if (balance >= costCredits) {
-    // 管理员若有积分正常记录消费水单，若无积分也不阻断
-    try {
-      const consumeRes = await consume({
-        userId,
-        userEmail,
-        credits: costCredits,
-        scene: 'rap_video',
-        description: `AI Rap Video Generation (Admin: ${styleId})`,
-        metadata: JSON.stringify({ prompt, styleId, studioMode }),
-      });
-      creditId = consumeRes?.consumedCredit?.id;
-    } catch {}
   }
 
   const dbTaskId = getUuid();
