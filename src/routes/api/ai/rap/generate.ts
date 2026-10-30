@@ -18,6 +18,8 @@ async function POST({ request }: { request: Request }) {
       imageUrls = [],
       studioMode = 'duo',
       prompt = '',
+      videoPrompt = '',
+      scenarioId = '',
       styleId = 'boom-bap',
       customLyrics = '',
     } = body;
@@ -44,6 +46,8 @@ async function POST({ request }: { request: Request }) {
       imageUrls: validImageUrls,
       studioMode,
       prompt: prompt || 'AI Rap Freestyle',
+      videoPrompt,
+      scenarioId,
       styleId,
       customLyrics,
     });

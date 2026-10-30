@@ -11,6 +11,7 @@ import { db } from '@/core/db';
 import { envConfigs } from '@/config';
 import { aiTask } from '@/config/db/schema';
 import {
+  HOMEPAGE_THEMES,
   RAP_COST_CREDITS,
   RAP_STYLE_PRESETS,
   RAP_THEME_PRESETS,
@@ -34,6 +35,8 @@ export interface RapTaskInfo {
   progress: number; // 0 - 100
   stageMessage: string;
   prompt: string;
+  videoPrompt?: string;
+  scenarioId?: string;
   styleId: string;
   imageUrl: string;
   imageUrls?: string[];
@@ -238,6 +241,8 @@ export async function startRapTask(params: {
   imageUrls?: string[];
   studioMode?: string;
   prompt: string;
+  videoPrompt?: string;
+  scenarioId?: string;
   styleId?: string;
   customLyrics?: string;
 }): Promise<{ taskId: string; costCredits: number }> {
@@ -248,6 +253,8 @@ export async function startRapTask(params: {
     imageUrls = [],
     studioMode = 'duo',
     prompt,
+    videoPrompt,
+    scenarioId,
     styleId = 'boom-bap',
     customLyrics,
   } = params;
@@ -302,6 +309,8 @@ export async function startRapTask(params: {
     progress: 20,
     stageMessage: '已完成双押作词与节拍设计，正在送入 Suno 编曲...',
     prompt,
+    videoPrompt,
+    scenarioId,
     styleId,
     imageUrl: primaryImageUrl,
     imageUrls: validImageUrls,
@@ -504,13 +513,37 @@ export async function syncRapWorkflowTask(
       } else {
         try {
           const provider = await getAIProvider();
-          // 如果 provider 是 Fal 或支持 video 驱动，调用 audio-to-video
           if (provider) {
+            // 智能识别单人/双人与预设场景，与 Visual Workflow 逻辑 100% 对齐
+            const isDuo =
+              taskInfo.studioMode === 'duo' &&
+              Array.isArray(taskInfo.imageUrls) &&
+              taskInfo.imageUrls.length > 1;
+
+            const matchedTheme = HOMEPAGE_THEMES.find(
+              (t) =>
+                t.id === taskInfo.scenarioId ||
+                t.styleId === taskInfo.styleId ||
+                (taskInfo.prompt && t.topic.slice(0, 10) === taskInfo.prompt.slice(0, 10))
+            );
+
+            const effectiveModel =
+              envConfigs.rap_video_model ||
+              matchedTheme?.videoModel ||
+              (isDuo ? 'happyhorse-1.1-r2v' : 'happyhorse-1.1-i2v');
+
+            const effectivePrompt =
+              taskInfo.videoPrompt ||
+              matchedTheme?.videoPrompt ||
+              (isDuo
+                ? 'Two high-energy hip-hop rappers, [Image 1] on the left and [Image 2] on the right, performing dynamically together, free rhythmic body bounce, alternating cypher rap gestures, expressive facial lip-sync matching the rap vocals, 4K cinematic quality'
+                : 'A high-energy hip-hop rapper shown in [Image 1] performing dynamically in the studio, free rhythmic body bounce, energetic natural hand gestures pointing at camera, expressive facial expressions, singing passionately with mouth lip-sync matching the 808 trap beat, cinematic studio lighting, 4K quality');
+
             const vidRes = await provider.generate({
               params: {
                 mediaType: 'video' as any,
-                prompt: `Rapper singing rap song, high energy, synchronized mouth lip sync`,
-                model: envConfigs.rap_video_model || 'happyhorse-1.1-r2v', // 默认超低成本调试模型 'happyhorse-1.1-r2v'；上线极致效果可换为 'seedance-2-5'
+                prompt: effectivePrompt,
+                model: effectiveModel,
                 options: {
                   image_url: taskInfo.imageUrl,
                   image_urls:

@@ -435,6 +435,8 @@ export function AiRapHeroGenerator() {
           imageUrls: currentPhotos,
           studioMode,
           prompt: prompt.trim() || currentChip.prompt,
+          videoPrompt: currentChip.prompt,
+          scenarioId: selectedChip,
           styleId: selectedStyle.id,
           customLyrics: lyrics.trim(),
         }
