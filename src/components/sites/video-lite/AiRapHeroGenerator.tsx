@@ -416,16 +416,14 @@ export function AiRapHeroGenerator() {
       return;
     }
 
-    // 非管理员用户，先强制刷新一次最新的 credits 数据（防止后台刚充值但前端缓存未过期）
-    if (!isAdmin) {
-      const freshRes = await creditsQuery.refetch();
-      const realBalance = freshRes.data?.balance ?? balance ?? 0;
-      if (realBalance < RAP_COST_CREDITS) {
-        toast.error(
-          `Insufficient credits. This generation requires ${RAP_COST_CREDITS} credits. Current balance: ${realBalance}`
-        );
-        return;
-      }
+    // 先强制刷新一次最新的 credits 数据（防止后台刚充值或扣费但前端缓存未过期）
+    const freshRes = await creditsQuery.refetch();
+    const realBalance = freshRes.data?.balance ?? balance ?? 0;
+    if (realBalance < RAP_COST_CREDITS) {
+      toast.error(
+        `Insufficient credits. This generation requires ${RAP_COST_CREDITS} credits. Current balance: ${realBalance}`
+      );
+      return;
     }
 
     const currentPhotos =
@@ -1070,9 +1068,7 @@ export function AiRapHeroGenerator() {
                   <>
                     <Wand2 className="size-4 animate-pulse" />
                     <span>
-                      {isAdmin
-                        ? 'Direct Rap MV (Admin Free)'
-                        : session?.user
+                      {session?.user
                         ? `Direct Rap MV (${RAP_COST_CREDITS} Credits)`
                         : `Direct Rap MV (Get Free Signup Credits)`}
                     </span>
@@ -1084,11 +1080,7 @@ export function AiRapHeroGenerator() {
                 <span>
                   Credit Balance:{' '}
                   <strong className="text-amber-300">
-                    {isAdmin
-                      ? 'Unlimited (Admin)'
-                      : balance != null
-                      ? balance
-                      : 'Not Logged In'}
+                    {balance != null ? balance : 'Not Logged In'}
                   </strong>
                 </span>
               </div>

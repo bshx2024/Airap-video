@@ -268,39 +268,26 @@ export async function startRapTask(params: {
   const costCredits = RAP_COST_CREDITS;
   const balance = await getBalance(userId);
 
-  // 检查是否管理员特权（通过 RBAC）
-  let isAdmin = false;
-  try {
-    const { getUserPermissionCodes } = await import('@/modules/rbac/service');
-    const perms = await getUserPermissionCodes(userId);
-    isAdmin = perms.includes('*') || perms.includes('admin') || perms.includes('admin.*');
-  } catch {
-    isAdmin = false;
+  if (balance < costCredits) {
+    throw new Error(
+      `Insufficient credits. This generation requires ${costCredits} credits, but current balance is ${balance}.`
+    );
   }
 
-  let creditId: string | undefined;
-  if (!isAdmin) {
-    if (balance < costCredits) {
-      throw new Error(
-        `Insufficient credits (requires ${costCredits} credits, current balance: ${balance}).`
-      );
-    }
+  // 预扣除积分（所有账号统一计费流，便于管理员测试拦截机制）
+  const consumeRes = await consume({
+    userId,
+    userEmail,
+    credits: costCredits,
+    scene: 'rap_video',
+    description: `AI Rap Video Generation (${styleId})`,
+    metadata: JSON.stringify({ prompt, styleId, studioMode }),
+  });
 
-    // 预扣除积分
-    const consumeRes = await consume({
-      userId,
-      userEmail,
-      credits: costCredits,
-      scene: 'rap_video',
-      description: `AI Rap Video Generation (${styleId})`,
-      metadata: JSON.stringify({ prompt, styleId, studioMode }),
-    });
-
-    if (!consumeRes.success || !consumeRes.consumedCredit) {
-      throw new Error('Failed to deduct credits, please try again.');
-    }
-    creditId = consumeRes.consumedCredit.id;
+  if (!consumeRes.success || !consumeRes.consumedCredit) {
+    throw new Error('Failed to deduct credits, please try again.');
   }
+  const creditId = consumeRes.consumedCredit.id;
 
   const dbTaskId = getUuid();
   const isMock = await isMockMode();
@@ -411,7 +398,13 @@ export async function startRapTask(params: {
   } catch (err: any) {
     console.error('Failed to trigger Suno music generation:', err);
     // 失败退回积分
-    await revoke(creditId);
+    if (creditId) {
+      try {
+        await revoke(creditId);
+      } catch (revErr) {
+        console.error('Failed to revoke credit on failure:', revErr);
+      }
+    }
     initialTaskInfo.stage = 'failed';
     initialTaskInfo.error = sanitizeUserErrorMessage(err.message);
     await db()
