@@ -268,12 +268,15 @@ export async function startRapTask(params: {
   const costCredits = RAP_COST_CREDITS;
   const balance = await getBalance(userId);
 
-  // 检查是否管理员特权
-  const [userRecord] = await db()
-    .select({ role: user.role })
-    .from(user)
-    .where(eq(user.id, userId));
-  const isAdmin = userRecord?.role === 'admin';
+  // 检查是否管理员特权（通过 RBAC）
+  let isAdmin = false;
+  try {
+    const { getUserPermissionCodes } = await import('@/modules/rbac/service');
+    const perms = await getUserPermissionCodes(userId);
+    isAdmin = perms.includes('*') || perms.includes('admin') || perms.includes('admin.*');
+  } catch {
+    isAdmin = false;
+  }
 
   let creditId: string | undefined;
   if (!isAdmin) {
@@ -297,6 +300,19 @@ export async function startRapTask(params: {
       throw new Error('Failed to deduct credits, please try again.');
     }
     creditId = consumeRes.consumedCredit.id;
+  } else if (balance >= costCredits) {
+    // 管理员若有积分正常记录消费水单，若无积分也不阻断
+    try {
+      const consumeRes = await consume({
+        userId,
+        userEmail,
+        credits: costCredits,
+        scene: 'rap_video',
+        description: `AI Rap Video Generation (Admin: ${styleId})`,
+        metadata: JSON.stringify({ prompt, styleId, studioMode }),
+      });
+      creditId = consumeRes?.consumedCredit?.id;
+    } catch {}
   }
 
   const dbTaskId = getUuid();
