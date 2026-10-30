@@ -284,11 +284,8 @@ export function AiRapHeroGenerator() {
           }
 
           const isDone =
-            res.taskStatus === 'success' ||
-            res.status === 'success' ||
-            info.stage === 'completed' ||
-            info.progress >= 100 ||
-            Boolean(info.videoUrl || res.videoUrl);
+            (res.taskStatus === 'success' || res.status === 'success') &&
+            Boolean(info.videoUrl || res.videoUrl || res.taskResult?.videoUrl);
 
           if (isDone) {
             setTaskStatus('success');
@@ -297,8 +294,7 @@ export function AiRapHeroGenerator() {
             const vid =
               info.videoUrl ||
               res.videoUrl ||
-              res.taskResult?.videoUrl ||
-              '/videos/showcase/duo-migos-hero.mp4';
+              res.taskResult?.videoUrl;
             setResultVideoUrl(vid);
             setResultAudioUrl(info.audioUrl || res.audioUrl || null);
             creditsQuery.refetch();
@@ -1128,10 +1124,10 @@ export function AiRapHeroGenerator() {
               {/* 9:16 Vertical Screen Area */}
               <div className="group/stage relative flex min-h-[380px] flex-1 w-full flex-col justify-between overflow-hidden rounded-xl border border-white/10 bg-black shadow-inner">
                 {/* State 1: Generation Complete (Play Finished MV) */}
-                {taskStatus === 'success' || (taskProgress >= 100 && taskStage === 'completed') ? (
+                {taskStatus === 'success' && resultVideoUrl ? (
                   <div className="relative flex size-full flex-col justify-between bg-black">
                     <video
-                      src={resultVideoUrl || '/videos/showcase/duo-migos-hero.mp4'}
+                      src={resultVideoUrl}
                       controls
                       autoPlay
                       loop

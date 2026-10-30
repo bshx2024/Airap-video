@@ -524,63 +524,140 @@ export async function syncRapWorkflowTask(
       taskInfo.progress = 70;
       taskInfo.stageMessage = '音频已生成，正在驱动面部表情、嘴型咬字与身体节拍...';
 
-      // 触发视频驱动模型 (Hedra / Fal / Mock)
+      // 触发真实视频生成模型 (Alibaba DashScope HappyHorse / KIE / Fal / Mock)
       if (isMock) {
         taskInfo.videoTaskId = `mock_video_${existingTask.id}`;
       } else {
         try {
-          const provider = await getAIProvider();
-          if (provider) {
-            // 智能识别单人/双人与预设场景，与 Visual Workflow 逻辑 100% 对齐
-            const isDuo =
-              taskInfo.studioMode === 'duo' &&
-              Array.isArray(taskInfo.imageUrls) &&
-              taskInfo.imageUrls.length > 1;
+          const { getAllConfigs } = await import('@/modules/config/service');
+          const { ensurePublicMediaUrl } = await import('@/modules/ai/public-media');
+          const configs = await getAllConfigs();
+          const alibabaApiKey = (configs.alibaba_api_key || envConfigs.alibaba_api_key || '').trim();
+          const alibabaBaseUrl = (configs.alibaba_base_url || envConfigs.alibaba_base_url || 'https://ws-2txa9apyfxruykae.us-east-1.maas.aliyuncs.com').trim();
 
-            const matchedTheme = HOMEPAGE_THEMES.find(
-              (t) =>
-                t.id === taskInfo.scenarioId ||
-                t.styleId === taskInfo.styleId ||
-                (taskInfo.prompt && t.topic.slice(0, 10) === taskInfo.prompt.slice(0, 10))
-            );
+          const rawImgs =
+            Array.isArray(taskInfo.imageUrls) && taskInfo.imageUrls.length > 0
+              ? taskInfo.imageUrls
+              : taskInfo.imageUrl
+                ? [taskInfo.imageUrl]
+                : [];
 
-            const effectiveModel =
-              envConfigs.rap_video_model ||
-              matchedTheme?.videoModel ||
-              (isDuo ? 'happyhorse-1.1-r2v' : 'happyhorse-1.1-i2v');
+          const publicImages = await Promise.all(
+            rawImgs.map((img) => ensurePublicMediaUrl(img, 'image'))
+          );
+          const publicAudioUrl = await ensurePublicMediaUrl(audioUrl, 'audio');
 
-            const effectivePrompt =
-              taskInfo.videoPrompt ||
-              matchedTheme?.videoPrompt ||
-              (isDuo
-                ? 'Two high-energy hip-hop rappers, [Image 1] on the left and [Image 2] on the right, performing dynamically together, free rhythmic body bounce, alternating cypher rap gestures, expressive facial lip-sync matching the rap vocals, 4K cinematic quality'
-                : 'A high-energy hip-hop rapper shown in [Image 1] performing dynamically in the studio, free rhythmic body bounce, energetic natural hand gestures pointing at camera, expressive facial expressions, singing passionately with mouth lip-sync matching the 808 trap beat, cinematic studio lighting, 4K quality');
+          const isDuo = taskInfo.studioMode === 'duo' && publicImages.length > 1;
 
-            const vidRes = await provider.generate({
-              params: {
-                mediaType: 'video' as any,
+          if (alibabaApiKey) {
+            // 阿里百炼 DashScope 官方生视频驱动 (HappyHorse 1.1)
+            const origin = new URL(alibabaBaseUrl).origin;
+            const endpoint = `${origin}/api/v1/services/aigc/video-generation/video-synthesis`;
+            const selectedModel = isDuo ? 'happyhorse-1.1-r2v' : 'happyhorse-1.1-i2v';
+
+            const mediaPayload: any[] = [];
+            if (isDuo) {
+              publicImages.forEach((url) => {
+                mediaPayload.push({ type: 'reference_image', url });
+              });
+            } else {
+              mediaPayload.push({ type: 'first_frame', url: publicImages[0] });
+            }
+
+            const effectivePrompt = isDuo
+              ? 'Two high-energy hip-hop rappers perform dynamically together, [Image 1] on the left and [Image 2] on the right, alternating rap cypher gestures, rhythmic bounce, expressive facial lipsync matching the 808 trap beat, studio lighting, 4K quality'
+              : 'An energetic hip-hop rapper shown in [Image 1] performs dynamic rap delivery, rhythmic bounce, expressive facial lipsync matching the 808 trap beat, studio lighting, 4K quality';
+
+            const payload = {
+              model: selectedModel,
+              input: {
                 prompt: effectivePrompt,
-                model: effectiveModel,
-                options: {
-                  image_url: taskInfo.imageUrl,
-                  image_urls:
-                    taskInfo.imageUrls && taskInfo.imageUrls.length > 0
-                      ? taskInfo.imageUrls
-                      : [taskInfo.imageUrl],
-                  audio_url: audioUrl,
-                  resolution: envConfigs.rap_video_resolution || '480p',
-                },
+                media: mediaPayload,
+                audio_url: publicAudioUrl,
               },
+              parameters: {
+                watermark: false,
+                resolution: '480P',
+                duration: 5,
+                ratio: '9:16',
+              },
+            };
+
+            const vidFetch = await fetch(endpoint, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${alibabaApiKey}`,
+                'X-DashScope-Async': 'enable',
+              },
+              body: JSON.stringify(payload),
+              signal: AbortSignal.timeout(30000),
             });
-            taskInfo.videoTaskId = vidRes.taskId;
+
+            const vidJson: any = await vidFetch.json().catch(() => ({}));
+            if (!vidFetch.ok || vidJson.code) {
+              throw new Error(vidJson.message || vidJson.output?.message || `阿里生视频接口异常 (${vidFetch.status})`);
+            }
+
+            const aliTaskId = vidJson.output?.task_id;
+            if (!aliTaskId) {
+              throw new Error('阿里生视频服务未返回有效 task_id');
+            }
+
+            taskInfo.videoTaskId = aliTaskId;
+            taskInfo.videoProvider = 'alibaba';
+            taskInfo.stageMessage = 'AI 人像已送入阿里生视频引擎，正在渲染说唱 MV...';
+          } else {
+            // 通用三方服务商驱动 (KIE / Fal / Replicate)
+            const provider = await getAIProvider();
+            if (provider) {
+              const matchedTheme = HOMEPAGE_THEMES.find(
+                (t) =>
+                  t.id === taskInfo.scenarioId ||
+                  t.styleId === taskInfo.styleId ||
+                  (taskInfo.prompt && t.topic.slice(0, 10) === taskInfo.prompt.slice(0, 10))
+              );
+
+              const effectiveModel =
+                envConfigs.rap_video_model ||
+                matchedTheme?.videoModel ||
+                (isDuo ? 'happyhorse-1.1-r2v' : 'happyhorse-1.1-i2v');
+
+              const vidRes = await provider.generate({
+                params: {
+                  mediaType: 'video' as any,
+                  prompt: taskInfo.videoPrompt || matchedTheme?.videoPrompt || 'Hip-hop rap video',
+                  model: effectiveModel,
+                  options: {
+                    image_url: publicImages[0],
+                    image_urls: publicImages,
+                    audio_url: publicAudioUrl,
+                    resolution: envConfigs.rap_video_resolution || '480p',
+                  },
+                },
+              });
+              taskInfo.videoTaskId = vidRes.taskId;
+              taskInfo.videoProvider = 'provider';
+            } else {
+              throw new Error('未配置生视频模型密钥（请在后台 Settings -> AI 填入 Alibaba 或 KIE 密钥）');
+            }
           }
         } catch (vidErr: any) {
-          console.warn('Video driver call fallback:', vidErr);
-          // 若专有音画驱动API暂未开通，采用高质量双人效果视频闭环商用体验
-          taskInfo.videoUrl = '/videos/showcase/duo-migos-hero.mp4';
-          taskInfo.stage = 'completed';
-          taskInfo.progress = 100;
-          taskInfo.stageMessage = 'Rap MV 已完成！';
+          console.error('Video dispatch error:', vidErr);
+          // 视频服务调度失败：退回积分并标记失败，绝不给出假视频欺骗用户
+          await revoke(existingTask.creditId);
+          taskInfo.stage = 'failed';
+          taskInfo.error = sanitizeUserErrorMessage(vidErr.message);
+          await db()
+            .update(aiTask)
+            .set({ status: 'failed', taskInfo: JSON.stringify(taskInfo) })
+            .where(eq(aiTask.id, existingTask.id));
+
+          return {
+            taskStatus: AITaskStatus.FAILED,
+            taskId: existingTask.id,
+            taskInfo,
+          };
         }
       }
 
@@ -610,34 +687,67 @@ export async function syncRapWorkflowTask(
 
     if (isMock) {
       if (elapsedSeconds >= 16) {
-        videoUrl = '/videos/showcase/duo-migos-hero.mp4';
+        videoUrl = 'https://pixanyoss.16781678.xyz/palix-ai.mp4';
       }
     } else if (taskInfo.videoTaskId) {
       try {
-        const provider = await getAIProvider();
-        if (provider && typeof provider.query === 'function') {
-          const queryRes = await provider.query({
-            taskId: taskInfo.videoTaskId,
-            mediaType: 'video',
+        if (taskInfo.videoProvider === 'alibaba') {
+          // 轮询阿里百炼 DashScope 异步任务进度
+          const { getAllConfigs } = await import('@/modules/config/service');
+          const configs = await getAllConfigs();
+          const alibabaApiKey = (configs.alibaba_api_key || envConfigs.alibaba_api_key || '').trim();
+          const alibabaBaseUrl = (configs.alibaba_base_url || envConfigs.alibaba_base_url || 'https://ws-2txa9apyfxruykae.us-east-1.maas.aliyuncs.com').trim();
+          const origin = new URL(alibabaBaseUrl).origin;
+          const queryEndpoint = `${origin}/api/v1/tasks/${taskInfo.videoTaskId}`;
+
+          const qRes = await fetch(queryEndpoint, {
+            headers: { Authorization: `Bearer ${alibabaApiKey}` },
+            signal: AbortSignal.timeout(15000),
           });
-          if (queryRes.taskStatus === AITaskStatus.SUCCESS) {
-            videoUrl = extractMediaUrl(queryRes);
-          } else if (queryRes.taskStatus === AITaskStatus.FAILED) {
-            console.warn('Lip-sync video failed, fallback to duo-migos-hero.mp4');
-            videoUrl = '/videos/showcase/duo-migos-hero.mp4';
+          const qJson: any = await qRes.json().catch(() => ({}));
+          const out = qJson.output || {};
+          const status = out.task_status;
+
+          if (status === 'SUCCEEDED') {
+            videoUrl = out.video_url || null;
+          } else if (status === 'FAILED') {
+            throw new Error(out.message || qJson.message || '阿里视频驱动生成失败 (FAILED)');
+          } else {
+            taskInfo.stageMessage = 'AI 人像已送入阿里生视频引擎，正在渲染说唱 MV...';
+          }
+        } else {
+          // 通用 Provider 轮询
+          const provider = await getAIProvider();
+          if (provider && typeof provider.query === 'function') {
+            const queryRes = await provider.query({
+              taskId: taskInfo.videoTaskId,
+              mediaType: 'video',
+            });
+            if (queryRes.taskStatus === AITaskStatus.SUCCESS) {
+              videoUrl = extractMediaUrl(queryRes);
+            } else if (queryRes.taskStatus === AITaskStatus.FAILED) {
+              throw new Error('Video generation failed');
+            }
           }
         }
-      } catch (vErr) {
-        console.warn('Video provider query error:', vErr);
-      }
+      } catch (vErr: any) {
+        console.error('Video status query error:', vErr);
+        if (vErr.message && !vErr.message.includes('timeout')) {
+          await revoke(existingTask.creditId);
+          taskInfo.stage = 'failed';
+          taskInfo.error = sanitizeUserErrorMessage(vErr.message);
+          await db()
+            .update(aiTask)
+            .set({ status: 'failed', taskInfo: JSON.stringify(taskInfo) })
+            .where(eq(aiTask.id, existingTask.id));
 
-      // 超时 80 秒兜底完成
-      if (!videoUrl && elapsedSeconds >= 80) {
-        videoUrl = '/videos/showcase/duo-migos-hero.mp4';
+          return {
+            taskStatus: AITaskStatus.FAILED,
+            taskId: existingTask.id,
+            taskInfo,
+          };
+        }
       }
-    } else if (!videoUrl) {
-      // 若无专有视频任务 ID，立即闭环高质量样例视频
-      videoUrl = '/videos/showcase/duo-migos-hero.mp4';
     }
 
     if (videoUrl) {
