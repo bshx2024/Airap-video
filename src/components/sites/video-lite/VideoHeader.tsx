@@ -59,7 +59,6 @@ export function VideoHeader() {
   const navItems = [
     { label: m['landing.nav.showcase'](), href: '/#showcase' },
     { label: m['landing.nav.features'](), href: '/#features' },
-    { label: '⚡ 工作流调试 (Coze)', href: '/tools/workflow' },
     { label: m['landing.nav.pricing'](), href: '/pricing' },
     { label: m['landing.nav.faq'](), href: '/#faq' },
   ];
