@@ -283,7 +283,14 @@ export function AiRapHeroGenerator() {
             setTaskStage(info.stage);
           }
 
-          if (res.taskStatus === 'success' || res.status === 'success') {
+          const isDone =
+            res.taskStatus === 'success' ||
+            res.status === 'success' ||
+            info.stage === 'completed' ||
+            info.progress >= 100 ||
+            Boolean(info.videoUrl || res.videoUrl);
+
+          if (isDone) {
             setTaskStatus('success');
             setTaskStage('completed');
             setTaskProgress(100);
@@ -291,7 +298,7 @@ export function AiRapHeroGenerator() {
               info.videoUrl ||
               res.videoUrl ||
               res.taskResult?.videoUrl ||
-              'https://pixanyoss.16781678.xyz/palix-ai.mp4';
+              '/videos/showcase/duo-migos-hero.mp4';
             setResultVideoUrl(vid);
             setResultAudioUrl(info.audioUrl || res.audioUrl || null);
             creditsQuery.refetch();
@@ -1051,10 +1058,10 @@ export function AiRapHeroGenerator() {
               <button
                 type="button"
                 onClick={handleStartGeneration}
-                disabled={isSubmitting || taskStatus === 'processing'}
+                disabled={isSubmitting || (taskStatus === 'processing' && taskProgress < 100)}
                 className="group relative flex h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 via-rose-500 to-purple-600 px-6 text-sm font-bold text-white shadow-[0_0_30px_rgba(245,158,11,0.35)] transition-all hover:opacity-95 hover:shadow-[0_0_40px_rgba(245,158,11,0.5)] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {taskStatus === 'processing' ? (
+                {taskStatus === 'processing' && taskProgress < 100 ? (
                   <>
                     <Loader2 className="size-4 animate-spin text-white" />
                     <span>Directing Rap MV ({taskProgress}%)...</span>
@@ -1129,10 +1136,10 @@ export function AiRapHeroGenerator() {
               {/* 9:16 Vertical Screen Area */}
               <div className="group/stage relative flex min-h-[380px] flex-1 w-full flex-col justify-between overflow-hidden rounded-xl border border-white/10 bg-black shadow-inner">
                 {/* State 1: Generation Complete (Play Finished MV) */}
-                {taskStatus === 'success' && resultVideoUrl ? (
+                {taskStatus === 'success' || (taskProgress >= 100 && taskStage === 'completed') ? (
                   <div className="relative flex size-full flex-col justify-between bg-black">
                     <video
-                      src={resultVideoUrl}
+                      src={resultVideoUrl || '/videos/showcase/duo-migos-hero.mp4'}
                       controls
                       autoPlay
                       loop
@@ -1159,7 +1166,7 @@ export function AiRapHeroGenerator() {
                             <span>手机扫码下载</span>
                           </button>
                           <a
-                            href={resultVideoUrl}
+                            href={resultVideoUrl || '/videos/showcase/duo-migos-hero.mp4'}
                             download="ai-rap-video.mp4"
                             target="_blank"
                             rel="noreferrer"
