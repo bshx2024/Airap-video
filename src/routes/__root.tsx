@@ -259,15 +259,15 @@ export const Route = createRootRoute({
         },
         {
           name: 'robots',
-          content: 'noindex, nofollow, noarchive, nosnippet',
+          content: 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1',
         },
         {
           name: 'googlebot',
-          content: 'noindex, nofollow, noarchive, nosnippet',
+          content: 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1',
         },
         {
           name: 'bingbot',
-          content: 'noindex, nofollow, noarchive, nosnippet',
+          content: 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1',
         },
         { property: 'og:site_name', content: appName },
         { property: 'og:type', content: 'website' },

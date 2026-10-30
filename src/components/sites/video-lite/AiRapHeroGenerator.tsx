@@ -482,13 +482,13 @@ export function AiRapHeroGenerator() {
           <span>Full-Stack Pipeline: AI Lyrics ➔ Suno 808 Rap Beats ➔ Lip-Sync & Motion ➔ 4K Output</span>
         </div>
         <h1 className="mt-4 text-3xl font-extrabold tracking-tight text-white sm:text-5xl lg:text-6xl">
-          AI Rap Video Generator:{' '}
+          AI Rap Video:{' '}
           <span className="bg-gradient-to-r from-amber-400 via-rose-500 to-purple-500 bg-clip-text text-transparent">
-            Turn Any Photo into a Viral Rap MV
+            Create Viral TikTok & Migos Rap Trends
           </span>
         </h1>
         <p className="mt-3 text-sm text-slate-300 sm:text-base lg:text-lg">
-          No more muffled audio or drifting lips. Direct professional rap MVs with synchronized 808s, tight multi-syllable rhymes, and beat-locked facial delivery in seconds.
+          Turn photos into an authentic AI rap video in seconds. Zero drifting lips, synchronized 808 trap beats, multisyllabic rhyme schemes, and full hip-hop body swag delivery.
         </p>
       </div>
 

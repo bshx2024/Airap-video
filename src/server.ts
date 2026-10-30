@@ -272,9 +272,6 @@ async function handleRequest(req: Request): Promise<Response> {
   // Ensure /tools/workflow always carries strict X-Robots-Tag regardless of global debug mode
   if (urlObj.pathname.startsWith('/tools/workflow') || urlObj.pathname.startsWith('/admin/workflow')) {
     response.headers.set('X-Robots-Tag', 'noindex, nofollow, noarchive, nosnippet');
-  } else if (isHtml) {
-    // Debugging Mode: Block crawlers & AI bots via HTTP header
-    response.headers.set('X-Robots-Tag', 'noindex, nofollow, noarchive, nosnippet');
   }
 
   return response;
