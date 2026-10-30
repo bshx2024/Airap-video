@@ -68,7 +68,7 @@ const OCCASION_CHIPS: OccasionChipItem[] = [
     title: 'Hotel Lobby · Migos Orange Studio Stage',
     desc: 'The viral Quavo & Takeoff "Hotel Lobby" aesthetic: 2 rappers trading punchy roast bars on a hanging mic, heavy 808 Trap beat, 9:16 vertical framing.',
     image: '/imgs/scenes/hotel-lobby-studio.jpg',
-    video: 'https://pixanyoss.16781678.xyz/palix-ai.mp4',
+    video: '/videos/showcase/generated/web-acrobat.mp4',
     prompt:
       'Two rappers in an iconic bright orange studio with a single hanging microphone, inspired by Quavo and Takeoff Hotel Lobby, trading punchy roast bars, heavy 808 trap beat, rhythmic head nods, hip-hop hand gestures, 9:16 vertical TikTok style',
     styleId: 'trap-808',
@@ -1091,13 +1091,19 @@ export function AiRapHeroGenerator() {
                     type="button"
                     aria-label={previewMuted ? 'Unmute Audio' : 'Mute Audio'}
                     title={previewMuted ? 'Unmute Audio' : 'Mute Audio'}
-                    onClick={() => setPreviewMuted(!previewMuted)}
+                    onClick={() => {
+                      const next = !previewMuted;
+                      setPreviewMuted(next);
+                      if (stageVideoRef.current) {
+                        stageVideoRef.current.muted = next;
+                      }
+                    }}
                     className="flex size-7 cursor-pointer items-center justify-center rounded-lg border border-white/15 bg-white/5 text-white/80 transition hover:bg-white/15 hover:text-white"
                   >
                     {previewMuted ? (
                       <VolumeX className="size-3.5" />
                     ) : (
-                      <Volume2 className="size-3.5 text-amber-400" />
+                      <Volume2 className="size-3.5 text-amber-400 animate-pulse" />
                     )}
                   </button>
                 </div>
@@ -1292,18 +1298,33 @@ export function AiRapHeroGenerator() {
                 ) : (
                   /* State 3: Default Idle (Live Authentic 9:16 Scene Visualizer) */
                   <div className="relative size-full overflow-hidden bg-slate-950">
-                    <img
-                      key={currentChip.id}
-                      src={currentChip.image}
-                      alt={currentChip.title}
-                      width={420}
-                      height={746}
-                      loading="lazy"
-                      className="size-full object-cover transition-all duration-700 ease-out group-hover/stage:scale-105"
-                    />
+                    {currentChip.video ? (
+                      <video
+                        ref={stageVideoRef}
+                        key={currentChip.video}
+                        src={currentChip.video}
+                        poster={currentChip.image}
+                        autoPlay
+                        loop
+                        muted={previewMuted}
+                        playsInline
+                        preload="auto"
+                        className="size-full object-cover transition-all duration-700 ease-out"
+                      />
+                    ) : (
+                      <img
+                        key={currentChip.id}
+                        src={currentChip.image}
+                        alt={currentChip.title}
+                        width={420}
+                        height={746}
+                        loading="lazy"
+                        className="size-full object-cover transition-all duration-700 ease-out group-hover/stage:scale-105"
+                      />
+                    )}
 
                     {/* Stage Lighting & Vignette Overlay */}
-                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/95 via-black/20 to-black/30" />
+                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-black/30" />
 
                     {/* Animated Equalizer / Beat Wave overlay */}
                     <div className="pointer-events-none absolute bottom-28 left-4 flex items-end gap-1">
@@ -1327,7 +1348,7 @@ export function AiRapHeroGenerator() {
                           {currentChip.title}
                         </p>
                         <span className="rounded border border-amber-500/30 bg-amber-500/20 px-1.5 py-0.5 text-[9px] font-semibold text-amber-300">
-                          ACTIVE
+                          LIVE PREVIEW
                         </span>
                       </div>
                       <p className="mt-0.5 line-clamp-2 text-[10px] leading-relaxed text-white/70">
