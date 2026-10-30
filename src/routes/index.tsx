@@ -238,20 +238,20 @@ export const Route = createFileRoute('/')({
         { name: 'description', content: description },
         {
           name: 'robots',
-          content: 'noindex, nofollow, noarchive, nosnippet',
+          content: 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1',
         },
         {
           name: 'googlebot',
-          content: 'noindex, nofollow, noarchive, nosnippet',
+          content: 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1',
         },
         {
           name: 'bingbot',
-          content: 'noindex, nofollow, noarchive, nosnippet',
+          content: 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1',
         },
         {
           name: 'keywords',
           content:
-            'ai rap video generator, ai rap battle, migos orange background, ai rap video trend, ai rap video creator, ai rap video editor, ai rap video download, viral ai rap video, tiktok rap video, ai rap video song, rap lyrics ai',
+            'ai rap video generator, ai rap video, ai rap video trend, ai rap video maker, ai rap video with orange backdrop, ai rap video generator free, ai rap video free, ai rap video migos, ai rap video viral, ai rap video editor, ai rap video download, ai rap video tiktok, how to make ai rap video, ai rap duo video, ai rap battle',
         },
         { property: 'og:site_name', content: appName },
         { property: 'og:title', content: title },
