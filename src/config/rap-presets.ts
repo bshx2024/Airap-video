@@ -161,6 +161,10 @@ export interface RapHomepageTheme {
   studioMode: 'solo' | 'duo';
   lyrics: string;
   videoPrompt: string;
+  videoModel?: string;
+  motionSyncEnabled?: boolean;
+  lipSyncEnabled?: boolean;
+  referenceLabel?: string;
 }
 
 export const HOMEPAGE_THEMES: RapHomepageTheme[] = [
@@ -172,6 +176,10 @@ export const HOMEPAGE_THEMES: RapHomepageTheme[] = [
     styleId: 'trap-808',
     bpm: 138,
     studioMode: 'duo',
+    videoModel: 'happyhorse-1.1-r2v',
+    motionSyncEnabled: true,
+    lipSyncEnabled: true,
+    referenceLabel: 'Hotel Lobby 原版5秒双人动作模版',
     lyrics: `[Intro: Beat drops heavy 808]\nYeah, check the mic in the orange room!\nTakeoff and Quavo vibe, let us get it!\n\n[Verse 1: Left Rapper]\nYou always talking big but you showed up late\nI drop the heavy 808 to seal your fate\nLook at your drip, man, it expired in 08\nWe run the lobby while you hesitate\n\n[Outro: Right Rapper]\nHotel Lobby with the hanging mic swing\nHeavy 808s make the whole booth ring!`,
     videoPrompt: 'Two rappers [Image 1] on the left and [Image 2] on the right are standing in an iconic bright orange studio around a single hanging microphone, inspired by Quavo and Takeoff Hotel Lobby, trading punchy roast bars, heavy 808 trap beat, rhythmic head nods, hip-hop hand gestures, 9:16 vertical TikTok style',
   },
@@ -183,6 +191,10 @@ export const HOMEPAGE_THEMES: RapHomepageTheme[] = [
     styleId: 'cyber-drill',
     bpm: 142,
     studioMode: 'solo',
+    videoModel: 'happyhorse-1.1-i2v',
+    motionSyncEnabled: false,
+    lipSyncEnabled: true,
+    referenceLabel: 'On The Radar 纽约暗黑电台单人持麦',
     lyrics: `[Intro]\n(Whisper) On The Radar, green lights on.\nCheck the mic, sliding bass drop.\n\n[Verse 1]\nStanding by the mic under neon green tube\nEvery sliding 808 breaking every old rule\nGot the rapid drill flow cutting through the dark night\nDouble rhyme scheme locked beneath the spotlight\n\n[Chorus]\nOn The Radar, watch the green glow flare\nSliding drill bass taking over everywhere!`,
     videoPrompt: 'A high-energy hip-hop rapper shown in [Image 1] inside the legendary On The Radar dark studio with neon green fluorescent tube lights and a standing microphone, intense aggressive UK drill freestyle, sharp sliding 808 bass, rapid rhythmic hand gestures and head nods, 9:16 vertical cinema',
   },
@@ -194,6 +206,10 @@ export const HOMEPAGE_THEMES: RapHomepageTheme[] = [
     styleId: 'boom-bap',
     bpm: 92,
     studioMode: 'duo',
+    videoModel: 'happyhorse-1.1-r2v',
+    motionSyncEnabled: true,
+    lipSyncEnabled: true,
+    referenceLabel: '街头地下 Cypher 互呛模版',
     lyrics: `[Intro]\nRound one, let us see who got the real bars!\n\n[Verse 1: Left Rapper]\nYou order takeout five times a day\nSaying you on a diet, what a cliché\nI drop the boom bap while you still text delay\n\n[Verse 2: Right Rapper]\nCall me a clown, but I got the crown\nBest friends roasting under underground lights\nTaking the mic and reaching new heights!`,
     videoPrompt: 'Two best friends, [Image 1] on the left and [Image 2] on the right, roasting each other about always being late and ordering takeout, fast witty punchlines, underground cypher street lighting, hyping crowd in background, 9:16 vertical TikTok style',
   },
@@ -205,6 +221,10 @@ export const HOMEPAGE_THEMES: RapHomepageTheme[] = [
     styleId: 'trap-808',
     bpm: 138,
     studioMode: 'solo',
+    videoModel: 'happyhorse-1.1-i2v',
+    motionSyncEnabled: false,
+    lipSyncEnabled: true,
+    referenceLabel: '萌宠墨镜金链自由 Flow',
     lyrics: `[Intro]\nMeow meow, drop that hypersonic beat!\n\n[Verse 1]\nI run the living room, king of the floor\nScratching the couch while I wait by the door\nChopper flow rapid, supersonic claws\n\n[Chorus]\nGold chain kitten with a million views\nSpitting fast bars on the evening news!`,
     videoPrompt: 'A cool character wearing a heavy gold chain and sunglasses, spitting fast chopper flow to upbeat trap drums, energetic head-bobbing, hilarious contrast with viral social media aesthetics, 9:16 vertical video',
   },
@@ -216,6 +236,10 @@ export const HOMEPAGE_THEMES: RapHomepageTheme[] = [
     styleId: 'trap-808',
     bpm: 138,
     studioMode: 'duo',
+    videoModel: 'happyhorse-1.1-r2v',
+    motionSyncEnabled: true,
+    lipSyncEnabled: true,
+    referenceLabel: '金色说唱舞台派对模版',
     lyrics: `[Intro]\nBlow out the candles, crank up the bass!\n\n[Verse 1]\nAnother year older, wrinkles on your face\nStill acting twenty-one all over the place\nGolden chains swinging, confetti in the air\n\n[Chorus]\nHappy birthday to the legendary clown\nTonight we taking over the whole town!`,
     videoPrompt: 'Two friends celebrating a milestone birthday in a golden hip-hop studio, hilarious witty birthday roast verses, concert-level hype, confetti and gold chains, high-energy delivery, 9:16 vertical',
   },
@@ -227,6 +251,10 @@ export const HOMEPAGE_THEMES: RapHomepageTheme[] = [
     styleId: 'cyber-drill',
     bpm: 142,
     studioMode: 'duo',
+    videoModel: 'happyhorse-1.1-r2v',
+    motionSyncEnabled: true,
+    lipSyncEnabled: true,
+    referenceLabel: '双人齐舞 Drill 律动模版',
     lyrics: `[Intro]\nWatch the sliding bass, lock the frame!\n\n[Verse 1]\nStep to the left, sync to the snare\nSliding drill bass floating in the air\nSharp isolations, cameras locked in tight\n\n[Chorus]\nTwo rappers dancing under strobe light flare\nDrill choreography without compare!`,
     videoPrompt: 'Two rappers, [Image 1] on the left and [Image 2] on the right, doing full-body hip-hop choreography and energetic dance moves, sharp isolations matching heavy UK drill sliding bass, expressive facial confidence, fluid dynamic motion with spotlight tracking, 9:16 vertical',
   },
@@ -238,6 +266,10 @@ export const HOMEPAGE_THEMES: RapHomepageTheme[] = [
     styleId: 'melodic-rap',
     bpm: 98,
     studioMode: 'solo',
+    videoModel: 'happyhorse-1.1-i2v',
+    motionSyncEnabled: false,
+    lipSyncEnabled: true,
+    referenceLabel: '赛博霓虹雨夜自由流动',
     lyrics: `[Intro]\nRain dropping on the neon pavement...\n\n[Verse 1]\nReflections of cyan, echoes in the mist\nA handheld mic and a story in the fist\nMelodic rhythm floating through the street\n\n[Chorus]\nCity never sleeps, but the flow so deep\nMidnight verses that the memories keep.`,
     videoPrompt: 'Solo rapper shown in [Image 1] flowing effortlessly in a rain-slicked cyberpunk alley with neon reflections, handheld mic, relaxed head nods, vintage warm tube lighting, lo-fi boombap chill beat, 9:16 vertical cinema',
   },

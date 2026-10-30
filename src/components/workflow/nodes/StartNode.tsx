@@ -189,6 +189,13 @@ export function StartNode({ data }: { data: StartNodeData }) {
                 const theme = HOMEPAGE_THEMES.find((t) => t.id === e.target.value);
                 if (theme) {
                   const matchedStyle = RAP_STYLE_PRESETS.find((s) => s.id === theme.styleId);
+                  const targetVideoModel =
+                    theme.videoModel || (theme.studioMode === 'duo' ? 'happyhorse-1.1-r2v' : 'happyhorse-1.1-i2v');
+                  const motionSync =
+                    theme.motionSyncEnabled !== undefined ? theme.motionSyncEnabled : (theme.studioMode === 'duo');
+                  const lipSync =
+                    theme.lipSyncEnabled !== undefined ? theme.lipSyncEnabled : true;
+
                   data.onChange({
                     topic: theme.topic,
                     styleId: theme.styleId,
@@ -196,6 +203,9 @@ export function StartNode({ data }: { data: StartNodeData }) {
                     studioMode: theme.studioMode,
                     generatedLyrics: theme.lyrics,
                     videoPrompt: theme.videoPrompt,
+                    videoModel: targetVideoModel,
+                    motionSyncEnabled: motionSync,
+                    lipSyncEnabled: lipSync,
                     generatedTitle: theme.name.replace(/^[^\w\u4e00-\u9fa5]+/, '').trim(),
                   });
                 }

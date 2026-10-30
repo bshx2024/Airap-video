@@ -2,6 +2,7 @@ import React from 'react';
 import { Handle, Position } from '@xyflow/react';
 import { Clapperboard, Download, Eye, Film, Loader2, Music, Sparkles, Video, Volume2, VolumeX } from 'lucide-react';
 import { toast } from 'sonner';
+import { HOMEPAGE_THEMES } from '@/config/rap-presets';
 import { NodeExecutionStatus } from '../types';
 
 export const PROMPT_PRESETS = {
@@ -20,6 +21,8 @@ export const PROMPT_PRESETS = {
 export const DEFAULT_VIDEO_PROMPT = PROMPT_PRESETS.dualLead;
 
 interface VideoNodeData {
+  topic?: string;
+  styleId?: string;
   photo1: string;
   photo2?: string;
   studioMode?: 'solo' | 'duo';
@@ -50,6 +53,20 @@ export function VideoNode({ data }: { data: VideoNodeData }) {
 
   const videoRef = React.useRef<HTMLVideoElement>(null);
   const audioRef = React.useRef<HTMLAudioElement>(null);
+
+  const currentTheme = React.useMemo(() => {
+    return HOMEPAGE_THEMES.find(
+      (t) =>
+        (data.topic && t.topic.slice(0, 10) === data.topic.slice(0, 10)) ||
+        t.videoPrompt === data.videoPrompt ||
+        t.id === data.styleId
+    );
+  }, [data.topic, data.videoPrompt, data.styleId]);
+
+  const isSoloDuoMismatch =
+    (data.studioMode === 'solo' || !data.photo2) && data.videoModel === 'happyhorse-1.1-r2v';
+
+  const isPromptAligned = currentTheme && data.videoPrompt === currentTheme.videoPrompt;
 
   React.useEffect(() => {
     setVideoLoadError(false);
@@ -137,6 +154,49 @@ export function VideoNode({ data }: { data: VideoNodeData }) {
         </div>
       </div>
 
+      {/* Active Theme & Alignment Status Indicator */}
+      {currentTheme && (
+        <div className="mt-2.5 flex items-center justify-between rounded-xl border border-cyan-500/20 bg-cyan-950/20 px-2.5 py-1.5 text-[10px]">
+          <div className="flex items-center gap-1.5 truncate">
+            <Sparkles className="size-3 text-cyan-400 shrink-0" />
+            <span className="text-slate-400">场景协同:</span>
+            <span className="font-semibold text-cyan-300 truncate max-w-[150px]">{currentTheme.name}</span>
+          </div>
+          <span
+            className={`rounded px-1.5 py-0.5 text-[9px] font-semibold shrink-0 ${
+              isPromptAligned
+                ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+            }`}
+          >
+            {isPromptAligned ? '✓ 全链路已对齐' : '⚡ 已自定义微调'}
+          </span>
+        </div>
+      )}
+
+      {/* Solo-Duo Mismatch Guardrail Banner */}
+      {isSoloDuoMismatch && (
+        <div className="mt-2 flex items-center justify-between rounded-xl border border-amber-500/40 bg-amber-500/10 p-2 text-[10px] text-amber-300">
+          <div className="flex items-center gap-1.5">
+            <Sparkles className="size-3.5 text-amber-400 shrink-0" />
+            <span>当前为单人模式，已检测到双人驱动模型冲突</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              data.onChange({
+                videoModel: 'happyhorse-1.1-i2v',
+                motionSyncEnabled: false,
+              });
+              toast.success('已自动适配为单人自由驱动模型 (HappyHorse 1.1 I2V)');
+            }}
+            className="rounded bg-amber-500 px-2 py-0.5 font-bold text-black hover:bg-amber-400 transition cursor-pointer shrink-0"
+          >
+            一键修正
+          </button>
+        </div>
+      )}
+
       {/* Body */}
       <div className="mt-3 space-y-3 text-xs">
         {/* Model, Ratio, Resolution & Duration Select */}
@@ -217,7 +277,9 @@ export function VideoNode({ data }: { data: VideoNodeData }) {
           </div>
 
           <div className="mt-1.5 flex items-center justify-between text-[10px] text-slate-400">
-            <span className="truncate max-w-[190px]">Hotel Lobby 原版5秒动作模版</span>
+            <span className="truncate max-w-[190px]">
+              {currentTheme?.referenceLabel || (data.studioMode === 'solo' ? '单人节奏律动自由发挥' : 'Hotel Lobby 原版5秒动作模版')}
+            </span>
             {data.motionSyncEnabled !== false ? (
               <span className="rounded bg-cyan-500/20 px-1.5 py-0.5 text-cyan-300 font-medium">Video-to-Video 驱动</span>
             ) : (
@@ -275,6 +337,25 @@ export function VideoNode({ data }: { data: VideoNodeData }) {
           <div className="mb-1 flex items-center justify-between">
             <label className="font-medium text-slate-300">动作与分镜提示词</label>
             <div className="flex items-center gap-1">
+              {currentTheme && !isPromptAligned && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    data.onChange({
+                      videoPrompt: currentTheme.videoPrompt,
+                      videoModel:
+                        currentTheme.videoModel || (data.studioMode === 'duo' ? 'happyhorse-1.1-r2v' : 'happyhorse-1.1-i2v'),
+                      motionSyncEnabled: currentTheme.motionSyncEnabled ?? (data.studioMode === 'duo'),
+                      lipSyncEnabled: currentTheme.lipSyncEnabled ?? true,
+                    });
+                    toast.success(`已恢复为「${currentTheme.name}」专属分镜`);
+                  }}
+                  className="rounded bg-cyan-500/20 px-1.5 py-0.5 text-[9px] font-semibold text-cyan-300 hover:bg-cyan-500/30 transition cursor-pointer border border-cyan-500/30"
+                  title="一键还原当前场景官方推荐的分镜提示词与模型设置"
+                >
+                  🔄 还原场景分镜
+                </button>
+              )}
               <button
                 type="button"
                 onClick={() => {

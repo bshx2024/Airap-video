@@ -755,6 +755,13 @@ Big one. Yeah, we keep it in the booth.`,
                 const theme = HOMEPAGE_THEMES.find((t) => t.id === e.target.value);
                 if (theme) {
                   const matchedStyle = RAP_STYLE_PRESETS.find((s) => s.id === theme.styleId);
+                  const targetVideoModel =
+                    theme.videoModel || (theme.studioMode === 'duo' ? 'happyhorse-1.1-r2v' : 'happyhorse-1.1-i2v');
+                  const motionSync =
+                    theme.motionSyncEnabled !== undefined ? theme.motionSyncEnabled : (theme.studioMode === 'duo');
+                  const lipSync =
+                    theme.lipSyncEnabled !== undefined ? theme.lipSyncEnabled : true;
+
                   updateState({
                     topic: theme.topic,
                     styleId: theme.styleId,
@@ -762,9 +769,16 @@ Big one. Yeah, we keep it in the booth.`,
                     studioMode: theme.studioMode,
                     generatedLyrics: theme.lyrics,
                     videoPrompt: theme.videoPrompt,
+                    videoModel: targetVideoModel,
+                    motionSyncEnabled: motionSync,
+                    lipSyncEnabled: lipSync,
                     generatedTitle: theme.name.replace(/^[^\w\u4e00-\u9fa5]+/, '').trim(),
                   });
-                  toast.success(`已载入首页场景：${theme.name}`);
+
+                  addLog(
+                    `✨ [Preset] 场景联动：已加载「${theme.name}」，全节点已自动对齐为【${theme.studioMode === 'solo' ? 'Solo 单人' : 'Duo 双人'} · 模型: ${targetVideoModel}】`
+                  );
+                  toast.success(`已同步载入场景：${theme.name}，驱动模型与分镜已全自动对齐！`);
                 }
               }}
               className="rounded-lg bg-black/40 border border-white/15 px-2 py-1 text-[11px] font-medium text-slate-200 focus:border-amber-400 focus:outline-none"
