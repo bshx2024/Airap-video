@@ -15,6 +15,7 @@ import {
   RAP_COST_CREDITS,
   RAP_STYLE_PRESETS,
   RAP_THEME_PRESETS,
+  getRapCostCredits,
   type RapStylePreset,
 } from '@/config/rap-presets';
 import { getAIProvider } from '@/modules/ai/service';
@@ -47,6 +48,7 @@ export interface RapTaskInfo {
   audioUrl?: string;
   referenceVideoUrl?: string;
   audioOption?: 'original' | 'generate';
+  duration?: number;
   videoTaskId?: string;
   videoProvider?: string;
   videoUrl?: string;
@@ -251,6 +253,7 @@ export async function startRapTask(params: {
   referenceVideoUrl?: string;
   audioOption?: 'original' | 'generate';
   audioUrl?: string;
+  duration?: number;
 }): Promise<{ taskId: string; costCredits: number }> {
   const {
     userId,
@@ -266,6 +269,7 @@ export async function startRapTask(params: {
     referenceVideoUrl = '',
     audioOption = 'original',
     audioUrl = '',
+    duration = 5,
   } = params;
 
   const validImageUrls = imageUrls.length > 0 ? imageUrls : imageUrl ? [imageUrl] : [];
@@ -274,12 +278,13 @@ export async function startRapTask(params: {
   }
   const primaryImageUrl = validImageUrls[0];
 
-  const costCredits = RAP_COST_CREDITS;
+  const selectedDuration = Number(duration) === 15 ? 15 : Number(duration) === 10 ? 10 : 5;
+  const costCredits = getRapCostCredits(selectedDuration);
   const balance = await getBalance(userId);
 
   if (balance < costCredits) {
     throw new Error(
-      `Insufficient credits. This generation requires ${costCredits} credits, but current balance is ${balance}.`
+      `Insufficient credits. This generation requires ${costCredits} credits for ${selectedDuration}s video, but current balance is ${balance}.`
     );
   }
 
@@ -360,6 +365,7 @@ export async function startRapTask(params: {
     referenceVideoUrl: publicReferenceVideo,
     audioOption,
     audioUrl: publicAudioTrack || undefined,
+    duration: selectedDuration,
     studioMode,
     lyrics,
     title,
@@ -381,6 +387,7 @@ export async function startRapTask(params: {
         referenceVideoUrl: publicReferenceVideo,
         audioOption,
         audioUrl: publicAudioTrack || undefined,
+        duration: selectedDuration,
         studioMode,
         styleId,
         styleTags: stylePreset.sunoStyle,
@@ -823,7 +830,7 @@ export async function syncRapWorkflowTask(
                   add_watermark: false,
                   logo_add: false,
                   resolution: '480P',
-                  duration: 5,
+                  duration: taskInfo.duration || 5,
                   ratio: '9:16',
                 },
               };

@@ -125,10 +125,10 @@ export function VideoHeroResultPanel({
                   type="button"
                   onClick={() => setDownloadQrOpen(true)}
                   className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-amber-400/40 bg-black/60 px-3 py-1.5 text-xs font-medium text-amber-300 shadow-lg backdrop-blur-md transition hover:bg-black/80"
-                  title="手机扫码下载"
+                  title="Scan QR Code to Download"
                 >
                   <QrCode className="size-3.5 text-amber-400" />
-                  <span>手机扫码下载</span>
+                  <span>Scan QR Code</span>
                 </button>
                 <DownloadButton
                   item={{

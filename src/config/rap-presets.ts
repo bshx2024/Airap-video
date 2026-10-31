@@ -149,7 +149,19 @@ export const RAP_THEME_PRESETS: RapThemePreset[] = [
   },
 ];
 
-export const RAP_COST_CREDITS = 120; // 涵盖 Suno 音乐生成 + 音频驱动视频合成
+export const RAP_COST_CREDITS = 120; // 5秒基准点数
+
+export const RAP_DURATION_OPTIONS = [
+  { duration: 5, label: '5s Quick MV', credits: 120 },
+  { duration: 10, label: '10s Extended Flow', credits: 240 },
+  { duration: 15, label: '15s Master Cypher', credits: 360 },
+] as const;
+
+export function getRapCostCredits(duration: number = 5): number {
+  if (duration >= 15) return 360;
+  if (duration >= 10) return 240;
+  return 120;
+}
 
 export interface RapHomepageTheme {
   id: string;

@@ -47,7 +47,9 @@ import { cn } from '@/lib/utils';
 import {
   RAP_AVATAR_PRESETS,
   RAP_COST_CREDITS,
+  RAP_DURATION_OPTIONS,
   RAP_STYLE_PRESETS,
+  getRapCostCredits,
   type RapAvatarPreset,
   type RapStylePreset,
 } from '@/config/rap-presets';
@@ -79,7 +81,7 @@ const OCCASION_CHIPS: OccasionChipItem[] = [
     title: 'Hotel Lobby · Migos Orange Studio Stage',
     desc: 'The viral Quavo & Takeoff "Hotel Lobby" aesthetic: 2 rappers trading punchy roast bars on a hanging mic, heavy 808 Trap beat, 9:16 vertical framing.',
     image: '/imgs/scenes/hotel-lobby-studio.jpg',
-    video: '/videos/showcase/duo-migos-hero.mp4',
+    video: '/videos/showcase/duo-generated-demo.mp4',
     prompt:
       'Two rappers in an iconic bright orange studio with a single hanging microphone, inspired by Quavo and Takeoff Hotel Lobby, trading punchy roast bars, heavy 808 trap beat, rhythmic head nods, hip-hop hand gestures, 9:16 vertical TikTok style',
     styleId: 'trap-808',
@@ -231,7 +233,7 @@ export function AiRapHeroGenerator() {
     : null;
 
   // Studio Mode & Occasion States (Using chip.id for strict matching)
-  const [studioMode, setStudioMode] = useState<StudioMode>('duo');
+  const [studioMode, setStudioMode] = useState<StudioMode>('mimic');
   const [activeChipId, setActiveChipId] = useState<string>(
     OCCASION_CHIPS[0].id
   );
@@ -239,6 +241,8 @@ export function AiRapHeroGenerator() {
     OCCASION_CHIPS[0]
   );
   const [previewMuted, setPreviewMuted] = useState(true);
+  const [monitorMode, setMonitorMode] = useState<'demo' | 'reference'>('demo');
+  const [selectedDuration, setSelectedDuration] = useState<number>(15);
 
   // Portrait Photos (Duo mode supports two slots)
   const [photo1, setPhoto1] = useState<string>(
@@ -284,9 +288,13 @@ export function AiRapHeroGenerator() {
   const videoInputRef = useRef<HTMLInputElement | null>(null);
   const [isUploading, setIsUploading] = useState(false);
 
-  // Custom Master Video states
-  const [customVideoUrl, setCustomVideoUrl] = useState<string | null>(null);
-  const [customVideoName, setCustomVideoName] = useState<string>('');
+  // Custom Master Video states (Default bound to Hotel Lobby 15s master reference)
+  const [customVideoUrl, setCustomVideoUrl] = useState<string | null>(
+    '/videos/hotel-lobby-15s.mp4'
+  );
+  const [customVideoName, setCustomVideoName] = useState<string>(
+    '原版15秒.mp4 (Hotel Lobby Master 15s)'
+  );
   const [customAudioUrl, setCustomAudioUrl] = useState<string | null>(null);
   const [isUploadingVideo, setIsUploadingVideo] = useState(false);
   const [audioOption, setAudioOption] = useState<'original' | 'generate'>('original');
@@ -395,6 +403,13 @@ export function AiRapHeroGenerator() {
     const matched = RAP_STYLE_PRESETS.find((s) => s.id === chip.styleId);
     if (matched) {
       setSelectedStyle(matched);
+    }
+    if (chip.id === 'hotel-lobby') {
+      setCustomVideoUrl('/videos/hotel-lobby-15s.mp4');
+      setCustomVideoName('原版15秒.mp4 (Hotel Lobby Master 15s)');
+      setStudioMode('mimic');
+      setAudioOption('original');
+      setSelectedDuration(15);
     }
     toast.success(`Scene Loaded: ${chip.title}`);
   };
@@ -565,7 +580,7 @@ export function AiRapHeroGenerator() {
           const extractedUrl = json.data?.url || json.data?.results?.[0]?.url || json.data?.urls?.[0];
           if (isMounted && extractedUrl) {
             setCustomAudioUrl(extractedUrl);
-            toast.success('🎵 母视频原声音轨已自动无损提取就绪！');
+            toast.success('🎵 Master audio track extracted & synced!');
           }
         })
         .catch((err) => {
@@ -612,9 +627,10 @@ export function AiRapHeroGenerator() {
     // 先强制刷新一次最新的 credits 数据（防止后台刚充值或扣费但前端缓存未过期）
     const freshRes = await creditsQuery.refetch();
     const realBalance = freshRes.data?.balance ?? balance ?? 0;
-    if (realBalance < RAP_COST_CREDITS) {
+    const requiredCredits = getRapCostCredits(selectedDuration);
+    if (realBalance < requiredCredits) {
       toast.error(
-        `Insufficient credits. This generation requires ${RAP_COST_CREDITS} credits. Current balance: ${realBalance}`
+        `Insufficient credits. This ${selectedDuration}s generation requires ${requiredCredits} credits. Current balance: ${realBalance}`
       );
       return;
     }
@@ -635,8 +651,8 @@ export function AiRapHeroGenerator() {
     setTaskProgress(customVideoUrl && audioOption === 'original' ? 60 : 15);
     setStageMessage(
       customVideoUrl && audioOption === 'original'
-        ? 'Using master audio & flow, tracking body motion and camera angles...'
-        : 'Starting multi-model pipeline: composing lyrics and 808 flow...'
+        ? `Using master audio & flow (${selectedDuration}s), tracking body motion and camera angles...`
+        : `Starting multi-model pipeline (${selectedDuration}s): composing lyrics and 808 flow...`
     );
     setResultVideoUrl(null);
 
@@ -655,6 +671,7 @@ export function AiRapHeroGenerator() {
           referenceVideoUrl: customVideoUrl || undefined,
           audioOption,
           audioUrl: audioOption === 'original' && customAudioUrl ? customAudioUrl : undefined,
+          duration: selectedDuration,
         }
       );
 
@@ -873,7 +890,7 @@ export function AiRapHeroGenerator() {
                       <span className="font-medium">🎵 Keep Master Original Audio & Beat (Instant & True Flow)</span>
                       {customAudioUrl && (
                         <span className="rounded-full bg-emerald-500/20 px-1.5 py-0.5 text-[9px] font-bold text-emerald-300">
-                          原声音轨已抽取
+                          Master Audio Synced
                         </span>
                       )}
                     </label>
@@ -1371,7 +1388,43 @@ export function AiRapHeroGenerator() {
               )}
             </div>
 
-            {/* 7. Action CTA Button */}
+            {/* 7. Video Duration Selector (5s, 10s, 15s with dynamic credits) */}
+            <div className="mb-3 rounded-xl border border-white/10 bg-white/[0.03] p-2.5">
+              <div className="mb-1.5 flex items-center justify-between">
+                <span className="flex items-center gap-1.5 text-xs font-bold text-white">
+                  <Clock className="size-3.5 text-amber-400" />
+                  <span>Video Output Duration</span>
+                </span>
+                <span className="text-[11px] font-semibold text-amber-300">
+                  {selectedDuration}s · {getRapCostCredits(selectedDuration)} Credits
+                </span>
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                {RAP_DURATION_OPTIONS.map((opt) => {
+                  const isSelected = selectedDuration === opt.duration;
+                  return (
+                    <button
+                      key={opt.duration}
+                      type="button"
+                      onClick={() => setSelectedDuration(opt.duration)}
+                      className={cn(
+                        'flex cursor-pointer flex-col items-center justify-center rounded-lg border py-2 px-1 text-center transition-all active:scale-95',
+                        isSelected
+                          ? 'border-amber-400 bg-amber-400/20 text-white shadow-[0_0_15px_rgba(251,191,36,0.25)] ring-1 ring-amber-400'
+                          : 'border-white/10 bg-white/5 text-white/70 hover:border-white/25 hover:bg-white/10 hover:text-white'
+                      )}
+                    >
+                      <span className="text-xs font-bold">{opt.duration} Seconds</span>
+                      <span className={cn('text-[10px]', isSelected ? 'text-amber-300 font-semibold' : 'text-white/50')}>
+                        {opt.credits} Credits
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* 8. Action CTA Button */}
             <div className="pt-1">
               <button
                 type="button"
@@ -1390,8 +1443,8 @@ export function AiRapHeroGenerator() {
                     <span>
                       {session?.user
                         ? customVideoUrl
-                          ? `🎬 Direct Motion Mimic Rap MV (${RAP_COST_CREDITS} Credits)`
-                          : `Direct Rap MV (${RAP_COST_CREDITS} Credits)`
+                          ? `🎬 Direct Motion Mimic Rap MV (${getRapCostCredits(selectedDuration)} Credits · ${selectedDuration}s)`
+                          : `Direct Rap MV (${getRapCostCredits(selectedDuration)} Credits · ${selectedDuration}s)`
                         : `Direct Rap MV (Get Free Signup Credits)`}
                     </span>
                   </>
@@ -1422,6 +1475,34 @@ export function AiRapHeroGenerator() {
                   </span>
                 </div>
                 <div className="flex items-center gap-1.5">
+                  {customVideoUrl && (
+                    <div className="flex items-center rounded-lg border border-white/10 bg-white/5 p-0.5 text-[10px]">
+                      <button
+                        type="button"
+                        onClick={() => setMonitorMode('demo')}
+                        className={cn(
+                          'cursor-pointer rounded-md px-2 py-0.5 font-semibold transition',
+                          monitorMode === 'demo'
+                            ? 'bg-amber-400 text-slate-950 shadow-sm'
+                            : 'text-white/70 hover:text-white'
+                        )}
+                      >
+                        Demo Video
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setMonitorMode('reference')}
+                        className={cn(
+                          'cursor-pointer rounded-md px-2 py-0.5 font-semibold transition',
+                          monitorMode === 'reference'
+                            ? 'bg-amber-400 text-slate-950 shadow-sm'
+                            : 'text-white/70 hover:text-white'
+                        )}
+                      >
+                        Reference (15s)
+                      </button>
+                    </div>
+                  )}
                   <span className="rounded-full border border-amber-400/25 bg-amber-400/15 px-2 py-0.5 text-[10px] font-semibold text-amber-300">
                     {currentChip.tag}
                   </span>
@@ -1472,10 +1553,10 @@ export function AiRapHeroGenerator() {
                         type="button"
                         onClick={() => setCleanWatermarkMode(!cleanWatermarkMode)}
                         className="absolute top-2.5 right-2.5 z-20 flex cursor-pointer items-center gap-1 rounded-full border border-white/20 bg-black/70 px-2 py-0.5 text-[10px] font-semibold text-white/90 backdrop-blur-md transition hover:bg-black/90 hover:text-amber-300"
-                        title={cleanWatermarkMode ? '点击切换为全幅完整比例 (含角标)' : '点击开启边缘净化 (移除角落水印)'}
+                        title={cleanWatermarkMode ? 'Switch to Full Frame (with badges)' : 'Toggle Clean Edge Mode (remove corner watermarks)'}
                       >
                         <span className={cn('size-1.5 rounded-full', cleanWatermarkMode ? 'bg-emerald-400' : 'bg-slate-400')} />
-                        <span>{cleanWatermarkMode ? '✨ 纯净无水印' : '原比例画面'}</span>
+                        <span>{cleanWatermarkMode ? '✨ Clean No-Watermark' : 'Original Frame'}</span>
                       </button>
                     </div>
 
@@ -1486,7 +1567,7 @@ export function AiRapHeroGenerator() {
                             🎉 Rap MV Directed Successfully!
                           </p>
                           <p className="text-[10px] text-amber-300">
-                            {selectedStyle.name} ({selectedStyle.bpm} BPM) · {cleanWatermarkMode ? '无水印纯净版' : '原画'}
+                            {selectedStyle.name} ({selectedStyle.bpm} BPM) · {cleanWatermarkMode ? 'Clean No-Watermark HD' : 'Original Frame'}
                           </p>
                         </div>
                         <div className="flex items-center gap-2">
@@ -1494,20 +1575,20 @@ export function AiRapHeroGenerator() {
                             type="button"
                             onClick={() => setDownloadQrOpen(true)}
                             className="flex cursor-pointer items-center gap-1 rounded-lg border border-amber-400/40 bg-amber-500/20 px-2.5 py-1.5 text-xs font-bold text-amber-300 shadow-sm transition hover:bg-amber-500/30 active:scale-98"
-                            title="手机扫码下载保存到相册"
+                            title="Scan QR Code to save video on mobile"
                           >
                             <QrCode className="size-3.5 text-amber-400" />
-                            <span>手机扫码下载</span>
+                            <span>Scan QR Code</span>
                           </button>
                           <a
-                            href={resultVideoUrl || '/videos/showcase/duo-migos-hero.mp4'}
+                            href={resultVideoUrl || '/videos/showcase/duo-generated-demo.mp4'}
                             download="ai-rap-video.mp4"
                             target="_blank"
                             rel="noreferrer"
                             className="flex cursor-pointer items-center gap-1 rounded-lg bg-emerald-500 px-3 py-1.5 text-xs font-bold text-slate-950 transition hover:bg-emerald-400"
                           >
                             <Download className="size-3.5" />
-                            <span>电脑下载</span>
+                            <span>Download MP4</span>
                           </a>
                         </div>
                       </div>
@@ -1783,30 +1864,37 @@ export function AiRapHeroGenerator() {
                 ) : (
                   /* State 3: Default Idle (Live Authentic 9:16 Scene Visualizer) */
                   <div className="relative size-full overflow-hidden bg-slate-950">
-                    {customVideoUrl || currentChip.video ? (
-                      <video
-                        ref={stageVideoRef}
-                        key={customVideoUrl || currentChip.video}
-                        src={customVideoUrl || currentChip.video}
-                        poster={currentChip.image}
-                        autoPlay
-                        loop
-                        muted={previewMuted}
-                        playsInline
-                        preload="auto"
-                        className="size-full object-cover transition-all duration-700 ease-out"
-                      />
-                    ) : (
-                      <img
-                        key={currentChip.id}
-                        src={currentChip.image}
-                        alt={currentChip.title}
-                        width={420}
-                        height={746}
-                        loading="lazy"
-                        className="size-full object-cover transition-all duration-700 ease-out group-hover/stage:scale-105"
-                      />
-                    )}
+                    {(() => {
+                      const activeMonitorVideo =
+                        monitorMode === 'reference' && customVideoUrl
+                          ? customVideoUrl
+                          : (currentChip.video || customVideoUrl || '/videos/showcase/duo-generated-demo.mp4');
+
+                      return activeMonitorVideo ? (
+                        <video
+                          ref={stageVideoRef}
+                          key={activeMonitorVideo}
+                          src={activeMonitorVideo}
+                          poster={currentChip.image}
+                          autoPlay
+                          loop
+                          muted={previewMuted}
+                          playsInline
+                          preload="auto"
+                          className="size-full object-cover transition-all duration-700 ease-out"
+                        />
+                      ) : (
+                        <img
+                          key={currentChip.id}
+                          src={currentChip.image}
+                          alt={currentChip.title}
+                          width={420}
+                          height={746}
+                          loading="lazy"
+                          className="size-full object-cover transition-all duration-700 ease-out group-hover/stage:scale-105"
+                        />
+                      );
+                    })()}
 
                     {/* Stage Lighting & Vignette Overlay */}
                     <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-black/30" />
@@ -1823,25 +1911,25 @@ export function AiRapHeroGenerator() {
                     {/* Top Floating Badge */}
                     <div className="pointer-events-none absolute top-3 left-3 flex items-center gap-1.5 rounded-full border border-white/20 bg-black/60 px-2.5 py-1 text-[10px] font-semibold text-amber-300 backdrop-blur-md shadow-md">
                       <Sparkles className="size-3 text-amber-400" />
-                      <span>{customVideoUrl ? 'Motion Mimic Master' : currentChip.tag || '9:16 Authentic Output'}</span>
+                      <span>{monitorMode === 'reference' ? 'Master Reference (15s)' : 'Demo Showcase (Generated)'}</span>
                     </div>
 
                     {/* Bottom HUD Information */}
                     <div className="pointer-events-none absolute inset-x-3 bottom-3 rounded-xl border border-white/15 bg-black/85 p-2.5 backdrop-blur-md shadow-lg">
                       <div className="flex items-center justify-between">
                         <p className="truncate text-xs font-bold text-white">
-                          {customVideoUrl
-                            ? (customVideoName ? `Master: ${customVideoName}` : 'Custom Master Motion Video')
-                            : currentChip.title}
+                          {monitorMode === 'reference' && customVideoUrl
+                            ? (customVideoName ? `Master: ${customVideoName}` : 'Hotel Lobby 15s Master')
+                            : `${currentChip.title} · Generated Showcase`}
                         </p>
                         <span className="rounded border border-amber-500/30 bg-amber-500/20 px-1.5 py-0.5 text-[9px] font-semibold text-amber-300">
-                          LIVE PREVIEW
+                          {monitorMode === 'reference' ? 'REFERENCE MASTER' : 'DEMO SHOWCASE'}
                         </span>
                       </div>
                       <p className="mt-0.5 line-clamp-2 text-[10px] leading-relaxed text-white/70">
-                        {customVideoUrl
+                        {monitorMode === 'reference'
                           ? 'Active master video loaded. Your uploaded portrait photos will mimic all movements, flow and expressions from this clip.'
-                          : currentChip.desc}
+                          : 'Demonstrating AI Rap video generation output with high-fidelity sync, expressions, and 808 trap flow.'}
                       </p>
                       <div className="mt-1.5 flex items-center justify-between border-t border-white/10 pt-1.5 text-[9px] text-amber-300/80">
                         <span>Photos in → Viral Rap Video out</span>
