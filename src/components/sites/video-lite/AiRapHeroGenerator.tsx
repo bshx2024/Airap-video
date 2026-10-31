@@ -54,6 +54,7 @@ import {
 import { QuickAuthModal } from '@/components/sites/root/QuickAuthModal';
 import { MobileQrUploadModal } from './MobileQrUploadModal';
 import { MobileVideoDownloadModal } from './MobileVideoDownloadModal';
+import { extractAudioFromVideoFile } from '@/lib/audio-extract';
 
 export type StudioMode = 'duo' | 'group' | 'solo' | 'mimic';
 
@@ -286,6 +287,7 @@ export function AiRapHeroGenerator() {
   // Custom Master Video states
   const [customVideoUrl, setCustomVideoUrl] = useState<string | null>(null);
   const [customVideoName, setCustomVideoName] = useState<string>('');
+  const [customAudioUrl, setCustomAudioUrl] = useState<string | null>(null);
   const [isUploadingVideo, setIsUploadingVideo] = useState(false);
   const [audioOption, setAudioOption] = useState<'original' | 'generate'>('original');
 
@@ -459,30 +461,63 @@ export function AiRapHeroGenerator() {
     }
 
     setIsUploadingVideo(true);
-    const toastId = toast.loading('Uploading master video to cloud storage...');
+    const toastId = toast.loading('Uploading master video and extracting lossless audio track...');
 
     try {
       const formData = new FormData();
       formData.append('file', file);
 
-      const res = await fetch('/api/storage/upload-media', {
+      // 并发执行：1. 上传原视频 2. 浏览器本地无损抽取原声音轨并上传
+      const uploadVideoPromise = fetch('/api/storage/upload-media', {
         method: 'POST',
         body: formData,
-      });
+      }).then((r) => r.json());
 
-      const json = await res.json();
+      const extractAudioPromise = extractAudioFromVideoFile(file)
+        .then(async (audioBlob) => {
+          const audioFileName = `${file.name.replace(/\.[^/.]+$/, '')}_audio.wav`;
+          const audioFile = new File([audioBlob], audioFileName, { type: 'audio/wav' });
+          const aFormData = new FormData();
+          aFormData.append('file', audioFile);
+          const aRes = await fetch('/api/storage/upload-media', {
+            method: 'POST',
+            body: aFormData,
+          });
+          return aRes.json();
+        })
+        .catch((e) => {
+          console.warn('[Audio Extraction Note]:', e);
+          return null;
+        });
+
+      const [videoJson, audioJson] = await Promise.all([uploadVideoPromise, extractAudioPromise]);
+
       const uploadedUrl =
-        json.data?.url ||
-        json.data?.results?.[0]?.url ||
-        json.data?.urls?.[0];
+        videoJson?.data?.url ||
+        videoJson?.data?.results?.[0]?.url ||
+        videoJson?.data?.urls?.[0];
 
-      if ((json.code === 0 || res.ok) && uploadedUrl) {
+      const extractedAudioUrl =
+        audioJson?.data?.url ||
+        audioJson?.data?.results?.[0]?.url ||
+        audioJson?.data?.urls?.[0];
+
+      if (extractedAudioUrl) {
+        setCustomAudioUrl(extractedAudioUrl);
+      }
+
+      if (uploadedUrl) {
         setCustomVideoUrl(uploadedUrl);
         setCustomVideoName(file.name);
         setStudioMode('mimic');
-        toast.success(`🎬 Master video "${file.name}" ready! Stage monitor synced.`, { id: toastId });
+        toast.success(
+          extractedAudioUrl
+            ? `🎬 Master video & original audio track extracted! Stage monitor synced.`
+            : `🎬 Master video "${file.name}" ready! Stage monitor synced.`,
+          { id: toastId }
+        );
       } else {
-        throw new Error(json.message || 'Upload failed');
+        throw new Error(videoJson?.message || 'Upload failed');
       }
     } catch (err: any) {
       console.warn('Direct upload error, falling back to local stream:', err);
@@ -499,6 +534,7 @@ export function AiRapHeroGenerator() {
   const handleRemoveCustomVideo = () => {
     setCustomVideoUrl(null);
     setCustomVideoName('');
+    setCustomAudioUrl(null);
     if (studioMode === 'mimic') {
       setStudioMode('duo');
     }
@@ -581,6 +617,7 @@ export function AiRapHeroGenerator() {
           customLyrics: lyrics.trim(),
           referenceVideoUrl: customVideoUrl || undefined,
           audioOption,
+          audioUrl: audioOption === 'original' && customAudioUrl ? customAudioUrl : undefined,
         }
       );
 
@@ -797,6 +834,11 @@ export function AiRapHeroGenerator() {
                         className="accent-amber-400"
                       />
                       <span className="font-medium">🎵 Keep Master Original Audio & Beat (Instant & True Flow)</span>
+                      {customAudioUrl && (
+                        <span className="rounded-full bg-emerald-500/20 px-1.5 py-0.5 text-[9px] font-bold text-emerald-300">
+                          原声音轨已抽取
+                        </span>
+                      )}
                     </label>
 
                     <label className="flex cursor-pointer items-center gap-1.5 text-white/70 hover:text-white">

@@ -250,6 +250,7 @@ export async function startRapTask(params: {
   customLyrics?: string;
   referenceVideoUrl?: string;
   audioOption?: 'original' | 'generate';
+  audioUrl?: string;
 }): Promise<{ taskId: string; costCredits: number }> {
   const {
     userId,
@@ -264,6 +265,7 @@ export async function startRapTask(params: {
     customLyrics,
     referenceVideoUrl = '',
     audioOption = 'original',
+    audioUrl = '',
   } = params;
 
   const validImageUrls = imageUrls.length > 0 ? imageUrls : imageUrl ? [imageUrl] : [];
@@ -321,6 +323,7 @@ export async function startRapTask(params: {
   let publicPrimaryImage = primaryImageUrl;
   let publicImageUrls = validImageUrls;
   let publicReferenceVideo = referenceVideoUrl;
+  let publicAudioTrack = audioUrl;
   try {
     if (primaryImageUrl) {
       publicPrimaryImage = await ensurePublicMediaUrl(primaryImageUrl, 'image');
@@ -333,6 +336,9 @@ export async function startRapTask(params: {
     }
     if (referenceVideoUrl) {
       publicReferenceVideo = await ensurePublicMediaUrl(referenceVideoUrl, 'video');
+    }
+    if (audioUrl) {
+      publicAudioTrack = await ensurePublicMediaUrl(audioUrl, 'audio');
     }
   } catch (upErr) {
     console.warn('Failed to upload media to public R2 during task start:', upErr);
@@ -353,7 +359,7 @@ export async function startRapTask(params: {
     imageUrls: publicImageUrls,
     referenceVideoUrl: publicReferenceVideo,
     audioOption,
-    audioUrl: undefined,
+    audioUrl: publicAudioTrack || undefined,
     studioMode,
     lyrics,
     title,
@@ -374,6 +380,7 @@ export async function startRapTask(params: {
         imageUrls: publicImageUrls,
         referenceVideoUrl: publicReferenceVideo,
         audioOption,
+        audioUrl: publicAudioTrack || undefined,
         studioMode,
         styleId,
         styleTags: stylePreset.sunoStyle,
@@ -762,8 +769,8 @@ export async function syncRapWorkflowTask(
           // 必须将母视频中的经典视觉、道具与身体动作（橙色影棚、中央吊麦、双人倾身对决甩头）作为具象提示词注入！
           const effectivePrompt = isMotionMimic
             ? isDuo
-              ? `Two rappers perform an iconic high-energy rap cypher battle inside an iconic bright vibrant orange cyclorama studio with solid warm orange curved walls, warm studio lighting, and a single vintage chrome studio microphone hanging down from the ceiling in the center. [Image 1] is the rapper on the left and [Image 2] is the rapper on the right. Both rappers lean toward the central hanging microphone, trading punchy rap bars, rapid rhythmic head nods, body bounces, expressive hip-hop hand gestures strictly matching the 808 trap beat. High energy, clear wide-open mouth articulation in sync with audio vocals, 9:16 vertical TikTok framing, cinematic studio lighting, 4K quality.`
-              : `A high-energy hip-hop rapper shown in [Image 1] performs an iconic rap cypher inside a bright vibrant orange cyclorama studio with a central hanging microphone. The rapper leans into the microphone with rapid rhythmic head nods, body bounces, expressive hip-hop hand gestures, clear wide-open mouth articulation strictly in sync with the 808 trap beat. 9:16 vertical framing, cinematic studio lighting, 4K quality.`
+              ? `Two rappers perform an iconic high-energy rap cypher battle inside an iconic bright vibrant orange cyclorama studio with solid warm orange curved walls, warm studio lighting, and a single vintage chrome studio microphone hanging down from the ceiling in the center, inspired by Quavo and Takeoff Hotel Lobby. [Image 1] is the rapper on the left and [Image 2] is the rapper on the right. Choreo & Specific Motions: The left rapper [Image 1] leans forward with intense swagger, extending and pointing his right index finger emphatically toward the hanging microphone while delivering rapid punchy rap bars with wide pronounced mouth articulation strictly synchronized to the audio track; the right rapper [Image 2] vibes in place with deep rhythmic 808 head nods, body bounces, and subtle swagger hand gestures, locked in intense face-to-face cypher battle. 9:16 vertical TikTok framing, cinematic studio lighting, 4K quality.`
+              : `A high-energy hip-hop rapper shown in [Image 1] performs an iconic rap cypher inside a bright vibrant orange cyclorama studio with a central hanging microphone. The rapper leans aggressively into the hanging microphone, pointing right index finger emphatically at the mic with rapid rhythmic head nods, body bounces, and expressive wide-open mouth articulation strictly in sync with the audio track. 9:16 vertical framing, cinematic studio lighting, 4K quality.`
             : isDuo
               ? `Two rappers perform a high-energy rap cypher battle ${finalScene}. [Image 1] is the rapper on the left and [Image 2] is the rapper on the right. ${action}, 9:16 vertical TikTok framing, cinematic vivid colors, 4K quality.`
               : `A high-energy hip-hop rapper shown in [Image 1] performs an intense rap delivery ${finalScene}. ${action}, 9:16 vertical framing, cinematic vivid colors, 4K quality.`;

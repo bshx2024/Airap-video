@@ -24,6 +24,7 @@ async function POST({ request }: { request: Request }) {
       customLyrics = '',
       referenceVideoUrl = '',
       audioOption = 'original',
+      audioUrl = '',
     } = body;
 
     const validImageUrls: string[] =
@@ -54,6 +55,7 @@ async function POST({ request }: { request: Request }) {
       customLyrics,
       referenceVideoUrl,
       audioOption,
+      audioUrl,
     });
 
     return respData({
