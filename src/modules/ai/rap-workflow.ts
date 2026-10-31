@@ -769,26 +769,15 @@ export async function syncRapWorkflowTask(
             try {
               const origin = new URL(alibabaBaseUrl).origin;
               const endpoint = `${origin}/api/v1/services/aigc/video-generation/video-synthesis`;
-              const selectedModel = isMotionMimic
-                ? 'wan3.0-video'
-                : isDuo
-                  ? 'happyhorse-1.1-r2v'
-                  : 'happyhorse-1.1-i2v';
+              const selectedModel = isDuo ? 'happyhorse-1.1-r2v' : 'happyhorse-1.1-i2v';
 
               const mediaPayload: any[] = [];
-              if (isMotionMimic && selectedModel === 'wan3.0-video') {
-                mediaPayload.push({ type: 'reference_video', url: publicRefVideoUrl });
+              if (isDuo) {
                 publicImages.forEach((url) => {
                   mediaPayload.push({ type: 'reference_image', url });
                 });
               } else {
-                if (isDuo) {
-                  publicImages.forEach((url) => {
-                    mediaPayload.push({ type: 'reference_image', url });
-                  });
-                } else {
-                  mediaPayload.push({ type: 'first_frame', url: publicImages[0] });
-                }
+                mediaPayload.push({ type: 'first_frame', url: publicImages[0] });
               }
 
               const payload: any = {
@@ -822,58 +811,18 @@ export async function syncRapWorkflowTask(
               if (vidFetch.ok && !vidJson.code && vidJson.output?.task_id) {
                 taskInfo.videoTaskId = vidJson.output.task_id;
                 taskInfo.videoProvider = 'alibaba';
-                taskInfo.stageMessage = 'Characters queued into AI video engine, rendering studio rap MV...';
+                taskInfo.stageMessage = 'Characters queued into HappyHorse 1.1 AI video engine, rendering studio rap MV...';
                 dispatched = true;
               } else {
-                console.warn('[DashScope Dispatch] Non-fatal skip/error, falling back to KIE:', vidJson.message || vidFetch.status);
+                const errMsg = vidJson.message || vidJson.output?.message || `HTTP ${vidFetch.status}`;
+                throw new Error(`阿里百炼 HappyHorse 调度失败: ${errMsg}`);
               }
             } catch (aliErr: any) {
-              console.warn('[DashScope Dispatch] Exception, falling back to KIE:', aliErr.message);
+              console.error('[DashScope HappyHorse Dispatch Error]:', aliErr.message);
+              throw new Error(`阿里百炼 HappyHorse 视频驱动失败: ${aliErr.message}（请在后台 Settings -> AI 检查 API Key 与账户余额）`);
             }
-          }
-
-          // 方案 2: 通用三方服务商驱动 (KIE / ByteDance Seedance 2.5) 完美兜底
-          if (!dispatched) {
-            const provider = await getAIProvider();
-            if (provider) {
-              const effectiveModel = isMotionMimic
-                ? 'bytedance/seedance-2-5'
-                : (envConfigs.rap_video_model || (isDuo ? 'happyhorse-1.1-r2v' : 'happyhorse-1.1-i2v'));
-
-              const vidRes = await provider.generate({
-                params: {
-                  mediaType: 'video' as any,
-                  prompt: effectivePrompt,
-                  model: effectiveModel,
-                  options: {
-                    image_url: publicImages[0],
-                    image_urls: publicImages,
-                    video_url: publicRefVideoUrl,
-                    video_urls: publicRefVideoUrl ? [publicRefVideoUrl] : [],
-                    reference_video: publicRefVideoUrl,
-                    reference_video_urls: publicRefVideoUrl ? [publicRefVideoUrl] : [],
-                    mode: publicRefVideoUrl ? 'reference-to-video' : undefined,
-                    is_reference_to_video: Boolean(publicRefVideoUrl),
-                    audio_url: publicAudioUrl,
-                    audio_urls: publicAudioUrl ? [publicAudioUrl] : [],
-                    resolution: envConfigs.rap_video_resolution || '480p',
-                    aspect_ratio: '9:16',
-                    duration: 5,
-                  },
-                },
-              });
-
-              if (vidRes?.taskId) {
-                taskInfo.videoTaskId = vidRes.taskId;
-                taskInfo.videoProvider = 'provider';
-                taskInfo.stageMessage = 'Characters queued into ByteDance AI video engine, synthesizing motion mimic...';
-                dispatched = true;
-              } else {
-                throw new Error('AI video provider did not return taskId');
-              }
-            } else {
-              throw new Error('未配置生视频模型密钥（请在后台 Settings -> AI 填入 KIE 或 Alibaba 密钥）');
-            }
+          } else {
+            throw new Error('未配置阿里百炼 API Key。请在后台管理 [Settings -> AI -> Alibaba Cloud Model Studio] 填入有效的 Key 后保存。');
           }
         } catch (vidErr: any) {
           console.error('Video dispatch error:', vidErr);

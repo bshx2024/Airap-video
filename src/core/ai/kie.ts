@@ -136,7 +136,6 @@ function normalizeKieVideoModel(
   if (
     m === 'seedance-2-5' ||
     m === 'bytedance/seedance-2-5' ||
-    m.includes('happyhorse') ||
     m.includes('seedance-2-5') ||
     m.includes('seedance-2.5')
   ) {
@@ -500,7 +499,6 @@ export class KieProvider implements AIProvider {
     const isSeedance25 =
       mLower === 'seedance-2-5' ||
       mLower === 'bytedance/seedance-2-5' ||
-      mLower.includes('happyhorse') ||
       mLower.includes('seedance-2-5') ||
       mLower.includes('seedance-2.5');
     const isDoubaoSeedance =
