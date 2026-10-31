@@ -78,6 +78,7 @@ export interface AITaskInfo {
   errorCode?: string;
   errorMessage?: string;
   createTime?: Date;
+  [key: string]: any;
 }
 
 /**

@@ -3,11 +3,14 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
+  Activity,
   ArrowLeftRight,
+  Check,
   CheckCircle2,
   ChevronDown,
   ChevronUp,
   Clock,
+  Copy,
   Download,
   FileVideo,
   Film,
@@ -20,10 +23,13 @@ import {
   Play,
   Plus,
   QrCode,
+  Radio,
   RefreshCw,
+  Share2,
   ShieldCheck,
   Smartphone,
   Sparkles,
+  TrendingUp,
   Upload,
   User,
   Users,
@@ -176,6 +182,35 @@ const DEMO_DUO_PHOTOS = [
   },
 ];
 
+const HUD_TICKER_MESSAGES = [
+  '⚡ Extracting 3D head rotation matrix & micro-nod gestures...',
+  '🎙️ Aligning vocal phonemes to lip curvature & jaw drop...',
+  '🔊 Synchronizing 808 sub-bass drops with shoulder sway...',
+  '🎬 Synthesizing cinematic volumetric lighting & 4K grain...',
+  '🔥 Injecting swagger micro-expressions & cadence delivery...',
+];
+
+const VIRAL_SHOWCASE_CARDS = [
+  {
+    title: 'Hotel Lobby Duo',
+    plays: '1.4M views',
+    tag: 'Orange Studio Trap',
+    image: '/imgs/scenes/hotel-lobby-studio.jpg',
+  },
+  {
+    title: 'Cute Pet Chopper',
+    plays: '890K views',
+    tag: 'Gold Chain Meme Rap',
+    image: '/imgs/scenes/cute-pet-rap.jpg',
+  },
+  {
+    title: 'On The Radar',
+    plays: '2.1M views',
+    tag: 'UK Green Drill',
+    image: '/imgs/scenes/on-the-radar-booth.jpg',
+  },
+];
+
 export function AiRapHeroGenerator() {
   const { data: session } = useSession();
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -259,6 +294,26 @@ export function AiRapHeroGenerator() {
 
   // Mobile QR Video Download modal
   const [downloadQrOpen, setDownloadQrOpen] = useState(false);
+
+  // Cyber HUD & Viral Showcase states
+  const [hudTickerIndex, setHudTickerIndex] = useState(0);
+  const [copiedTags, setCopiedTags] = useState(false);
+
+  useEffect(() => {
+    if (taskStatus !== 'processing') return;
+    const interval = setInterval(() => {
+      setHudTickerIndex((prev) => (prev + 1) % HUD_TICKER_MESSAGES.length);
+    }, 3200);
+    return () => clearInterval(interval);
+  }, [taskStatus]);
+
+  const handleCopyViralTags = () => {
+    const tags = '#airapvideo #hotellobby #aihiphop #motionmimic #rapmv #duoflow #cyberdrill';
+    navigator.clipboard.writeText(tags);
+    setCopiedTags(true);
+    toast.success('🔥 Viral hashtags copied to clipboard! Ready to paste on TikTok/Reels.');
+    setTimeout(() => setCopiedTags(false), 2500);
+  };
 
   const handleOpenQrModal = (slot: 1 | 2) => {
     toast.info(`📱 Opening QR Code for ${slot === 1 ? 'Rapper 1' : 'Rapper 2'}...`);
@@ -1376,8 +1431,8 @@ export function AiRapHeroGenerator() {
                     </div>
                   </div>
                 ) : taskStatus === 'processing' ? (
-                  /* State 2: Processing Live Stepper */
-                  <div className="flex size-full flex-col justify-between bg-slate-950/95 p-4 text-left">
+                  /* State 2: Processing Live Stepper & Cyber Engagement Hub */
+                  <div className="flex size-full flex-col justify-between overflow-y-auto bg-slate-950/95 p-3.5 text-left custom-scrollbar">
                     <div>
                       <div className="flex items-center justify-between border-b border-white/10 pb-2">
                         <span className="flex items-center gap-1.5 text-xs font-bold text-amber-400">
@@ -1390,32 +1445,32 @@ export function AiRapHeroGenerator() {
                       </div>
 
                       {/* Progress Bar */}
-                      <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-white/10">
+                      <div className="mt-2.5 h-1.5 w-full overflow-hidden rounded-full bg-white/10">
                         <div
                           className="h-full rounded-full bg-gradient-to-r from-amber-400 via-rose-500 to-purple-500 transition-all duration-500"
                           style={{ width: `${taskProgress}%` }}
                         />
                       </div>
 
-                      <p className="mt-2 text-[11px] font-medium text-amber-200">
+                      <p className="mt-1.5 text-[11px] font-medium text-amber-200">
                         {stageMessage || 'Orchestrating multi-model pipeline...'}
                       </p>
 
                       {/* 4 Steps */}
-                      <div className="mt-4 flex flex-col gap-2">
+                      <div className="mt-3 flex flex-col gap-1.5">
                         {/* Step 1 */}
                         <div
                           className={cn(
-                            'flex items-center gap-2.5 rounded-lg border p-2 text-xs transition-all',
+                            'flex items-center gap-2 rounded-lg border p-1.5 text-xs transition-all',
                             taskProgress >= 20
                               ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300'
                               : 'border-white/10 bg-white/[0.02] text-white/50'
                           )}
                         >
-                          <CheckCircle2 className="size-3.5 shrink-0 text-emerald-400" />
+                          <CheckCircle2 className="size-3 shrink-0 text-emerald-400" />
                           <div className="min-w-0">
-                            <p className="font-bold">Step 1: Visual Context & Rhyme Writing</p>
-                            <p className="truncate text-[10px] opacity-75">
+                            <p className="font-bold text-[11px]">Step 1: Visual Context & Rhyme Writing</p>
+                            <p className="truncate text-[9px] opacity-75">
                               DeepSeek writes cadence & double rhymes
                             </p>
                           </div>
@@ -1424,7 +1479,7 @@ export function AiRapHeroGenerator() {
                         {/* Step 2 */}
                         <div
                           className={cn(
-                            'flex items-center gap-2.5 rounded-lg border p-2 text-xs transition-all',
+                            'flex items-center gap-2 rounded-lg border p-1.5 text-xs transition-all',
                             taskStage === 'music'
                               ? 'border-amber-400 bg-amber-500/15 text-amber-200 shadow-[0_0_12px_rgba(245,158,11,0.25)]'
                               : taskProgress > 50
@@ -1434,15 +1489,21 @@ export function AiRapHeroGenerator() {
                         >
                           <Music
                             className={cn(
-                              'size-3.5 shrink-0',
+                              'size-3 shrink-0',
                               taskStage === 'music' &&
                                 'animate-bounce text-amber-400'
                             )}
                           />
                           <div className="min-w-0">
-                            <p className="font-bold">Step 2: Suno 808 Beat & Vocals</p>
-                            <p className="truncate text-[10px] opacity-75">
-                              808 bass, hi-hat rolls & rap vocals
+                            <p className="font-bold text-[11px]">
+                              {studioMode === 'mimic' && audioOption === 'original'
+                                ? 'Step 2: Master Audio Track Extraction & Beat Sync'
+                                : 'Step 2: Suno 808 Beat & Vocals'}
+                            </p>
+                            <p className="truncate text-[9px] opacity-75">
+                              {studioMode === 'mimic' && audioOption === 'original'
+                                ? 'Extracting original master track & frequency stems'
+                                : '808 bass, hi-hat rolls & rap vocals'}
                             </p>
                           </div>
                         </div>
@@ -1450,7 +1511,7 @@ export function AiRapHeroGenerator() {
                         {/* Step 3 */}
                         <div
                           className={cn(
-                            'flex items-center gap-2.5 rounded-lg border p-2 text-xs transition-all',
+                            'flex items-center gap-2 rounded-lg border p-1.5 text-xs transition-all',
                             taskStage === 'video'
                               ? 'border-rose-400 bg-rose-500/15 text-rose-200 shadow-[0_0_12px_rgba(244,63,94,0.25)]'
                               : taskProgress >= 95
@@ -1460,14 +1521,14 @@ export function AiRapHeroGenerator() {
                         >
                           <Mic2
                             className={cn(
-                              'size-3.5 shrink-0',
+                              'size-3 shrink-0',
                               taskStage === 'video' &&
                                 'animate-pulse text-rose-400'
                             )}
                           />
                           <div className="min-w-0">
-                            <p className="font-bold">Step 3: Lip-Sync & Motion Directing</p>
-                            <p className="truncate text-[10px] opacity-75">
+                            <p className="font-bold text-[11px]">Step 3: Lip-Sync & Motion Directing</p>
+                            <p className="truncate text-[9px] opacity-75">
                               Audio features drive facial micro-delivery
                             </p>
                           </div>
@@ -1476,25 +1537,146 @@ export function AiRapHeroGenerator() {
                         {/* Step 4 */}
                         <div
                           className={cn(
-                            'flex items-center gap-2.5 rounded-lg border p-2 text-xs transition-all',
+                            'flex items-center gap-2 rounded-lg border p-1.5 text-xs transition-all',
                             taskStage === 'completed'
                               ? 'border-purple-400 bg-purple-500/15 text-purple-200'
                               : 'border-white/10 bg-white/[0.02] text-white/50'
                           )}
                         >
-                          <Sparkles className="size-3.5 shrink-0" />
+                          <Sparkles className="size-3 shrink-0" />
                           <div className="min-w-0">
-                            <p className="font-bold">Step 4: Stream Mastering & Final MV</p>
-                            <p className="truncate text-[10px] opacity-75">
+                            <p className="font-bold text-[11px]">Step 4: Stream Mastering & Final MV</p>
+                            <p className="truncate text-[9px] opacity-75">
                               High-bitrate render & audio multiplexing
                             </p>
                           </div>
                         </div>
                       </div>
+
+                      {/* Module 1: Cyber Motion & Audio Waveform HUD */}
+                      <div className="mt-3 rounded-xl border border-emerald-500/30 bg-emerald-950/20 p-2.5 backdrop-blur-md">
+                        <div className="flex items-center justify-between border-b border-emerald-500/20 pb-1.5">
+                          <div className="flex items-center gap-1.5 text-[11px] font-bold text-emerald-400">
+                            <Activity className="size-3.5 animate-pulse text-emerald-400" />
+                            <span>CYBER MOTION & WAVEFORM HUD</span>
+                            <span className="flex items-center gap-1 rounded bg-emerald-500/20 px-1 py-0.5 text-[8px] font-mono font-medium text-emerald-300">
+                              <span className="size-1.5 rounded-full bg-emerald-400 animate-ping" />
+                              LIVE
+                            </span>
+                          </div>
+
+                          {/* Equalizer Waveform Bars */}
+                          <div className="flex items-end gap-0.5 h-3">
+                            {[40, 75, 100, 60, 90, 45, 80, 65, 95, 50].map((h, i) => (
+                              <span
+                                key={i}
+                                className="w-0.5 rounded-full bg-gradient-to-t from-emerald-500 to-amber-300 animate-pulse"
+                                style={{
+                                  height: `${h}%`,
+                                  animationDelay: `${i * 100}ms`,
+                                  animationDuration: '650ms',
+                                }}
+                              />
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Real-time Tracking Matrix */}
+                        <div className="mt-2 grid grid-cols-2 gap-1.5 font-mono text-[9px]">
+                          <div className="flex items-center justify-between rounded bg-white/[0.03] px-2 py-1 text-slate-300 border border-white/5">
+                            <span className="text-white/50">FACE MESH:</span>
+                            <span className="font-bold text-emerald-400">468 PTS [LOCKED]</span>
+                          </div>
+                          <div className="flex items-center justify-between rounded bg-white/[0.03] px-2 py-1 text-slate-300 border border-white/5">
+                            <span className="text-white/50">AUDIO BEAT:</span>
+                            <span className="font-bold text-amber-400">132 BPM [SYNC]</span>
+                          </div>
+                          <div className="flex items-center justify-between rounded bg-white/[0.03] px-2 py-1 text-slate-300 border border-white/5">
+                            <span className="text-white/50">LIP ALIGN:</span>
+                            <span className="font-bold text-rose-400">PHONEME-ACCURATE</span>
+                          </div>
+                          <div className="flex items-center justify-between rounded bg-white/[0.03] px-2 py-1 text-slate-300 border border-white/5">
+                            <span className="text-white/50">MOTION VIBE:</span>
+                            <span className="font-bold text-purple-400">99.4% SWAGGER</span>
+                          </div>
+                        </div>
+
+                        {/* Dynamic Live Ticker */}
+                        <div className="mt-2 flex items-center gap-1.5 rounded-md bg-black/40 px-2 py-1.5 text-[9px] text-emerald-300/90 font-mono border border-emerald-500/10">
+                          <Radio className="size-3 shrink-0 text-emerald-400 animate-pulse" />
+                          <span className="truncate">{HUD_TICKER_MESSAGES[hudTickerIndex]}</span>
+                        </div>
+                      </div>
+
+                      {/* Module 2: Community Viral Inspiration Reel */}
+                      <div className="mt-2.5 rounded-xl border border-white/10 bg-white/[0.02] p-2.5">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-1.5 text-[11px] font-bold text-amber-300">
+                            <Flame className="size-3.5 text-amber-400" />
+                            <span>Community Viral Hits</span>
+                          </div>
+                          <span className="text-[9px] text-white/40">🔥 10M+ Community Views</span>
+                        </div>
+
+                        <div className="grid grid-cols-3 gap-1.5">
+                          {VIRAL_SHOWCASE_CARDS.map((item, idx) => (
+                            <div
+                              key={idx}
+                              className="group relative flex flex-col overflow-hidden rounded-lg border border-white/10 bg-slate-900/80 p-1 transition-all hover:border-amber-400/40"
+                            >
+                              <div className="relative aspect-[9/12] w-full overflow-hidden rounded bg-slate-950">
+                                <img
+                                  src={item.image}
+                                  alt={item.title}
+                                  className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                                <span className="absolute bottom-0.5 left-0.5 rounded bg-black/60 px-1 py-0.2 text-[7px] font-bold text-amber-300 backdrop-blur-sm">
+                                  {item.plays}
+                                </span>
+                              </div>
+                              <p className="mt-1 truncate text-[9px] font-bold text-white group-hover:text-amber-300">
+                                {item.title}
+                              </p>
+                              <p className="truncate text-[7px] text-white/50">{item.tag}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Module 3: Viral Hashtags Copy Tool */}
+                      <div className="mt-2.5 flex items-center justify-between rounded-lg border border-white/10 bg-gradient-to-r from-purple-500/10 via-rose-500/10 to-amber-500/10 px-2.5 py-1.5">
+                        <div className="min-w-0 pr-2">
+                          <p className="text-[9px] font-bold text-white/80 flex items-center gap-1">
+                            <Share2 className="size-2.5 text-purple-400" />
+                            <span>Trending Social Hashtags</span>
+                          </p>
+                          <p className="truncate font-mono text-[8px] text-white/50">
+                            #airapvideo #hotellobby #aihiphop #motionmimic #rapmv
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={handleCopyViralTags}
+                          className="shrink-0 flex items-center gap-1 rounded bg-white/10 px-2 py-1 text-[8px] font-bold text-white hover:bg-white/20 transition active:scale-95"
+                        >
+                          {copiedTags ? (
+                            <>
+                              <Check className="size-2.5 text-emerald-400" />
+                              <span className="text-emerald-400">Copied!</span>
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="size-2.5" />
+                              <span>Copy Tags</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
                     </div>
 
-                    <div className="mt-3 flex items-center justify-center gap-1.5 text-[11px] text-amber-300/80">
-                      <RefreshCw className="size-3 animate-spin" />
+                    <div className="mt-2.5 flex items-center justify-center gap-1.5 text-[10px] text-amber-300/80">
+                      <RefreshCw className="size-2.5 animate-spin" />
                       <span>Cloud rendering in progress... You may keep page open</span>
                     </div>
                   </div>
