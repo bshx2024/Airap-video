@@ -322,16 +322,16 @@ export async function startRapTask(params: {
   let publicImageUrls = validImageUrls;
   let publicReferenceVideo = referenceVideoUrl;
   try {
-    if (primaryImageUrl.startsWith('data:')) {
+    if (primaryImageUrl) {
       publicPrimaryImage = await ensurePublicMediaUrl(primaryImageUrl, 'image');
     }
     publicImageUrls = await Promise.all(
-      validImageUrls.map(async (u) => (u.startsWith('data:') ? ensurePublicMediaUrl(u, 'image') : u))
+      validImageUrls.map((u) => ensurePublicMediaUrl(u, 'image'))
     );
     if (!publicPrimaryImage && publicImageUrls.length > 0) {
       publicPrimaryImage = publicImageUrls[0];
     }
-    if (referenceVideoUrl && referenceVideoUrl.startsWith('data:')) {
+    if (referenceVideoUrl) {
       publicReferenceVideo = await ensurePublicMediaUrl(referenceVideoUrl, 'video');
     }
   } catch (upErr) {
@@ -353,7 +353,7 @@ export async function startRapTask(params: {
     imageUrls: publicImageUrls,
     referenceVideoUrl: publicReferenceVideo,
     audioOption,
-    audioUrl: isUsingOriginalAudio ? publicReferenceVideo : undefined,
+    audioUrl: undefined,
     studioMode,
     lyrics,
     title,
@@ -595,9 +595,6 @@ export async function syncRapWorkflowTask(
 
     // 尚未调度视频任务（无论来自音乐就绪，还是来自自定义母版原声直通车），立即发起调度
     if (!taskInfo.videoTaskId && !videoUrl) {
-      const activeAudio =
-        taskInfo.audioUrl || taskInfo.referenceVideoUrl || 'https://pixanyoss.16781678.xyz/test.mp3';
-
       if (isMock) {
         taskInfo.videoTaskId = `mock_video_${existingTask.id}`;
       } else {
@@ -618,9 +615,22 @@ export async function syncRapWorkflowTask(
           const publicImages = await Promise.all(
             rawImgs.map((img) => ensurePublicMediaUrl(img, 'image'))
           );
-          const publicAudioUrl = await ensurePublicMediaUrl(activeAudio, 'audio');
+
+          const hasValidAudioTrack =
+            taskInfo.audioUrl &&
+            !taskInfo.audioUrl.endsWith('.mp4') &&
+            !taskInfo.audioUrl.endsWith('.webm') &&
+            !taskInfo.audioUrl.endsWith('.mov');
+          const publicAudioUrl = hasValidAudioTrack
+            ? await ensurePublicMediaUrl(taskInfo.audioUrl, 'audio')
+            : '';
+
+          const publicRefVideoUrl = taskInfo.referenceVideoUrl
+            ? await ensurePublicMediaUrl(taskInfo.referenceVideoUrl, 'video')
+            : '';
 
           const isDuo = taskInfo.studioMode === 'duo' && publicImages.length > 1;
+          const isMotionMimic = Boolean(publicRefVideoUrl);
 
           // Modular scene presets ensuring each trending scenario renders with exact visual aesthetic, props, and lighting
           const SCENARIO_PRESETS: Record<
@@ -742,90 +752,93 @@ export async function syncRapWorkflowTask(
 
           const action = isDuo ? preset.actionDirectivesDuo : preset.actionDirectivesSolo;
 
-          const isMotionMimic = Boolean(taskInfo.referenceVideoUrl);
           const effectivePrompt = isMotionMimic
             ? isDuo
-              ? `Two rappers perform a motion-mimic rap video strictly following the movements, gestures, camera angles, body swag and choreography of the reference video. [Image 1] is the rapper on the left and [Image 2] is the rapper on the right. 9:16 vertical framing, cinematic vivid colors, 4K quality, rhythm-locked head nods and hip-hop hand flow.`
-              : `A rapper performs a motion-mimic rap video strictly following the movements, gestures, camera angles, body swag and choreography of the reference video shown in [Image 1]. 9:16 vertical framing, cinematic vivid colors, 4K quality, rhythm-locked head nods and hip-hop hand flow.`
+              ? `Replace the left rapper in [Video 1] with the character from [Image 1], and replace the right rapper in [Video 1] with the character from [Image 2]. Both characters [Image 1] on the left and [Image 2] on the right perform high-energy rap cypher together, actively delivering energetic rap singing with wide pronounced mouth articulation, while strictly replicating the exact body motions, head nods, arm gestures, and choreography from [Video 1]. 9:16 vertical framing, cinematic vivid colors, 4K quality.`
+              : `Replace the rapper in [Video 1] with the character shown in [Image 1]. The new character [Image 1] actively delivers energetic rap singing with wide pronounced mouth articulation, while strictly replicating the exact body motions, head nods, arm gestures, and choreography from [Video 1]. 9:16 vertical framing, cinematic vivid colors, 4K quality.`
             : isDuo
               ? `Two rappers perform a high-energy rap cypher battle ${finalScene}. [Image 1] is the rapper on the left and [Image 2] is the rapper on the right. ${action}, 9:16 vertical TikTok framing, cinematic vivid colors, 4K quality.`
               : `A high-energy hip-hop rapper shown in [Image 1] performs an intense rap delivery ${finalScene}. ${action}, 9:16 vertical framing, cinematic vivid colors, 4K quality.`;
 
           const effectiveNegativePrompt = preset.negativePrompt;
 
-          if (alibabaApiKey) {
-            // 阿里百炼 DashScope 官方生视频驱动 (HappyHorse 1.1)
-            const origin = new URL(alibabaBaseUrl).origin;
-            const endpoint = `${origin}/api/v1/services/aigc/video-generation/video-synthesis`;
-            const selectedModel = isDuo ? 'happyhorse-1.1-r2v' : 'happyhorse-1.1-i2v';
+          let dispatched = false;
 
-            const mediaPayload: any[] = [];
-            if (taskInfo.referenceVideoUrl) {
-              mediaPayload.push({ type: 'reference_video', url: taskInfo.referenceVideoUrl });
-            }
-            if (isDuo) {
-              publicImages.forEach((url) => {
-                mediaPayload.push({ type: 'reference_image', url });
+          // 方案 1: 如果配置了有效的阿里百炼 Key，尝试阿里生视频
+          if (alibabaApiKey && !dispatched) {
+            try {
+              const origin = new URL(alibabaBaseUrl).origin;
+              const endpoint = `${origin}/api/v1/services/aigc/video-generation/video-synthesis`;
+              const selectedModel = isMotionMimic
+                ? 'wan3.0-video'
+                : isDuo
+                  ? 'happyhorse-1.1-r2v'
+                  : 'happyhorse-1.1-i2v';
+
+              const mediaPayload: any[] = [];
+              if (isMotionMimic && selectedModel === 'wan3.0-video') {
+                mediaPayload.push({ type: 'reference_video', url: publicRefVideoUrl });
+                publicImages.forEach((url) => {
+                  mediaPayload.push({ type: 'reference_image', url });
+                });
+              } else {
+                if (isDuo) {
+                  publicImages.forEach((url) => {
+                    mediaPayload.push({ type: 'reference_image', url });
+                  });
+                } else {
+                  mediaPayload.push({ type: 'first_frame', url: publicImages[0] });
+                }
+              }
+
+              const payload: any = {
+                model: selectedModel,
+                input: {
+                  prompt: effectivePrompt,
+                  negative_prompt: effectiveNegativePrompt,
+                  media: mediaPayload,
+                  ...(publicAudioUrl ? { audio_url: publicAudioUrl } : {}),
+                },
+                parameters: {
+                  watermark: false,
+                  resolution: '480P',
+                  duration: 5,
+                  ratio: '9:16',
+                },
+              };
+
+              const vidFetch = await fetch(endpoint, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  Authorization: `Bearer ${alibabaApiKey}`,
+                  'X-DashScope-Async': 'enable',
+                },
+                body: JSON.stringify(payload),
+                signal: AbortSignal.timeout(20000),
               });
-            } else {
-              mediaPayload.push({ type: 'first_frame', url: publicImages[0] });
+
+              const vidJson: any = await vidFetch.json().catch(() => ({}));
+              if (vidFetch.ok && !vidJson.code && vidJson.output?.task_id) {
+                taskInfo.videoTaskId = vidJson.output.task_id;
+                taskInfo.videoProvider = 'alibaba';
+                taskInfo.stageMessage = 'Characters queued into AI video engine, rendering studio rap MV...';
+                dispatched = true;
+              } else {
+                console.warn('[DashScope Dispatch] Non-fatal skip/error, falling back to KIE:', vidJson.message || vidFetch.status);
+              }
+            } catch (aliErr: any) {
+              console.warn('[DashScope Dispatch] Exception, falling back to KIE:', aliErr.message);
             }
+          }
 
-            const payload = {
-              model: selectedModel,
-              input: {
-                prompt: effectivePrompt,
-                negative_prompt: effectiveNegativePrompt,
-                media: mediaPayload,
-                audio_url: publicAudioUrl,
-              },
-              parameters: {
-                watermark: false,
-                resolution: '480P',
-                duration: 5,
-                ratio: '9:16',
-              },
-            };
-
-            const vidFetch = await fetch(endpoint, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${alibabaApiKey}`,
-                'X-DashScope-Async': 'enable',
-              },
-              body: JSON.stringify(payload),
-              signal: AbortSignal.timeout(30000),
-            });
-
-            const vidJson: any = await vidFetch.json().catch(() => ({}));
-            if (!vidFetch.ok || vidJson.code) {
-              throw new Error(vidJson.message || vidJson.output?.message || `阿里生视频接口异常 (${vidFetch.status})`);
-            }
-
-            const aliTaskId = vidJson.output?.task_id;
-            if (!aliTaskId) {
-              throw new Error('阿里生视频服务未返回有效 task_id');
-            }
-
-            taskInfo.videoTaskId = aliTaskId;
-            taskInfo.videoProvider = 'alibaba';
-            taskInfo.stageMessage = 'Characters queued into AI video engine, rendering studio rap MV...';
-          } else {
-            // 通用三方服务商驱动 (KIE / Fal / Replicate)
+          // 方案 2: 通用三方服务商驱动 (KIE / ByteDance Seedance 2.5) 完美兜底
+          if (!dispatched) {
             const provider = await getAIProvider();
             if (provider) {
-              const matchedTheme = HOMEPAGE_THEMES.find(
-                (t) =>
-                  t.id === taskInfo.scenarioId ||
-                  t.styleId === taskInfo.styleId ||
-                  (taskInfo.prompt && t.topic.slice(0, 10) === taskInfo.prompt.slice(0, 10))
-              );
-
-              const effectiveModel =
-                envConfigs.rap_video_model ||
-                matchedTheme?.videoModel ||
-                (isDuo ? 'happyhorse-1.1-r2v' : 'happyhorse-1.1-i2v');
+              const effectiveModel = isMotionMimic
+                ? 'bytedance/seedance-2-5'
+                : (envConfigs.rap_video_model || (isDuo ? 'happyhorse-1.1-r2v' : 'happyhorse-1.1-i2v'));
 
               const vidRes = await provider.generate({
                 params: {
@@ -835,17 +848,31 @@ export async function syncRapWorkflowTask(
                   options: {
                     image_url: publicImages[0],
                     image_urls: publicImages,
-                    video_url: taskInfo.referenceVideoUrl,
-                    reference_video: taskInfo.referenceVideoUrl,
+                    video_url: publicRefVideoUrl,
+                    video_urls: publicRefVideoUrl ? [publicRefVideoUrl] : [],
+                    reference_video: publicRefVideoUrl,
+                    reference_video_urls: publicRefVideoUrl ? [publicRefVideoUrl] : [],
+                    mode: publicRefVideoUrl ? 'reference-to-video' : undefined,
+                    is_reference_to_video: Boolean(publicRefVideoUrl),
                     audio_url: publicAudioUrl,
+                    audio_urls: publicAudioUrl ? [publicAudioUrl] : [],
                     resolution: envConfigs.rap_video_resolution || '480p',
+                    aspect_ratio: '9:16',
+                    duration: 5,
                   },
                 },
               });
-              taskInfo.videoTaskId = vidRes.taskId;
-              taskInfo.videoProvider = 'provider';
+
+              if (vidRes?.taskId) {
+                taskInfo.videoTaskId = vidRes.taskId;
+                taskInfo.videoProvider = 'provider';
+                taskInfo.stageMessage = 'Characters queued into ByteDance AI video engine, synthesizing motion mimic...';
+                dispatched = true;
+              } else {
+                throw new Error('AI video provider did not return taskId');
+              }
             } else {
-              throw new Error('未配置生视频模型密钥（请在后台 Settings -> AI 填入 Alibaba 或 KIE 密钥）');
+              throw new Error('未配置生视频模型密钥（请在后台 Settings -> AI 填入 KIE 或 Alibaba 密钥）');
             }
           }
         } catch (vidErr: any) {
