@@ -95,7 +95,7 @@ const OCCASION_CHIPS: OccasionChipItem[] = [
     title: 'On The Radar · Underground Cypher Stage',
     desc: 'The iconic NYC dark radio booth with neon green tube lighting, standing mic, sliding 808 drill bass, and aggressive hand gestures.',
     image: '/imgs/scenes/on-the-radar-booth.jpg',
-    video: '/videos/showcase/generated/london-orb-remake.mp4',
+    video: '/videos/ontheradar15_vertical.mp4',
     prompt:
       'A rapper inside the legendary On The Radar dark studio with neon green fluorescent tube lights and a standing microphone, intense aggressive UK drill freestyle, sharp sliding 808 bass, rapid rhythmic hand gestures and head nods, 9:16 vertical cinema',
     styleId: 'cyber-drill',
@@ -243,6 +243,7 @@ export function AiRapHeroGenerator() {
   const [previewMuted, setPreviewMuted] = useState(true);
   const [monitorMode, setMonitorMode] = useState<'demo' | 'reference'>('demo');
   const [selectedDuration, setSelectedDuration] = useState<number>(15);
+  const [aspectRatio, setAspectRatio] = useState<'9:16' | '16:9'>('9:16');
 
   // Portrait Photos (Duo mode supports two slots)
   const [photo1, setPhoto1] = useState<string>(
@@ -410,6 +411,14 @@ export function AiRapHeroGenerator() {
       setStudioMode('mimic');
       setAudioOption('original');
       setSelectedDuration(15);
+      setAspectRatio('9:16');
+    } else if (chip.id === 'on-the-radar') {
+      setCustomVideoUrl('/videos/ontheradar15_vertical.mp4');
+      setCustomVideoName('ontheradar15_vertical.mp4');
+      setStudioMode('mimic');
+      setAudioOption('original');
+      setSelectedDuration(15);
+      setAspectRatio('9:16');
     }
     toast.success(`Scene Loaded: ${chip.title}`);
   };
@@ -672,6 +681,7 @@ export function AiRapHeroGenerator() {
           audioOption,
           audioUrl: audioOption === 'original' && customAudioUrl ? customAudioUrl : undefined,
           duration: selectedDuration,
+          aspectRatio,
         }
       );
 
@@ -1388,39 +1398,83 @@ export function AiRapHeroGenerator() {
               )}
             </div>
 
-            {/* 7. Video Duration Selector (5s, 10s, 15s with dynamic credits) */}
-            <div className="mb-3 rounded-xl border border-white/10 bg-white/[0.03] p-2.5">
-              <div className="mb-1.5 flex items-center justify-between">
-                <span className="flex items-center gap-1.5 text-xs font-bold text-white">
-                  <Clock className="size-3.5 text-amber-400" />
-                  <span>Video Output Duration</span>
-                </span>
-                <span className="text-[11px] font-semibold text-amber-300">
-                  {selectedDuration}s · {getRapCostCredits(selectedDuration)} Credits
-                </span>
+            {/* 7. Aspect Ratio & Video Duration Settings */}
+            <div className="mb-3 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+              {/* Aspect Ratio Selector */}
+              <div className="rounded-xl border border-white/10 bg-white/[0.03] p-2.5">
+                <div className="mb-1.5 flex items-center justify-between">
+                  <span className="flex items-center gap-1.5 text-xs font-bold text-white">
+                    <Smartphone className="size-3.5 text-amber-400" />
+                    <span>Aspect Ratio</span>
+                  </span>
+                  <span className="text-[10px] font-semibold text-amber-300">
+                    {aspectRatio === '9:16' ? 'TikTok / Shorts' : 'YouTube / PC'}
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => setAspectRatio('9:16')}
+                    className={cn(
+                      'flex cursor-pointer items-center justify-center gap-1.5 rounded-lg border py-2 px-2 text-center transition-all active:scale-95',
+                      aspectRatio === '9:16'
+                        ? 'border-amber-400 bg-amber-400/20 text-white shadow-[0_0_15px_rgba(251,191,36,0.25)] ring-1 ring-amber-400'
+                        : 'border-white/10 bg-white/5 text-white/70 hover:border-white/25 hover:bg-white/10 hover:text-white'
+                    )}
+                  >
+                    <Smartphone className="size-3 text-amber-400" />
+                    <span className="text-xs font-bold">9:16 Vertical</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setAspectRatio('16:9')}
+                    className={cn(
+                      'flex cursor-pointer items-center justify-center gap-1.5 rounded-lg border py-2 px-2 text-center transition-all active:scale-95',
+                      aspectRatio === '16:9'
+                        ? 'border-amber-400 bg-amber-400/20 text-white shadow-[0_0_15px_rgba(251,191,36,0.25)] ring-1 ring-amber-400'
+                        : 'border-white/10 bg-white/5 text-white/70 hover:border-white/25 hover:bg-white/10 hover:text-white'
+                    )}
+                  >
+                    <Video className="size-3 text-amber-400" />
+                    <span className="text-xs font-bold">16:9 Wide</span>
+                  </button>
+                </div>
               </div>
-              <div className="grid grid-cols-3 gap-2">
-                {RAP_DURATION_OPTIONS.map((opt) => {
-                  const isSelected = selectedDuration === opt.duration;
-                  return (
-                    <button
-                      key={opt.duration}
-                      type="button"
-                      onClick={() => setSelectedDuration(opt.duration)}
-                      className={cn(
-                        'flex cursor-pointer flex-col items-center justify-center rounded-lg border py-2 px-1 text-center transition-all active:scale-95',
-                        isSelected
-                          ? 'border-amber-400 bg-amber-400/20 text-white shadow-[0_0_15px_rgba(251,191,36,0.25)] ring-1 ring-amber-400'
-                          : 'border-white/10 bg-white/5 text-white/70 hover:border-white/25 hover:bg-white/10 hover:text-white'
-                      )}
-                    >
-                      <span className="text-xs font-bold">{opt.duration} Seconds</span>
-                      <span className={cn('text-[10px]', isSelected ? 'text-amber-300 font-semibold' : 'text-white/50')}>
-                        {opt.credits} Credits
-                      </span>
-                    </button>
-                  );
-                })}
+
+              {/* Video Output Duration */}
+              <div className="rounded-xl border border-white/10 bg-white/[0.03] p-2.5">
+                <div className="mb-1.5 flex items-center justify-between">
+                  <span className="flex items-center gap-1.5 text-xs font-bold text-white">
+                    <Clock className="size-3.5 text-amber-400" />
+                    <span>Duration</span>
+                  </span>
+                  <span className="text-[10px] font-semibold text-amber-300">
+                    {selectedDuration}s · {getRapCostCredits(selectedDuration)} Credits
+                  </span>
+                </div>
+                <div className="grid grid-cols-3 gap-1.5">
+                  {RAP_DURATION_OPTIONS.map((opt) => {
+                    const isSelected = selectedDuration === opt.duration;
+                    return (
+                      <button
+                        key={opt.duration}
+                        type="button"
+                        onClick={() => setSelectedDuration(opt.duration)}
+                        className={cn(
+                          'flex cursor-pointer flex-col items-center justify-center rounded-lg border py-1.5 px-1 text-center transition-all active:scale-95',
+                          isSelected
+                            ? 'border-amber-400 bg-amber-400/20 text-white shadow-[0_0_15px_rgba(251,191,36,0.25)] ring-1 ring-amber-400'
+                            : 'border-white/10 bg-white/5 text-white/70 hover:border-white/25 hover:bg-white/10 hover:text-white'
+                        )}
+                      >
+                        <span className="text-xs font-bold">{opt.duration}s</span>
+                        <span className={cn('text-[9px]', isSelected ? 'text-amber-300 font-semibold' : 'text-white/50')}>
+                          {opt.credits} C
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             </div>
 

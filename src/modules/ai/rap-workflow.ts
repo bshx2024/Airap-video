@@ -49,6 +49,7 @@ export interface RapTaskInfo {
   referenceVideoUrl?: string;
   audioOption?: 'original' | 'generate';
   duration?: number;
+  aspectRatio?: '9:16' | '16:9';
   videoTaskId?: string;
   videoProvider?: string;
   videoUrl?: string;
@@ -254,6 +255,7 @@ export async function startRapTask(params: {
   audioOption?: 'original' | 'generate';
   audioUrl?: string;
   duration?: number;
+  aspectRatio?: '9:16' | '16:9';
 }): Promise<{ taskId: string; costCredits: number }> {
   const {
     userId,
@@ -270,6 +272,7 @@ export async function startRapTask(params: {
     audioOption = 'original',
     audioUrl = '',
     duration = 5,
+    aspectRatio = '9:16',
   } = params;
 
   const validImageUrls = imageUrls.length > 0 ? imageUrls : imageUrl ? [imageUrl] : [];
@@ -366,6 +369,7 @@ export async function startRapTask(params: {
     audioOption,
     audioUrl: publicAudioTrack || undefined,
     duration: selectedDuration,
+    aspectRatio: aspectRatio === '16:9' ? '16:9' : '9:16',
     studioMode,
     lyrics,
     title,
@@ -388,6 +392,7 @@ export async function startRapTask(params: {
         audioOption,
         audioUrl: publicAudioTrack || undefined,
         duration: selectedDuration,
+        aspectRatio: aspectRatio === '16:9' ? '16:9' : '9:16',
         studioMode,
         styleId,
         styleTags: stylePreset.sunoStyle,
@@ -831,7 +836,8 @@ export async function syncRapWorkflowTask(
                   logo_add: false,
                   resolution: '480P',
                   duration: taskInfo.duration || 5,
-                  ratio: '9:16',
+                  ratio: taskInfo.aspectRatio === '16:9' ? '16:9' : '9:16',
+                  aspect_ratio: taskInfo.aspectRatio === '16:9' ? '16:9' : '9:16',
                 },
               };
 

@@ -26,6 +26,7 @@ async function POST({ request }: { request: Request }) {
       audioOption = 'original',
       audioUrl = '',
       duration = 5,
+      aspectRatio = '9:16',
     } = body;
 
     const validImageUrls: string[] =
@@ -58,6 +59,7 @@ async function POST({ request }: { request: Request }) {
       audioOption,
       audioUrl,
       duration: Number(duration) || 5,
+      aspectRatio: aspectRatio === '16:9' ? '16:9' : '9:16',
     });
 
     return respData({
