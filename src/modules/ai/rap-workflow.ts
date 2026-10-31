@@ -871,25 +871,7 @@ export async function syncRapWorkflowTask(
         .update(aiTask)
         .set({ taskInfo: JSON.stringify(taskInfo) })
         .where(eq(aiTask.id, existingTask.id));
-    } else {
-      // 正在生成音乐中，更新微进度
-      taskInfo.progress = Math.min(65, 40 + Math.floor(elapsedSeconds * 1.5));
-      await db()
-        .update(aiTask)
-        .set({ taskInfo: JSON.stringify(taskInfo) })
-        .where(eq(aiTask.id, existingTask.id));
     }
-
-    return {
-      taskStatus: AITaskStatus.PROCESSING,
-      taskId: existingTask.id,
-      taskInfo,
-    };
-  }
-
-  // ─── 阶段 2: Video (面部咬字与动作驱动) ───
-  if (taskInfo.stage === 'video') {
-    let videoUrl = taskInfo.videoUrl;
 
     if (isMock) {
       if (elapsedSeconds >= 16) {
