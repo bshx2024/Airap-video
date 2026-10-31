@@ -275,6 +275,7 @@ export function AiRapHeroGenerator() {
   const [stageMessage, setStageMessage] = useState('');
   const [resultVideoUrl, setResultVideoUrl] = useState<string | null>(null);
   const [resultAudioUrl, setResultAudioUrl] = useState<string | null>(null);
+  const [cleanWatermarkMode, setCleanWatermarkMode] = useState(true);
 
   // File upload refs
   const fileInputRef1 = useRef<HTMLInputElement | null>(null);
@@ -1371,22 +1372,42 @@ export function AiRapHeroGenerator() {
               <div className="group/stage relative flex min-h-[380px] flex-1 w-full flex-col justify-between overflow-hidden rounded-xl border border-white/10 bg-black shadow-inner">
                 {/* State 1: Generation Complete (Play Finished MV) */}
                 {taskStatus === 'success' && resultVideoUrl ? (
-                  <div className="relative flex size-full flex-col justify-between bg-black">
-                    <video
-                      src={resultVideoUrl}
-                      controls
-                      autoPlay
-                      loop
-                      className="size-full object-contain"
-                    />
-                    <div className="absolute inset-x-3 bottom-3 flex flex-col gap-2 rounded-xl border border-white/15 bg-black/90 p-3 backdrop-blur-md">
+                  <div className="relative flex size-full flex-col justify-between overflow-hidden bg-black">
+                    {/* Clean Edge Cropped Video Container (crops out 4-corner tiny AI stamps) */}
+                    <div className="relative flex size-full items-center justify-center overflow-hidden">
+                      <video
+                        src={resultVideoUrl}
+                        controls
+                        autoPlay
+                        loop
+                        className={cn(
+                          'size-full transition-all duration-300',
+                          cleanWatermarkMode
+                            ? 'scale-[1.06] object-cover'
+                            : 'object-contain'
+                        )}
+                      />
+
+                      {/* Clean Mode Floating Indicator */}
+                      <button
+                        type="button"
+                        onClick={() => setCleanWatermarkMode(!cleanWatermarkMode)}
+                        className="absolute top-2.5 right-2.5 z-20 flex cursor-pointer items-center gap-1 rounded-full border border-white/20 bg-black/70 px-2 py-0.5 text-[10px] font-semibold text-white/90 backdrop-blur-md transition hover:bg-black/90 hover:text-amber-300"
+                        title={cleanWatermarkMode ? '点击切换为全幅完整比例 (含角标)' : '点击开启边缘净化 (移除角落水印)'}
+                      >
+                        <span className={cn('size-1.5 rounded-full', cleanWatermarkMode ? 'bg-emerald-400' : 'bg-slate-400')} />
+                        <span>{cleanWatermarkMode ? '✨ 纯净无水印' : '原比例画面'}</span>
+                      </button>
+                    </div>
+
+                    <div className="absolute inset-x-3 bottom-3 z-30 flex flex-col gap-2 rounded-xl border border-white/15 bg-black/90 p-3 backdrop-blur-md">
                       <div className="flex items-center justify-between">
                         <div>
                           <p className="text-xs font-bold text-white">
                             🎉 Rap MV Directed Successfully!
                           </p>
                           <p className="text-[10px] text-amber-300">
-                            {selectedStyle.name} ({selectedStyle.bpm} BPM)
+                            {selectedStyle.name} ({selectedStyle.bpm} BPM) · {cleanWatermarkMode ? '无水印纯净版' : '原画'}
                           </p>
                         </div>
                         <div className="flex items-center gap-2">

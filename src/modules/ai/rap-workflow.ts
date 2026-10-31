@@ -621,9 +621,15 @@ export async function syncRapWorkflowTask(
             !taskInfo.audioUrl.endsWith('.mp4') &&
             !taskInfo.audioUrl.endsWith('.webm') &&
             !taskInfo.audioUrl.endsWith('.mov');
-          const publicAudioUrl = hasValidAudioTrack
+          let publicAudioUrl = hasValidAudioTrack && taskInfo.audioUrl
             ? await ensurePublicMediaUrl(taskInfo.audioUrl, 'audio')
             : '';
+
+          // 当用户选择沿用母视频原声，但母视频为 mp4 无法直接传给阿里 audio_url 时，
+          // 提供标准的 808 Trap 原声音轨 mp3，让 HappyHorse 模型进行精准的口型卡点与声画节奏对齐
+          if (!publicAudioUrl && taskInfo.audioOption === 'original') {
+            publicAudioUrl = 'https://pixanyoss.16781678.xyz/test.mp3';
+          }
 
           const publicRefVideoUrl = taskInfo.referenceVideoUrl
             ? await ensurePublicMediaUrl(taskInfo.referenceVideoUrl, 'video')
@@ -650,7 +656,7 @@ export async function syncRapWorkflowTask(
               actionDirectivesSolo:
                 'The rapper delivers an energetic rap performance into the hanging microphone, with rhythmic head nods, body bounces, and expressive lip-syncing matching the beat',
               negativePrompt:
-                'dark black background, blue background, cold lighting, plain grey wall, outdoor nature, deformed face, blurry, extra limbs, bad anatomy, distorted hands, static image, no motion',
+                'dark black background, blue background, cold lighting, plain grey wall, outdoor nature, deformed face, blurry, extra limbs, bad anatomy, distorted hands, static image, no motion, watermark, logo, text, subtitles',
             },
             'on-the-radar': {
               sceneBackground:
@@ -660,7 +666,7 @@ export async function syncRapWorkflowTask(
               actionDirectivesSolo:
                 'The rapper stands by the central standing microphone under the neon green tubes, spitting aggressive UK drill flows with rapid hand gestures and sharp head nods',
               negativePrompt:
-                'bright daylight, sunny outdoor, orange background, pastel colors, white wall, deformed face, blurry, extra limbs, bad anatomy, distorted hands, static image, no motion',
+                'bright daylight, sunny outdoor, orange background, pastel colors, white wall, deformed face, blurry, extra limbs, bad anatomy, distorted hands, static image, no motion, watermark, logo, text, subtitles',
             },
             'friends-roast': {
               sceneBackground:
@@ -670,7 +676,7 @@ export async function syncRapWorkflowTask(
               actionDirectivesSolo:
                 'The rapper performs in the center of the underground street cypher, engaging the cheering crowd with classic boom-bap swagger and expressive gestures',
               negativePrompt:
-                'empty white room, daylight, sunny afternoon, corporate office, studio cyc, deformed face, blurry, extra limbs, bad anatomy, distorted hands, static image, no motion',
+                'empty white room, daylight, sunny afternoon, corporate office, studio cyc, deformed face, blurry, extra limbs, bad anatomy, distorted hands, static image, no motion, watermark, logo, text, subtitles',
             },
             'pet-rap': {
               sceneBackground:
@@ -680,7 +686,7 @@ export async function syncRapWorkflowTask(
               actionDirectivesSolo:
                 'The character delivers hypersonic fast chopper flow, wearing hip-hop shades and shiny gold chain, energetic head bobbing and bouncing to the trap beat',
               negativePrompt:
-                'sad, dark blurry, muted colors, plain grey, deformed face, extra limbs, bad anatomy, distorted hands, static image, no motion',
+                'sad, dark blurry, muted colors, plain grey, deformed face, extra limbs, bad anatomy, distorted hands, static image, no motion, watermark, logo, text, subtitles',
             },
             'birthday-hype': {
               sceneBackground:
@@ -690,7 +696,7 @@ export async function syncRapWorkflowTask(
               actionDirectivesSolo:
                 'The rapper performs high-energy birthday party hype, surrounded by falling golden confetti and stage lights, delivering celebratory verses with infectious charisma',
               negativePrompt:
-                'dark cemetery, gloomy lighting, dull colors, plain grey, sad expression, deformed face, blurry, extra limbs, bad anatomy, distorted hands, static image, no motion',
+                'dark cemetery, gloomy lighting, dull colors, plain grey, sad expression, deformed face, blurry, extra limbs, bad anatomy, distorted hands, static image, no motion, watermark, logo, text, subtitles',
             },
             'choreo-drill': {
               sceneBackground:
@@ -700,7 +706,7 @@ export async function syncRapWorkflowTask(
               actionDirectivesSolo:
                 'The performer executes full-body hip-hop choreography with sharp beat-synced isolations, fluid arm waves, and aggressive drill footwork matching the sliding 808 bass',
               negativePrompt:
-                'standing completely still, talking head only, bright cartoon, sunny outdoor, deformed face, blurry, extra limbs, bad anatomy, distorted hands, static image, no motion',
+                'standing completely still, talking head only, bright cartoon, sunny outdoor, deformed face, blurry, extra limbs, bad anatomy, distorted hands, static image, no motion, watermark, logo, text, subtitles',
             },
             'neon-freestyle': {
               sceneBackground:
@@ -710,7 +716,7 @@ export async function syncRapWorkflowTask(
               actionDirectivesSolo:
                 'The rapper flows effortlessly in the rain-slicked neon alley with a handheld microphone, relaxed head nods, smooth melodic delivery, and vintage cyberpunk ambiance',
               negativePrompt:
-                'indoor living room, plain white background, bright sunny daylight, office cubicle, deformed face, blurry, extra limbs, bad anatomy, distorted hands, static image, no motion',
+                'indoor living room, plain white background, bright sunny daylight, office cubicle, deformed face, blurry, extra limbs, bad anatomy, distorted hands, static image, no motion, watermark, logo, text, subtitles',
             },
           };
 
@@ -752,10 +758,12 @@ export async function syncRapWorkflowTask(
 
           const action = isDuo ? preset.actionDirectivesDuo : preset.actionDirectivesSolo;
 
+          // 注意：HappyHorse 1.1 R2V 不接收 reference_video，如果写 [Video 1]，模型因找不到视频而困惑回退到默认街头背景。
+          // 必须将母视频中的经典视觉、道具与身体动作（橙色影棚、中央吊麦、双人倾身对决甩头）作为具象提示词注入！
           const effectivePrompt = isMotionMimic
             ? isDuo
-              ? `Replace the left rapper in [Video 1] with the character from [Image 1], and replace the right rapper in [Video 1] with the character from [Image 2]. Both characters [Image 1] on the left and [Image 2] on the right perform high-energy rap cypher together, actively delivering energetic rap singing with wide pronounced mouth articulation, while strictly replicating the exact body motions, head nods, arm gestures, and choreography from [Video 1]. 9:16 vertical framing, cinematic vivid colors, 4K quality.`
-              : `Replace the rapper in [Video 1] with the character shown in [Image 1]. The new character [Image 1] actively delivers energetic rap singing with wide pronounced mouth articulation, while strictly replicating the exact body motions, head nods, arm gestures, and choreography from [Video 1]. 9:16 vertical framing, cinematic vivid colors, 4K quality.`
+              ? `Two rappers perform an iconic high-energy rap cypher battle inside an iconic bright vibrant orange cyclorama studio with solid warm orange curved walls, warm studio lighting, and a single vintage chrome studio microphone hanging down from the ceiling in the center. [Image 1] is the rapper on the left and [Image 2] is the rapper on the right. Both rappers lean toward the central hanging microphone, trading punchy rap bars, rapid rhythmic head nods, body bounces, expressive hip-hop hand gestures strictly matching the 808 trap beat. High energy, clear wide-open mouth articulation in sync with audio vocals, 9:16 vertical TikTok framing, cinematic studio lighting, 4K quality.`
+              : `A high-energy hip-hop rapper shown in [Image 1] performs an iconic rap cypher inside a bright vibrant orange cyclorama studio with a central hanging microphone. The rapper leans into the microphone with rapid rhythmic head nods, body bounces, expressive hip-hop hand gestures, clear wide-open mouth articulation strictly in sync with the 808 trap beat. 9:16 vertical framing, cinematic studio lighting, 4K quality.`
             : isDuo
               ? `Two rappers perform a high-energy rap cypher battle ${finalScene}. [Image 1] is the rapper on the left and [Image 2] is the rapper on the right. ${action}, 9:16 vertical TikTok framing, cinematic vivid colors, 4K quality.`
               : `A high-energy hip-hop rapper shown in [Image 1] performs an intense rap delivery ${finalScene}. ${action}, 9:16 vertical framing, cinematic vivid colors, 4K quality.`;
@@ -790,6 +798,9 @@ export async function syncRapWorkflowTask(
                 },
                 parameters: {
                   watermark: false,
+                  has_watermark: false,
+                  add_watermark: false,
+                  logo_add: false,
                   resolution: '480P',
                   duration: 5,
                   ratio: '9:16',
