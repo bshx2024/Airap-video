@@ -14,7 +14,7 @@
     "ALIBABA_BASE_URL": "https://ws-2txa9apyfxruykae.us-east-1.maas.aliyuncs.com/compatible-mode/v1",
     "ALIBABA_MODEL": "deepseek-v4.1-flash-1017",
     "KIE_BASE_URL": "https://api.kie.ai/api/v1",
-    "RAP_VIDEO_MODEL": "happyhorse-1.1-r2v",
+    "RAP_VIDEO_MODEL": "wan3.0-video",
     "RAP_VIDEO_RESOLUTION": "480p",
     "R2_ACCOUNT_ID": "a9246b06d96e713031083e5a08343901",
     "R2_ACCESS_KEY": "15766228e0b8a673a980a4714df09fee",

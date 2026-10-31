@@ -767,10 +767,16 @@ export async function syncRapWorkflowTask(
 
           // 注意：HappyHorse 1.1 R2V 不接收 reference_video，如果写 [Video 1]，模型因找不到视频而困惑回退到默认街头背景。
           // 必须将母视频中的经典视觉、道具与身体动作（橙色影棚、中央吊麦、双人倾身对决甩头）作为具象提示词注入！
+          // Wan 3.0 (视频生视频·骨骼姿态迁移)：当用户上传/选择母视频时，采用支持 reference_video 的 Wan 3.0 引擎，实现1:1逐帧骨骼动作复刻！
+          // 若无母视频（纯自由创作），则自动采用双人/单人自由驱动模型 (HappyHorse 1.1)
+          const selectedModel = isMotionMimic
+            ? 'wan3.0-video'
+            : (isDuo ? 'happyhorse-1.1-r2v' : 'happyhorse-1.1-i2v');
+
           const effectivePrompt = isMotionMimic
             ? isDuo
-              ? `Two rappers perform an iconic high-energy rap cypher battle inside an iconic bright vibrant orange cyclorama studio with solid warm orange curved walls, warm studio lighting, and a single vintage chrome studio microphone hanging down from the ceiling in the center, inspired by Quavo and Takeoff Hotel Lobby. [Image 1] is the rapper on the left and [Image 2] is the rapper on the right. Choreo & Specific Motions: The left rapper [Image 1] leans forward with intense swagger, extending and pointing his right index finger emphatically toward the hanging microphone while delivering rapid punchy rap bars with wide pronounced mouth articulation strictly synchronized to the audio track; the right rapper [Image 2] vibes in place with deep rhythmic 808 head nods, body bounces, and subtle swagger hand gestures, locked in intense face-to-face cypher battle. 9:16 vertical TikTok framing, cinematic studio lighting, 4K quality.`
-              : `A high-energy hip-hop rapper shown in [Image 1] performs an iconic rap cypher inside a bright vibrant orange cyclorama studio with a central hanging microphone. The rapper leans aggressively into the hanging microphone, pointing right index finger emphatically at the mic with rapid rhythmic head nods, body bounces, and expressive wide-open mouth articulation strictly in sync with the audio track. 9:16 vertical framing, cinematic studio lighting, 4K quality.`
+              ? `Replace the left rapper in [Video 1] with the character from [Image 1], and replace the right rapper in [Video 1] with the character from [Image 2]. Both characters [Image 1] on the left and [Image 2] on the right perform high-energy rap cypher together, actively delivering energetic rap singing into the central hanging microphone with wide pronounced mouth articulation, while strictly replicating the exact body motions, head nods, arm gestures, and hanging microphone rap battle choreography from [Video 1]. Keep the orange studio setting, hanging microphone, and lighting: 9:16 vertical framing, cinematic vivid colors, 4K quality.`
+              : `Replace the rapper in [Video 1] with the character shown in [Image 1]. The new character [Image 1] actively delivers energetic rap singing into the central hanging microphone with wide pronounced mouth articulation, while strictly replicating the exact body motions, head nods, arm gestures, and hanging microphone rap battle choreography from [Video 1]. Keep the studio setting and lighting: 9:16 vertical framing, cinematic vivid colors, 4K quality.`
             : isDuo
               ? `Two rappers perform a high-energy rap cypher battle ${finalScene}. [Image 1] is the rapper on the left and [Image 2] is the rapper on the right. ${action}, 9:16 vertical TikTok framing, cinematic vivid colors, 4K quality.`
               : `A high-energy hip-hop rapper shown in [Image 1] performs an intense rap delivery ${finalScene}. ${action}, 9:16 vertical framing, cinematic vivid colors, 4K quality.`;
@@ -784,10 +790,18 @@ export async function syncRapWorkflowTask(
             try {
               const origin = new URL(alibabaBaseUrl).origin;
               const endpoint = `${origin}/api/v1/services/aigc/video-generation/video-synthesis`;
-              const selectedModel = isDuo ? 'happyhorse-1.1-r2v' : 'happyhorse-1.1-i2v';
 
               const mediaPayload: any[] = [];
-              if (isDuo) {
+              if (isMotionMimic && publicRefVideoUrl) {
+                // Wan 3.0 视频骨骼迁移：首位必须传入 reference_video 作为动作驱动源，随后传入人物人像
+                mediaPayload.push({
+                  type: 'reference_video',
+                  url: publicRefVideoUrl,
+                });
+                publicImages.forEach((url) => {
+                  mediaPayload.push({ type: 'reference_image', url });
+                });
+              } else if (isDuo) {
                 publicImages.forEach((url) => {
                   mediaPayload.push({ type: 'reference_image', url });
                 });
@@ -822,22 +836,24 @@ export async function syncRapWorkflowTask(
                   'X-DashScope-Async': 'enable',
                 },
                 body: JSON.stringify(payload),
-                signal: AbortSignal.timeout(20000),
+                signal: AbortSignal.timeout(25000),
               });
 
               const vidJson: any = await vidFetch.json().catch(() => ({}));
               if (vidFetch.ok && !vidJson.code && vidJson.output?.task_id) {
                 taskInfo.videoTaskId = vidJson.output.task_id;
                 taskInfo.videoProvider = 'alibaba';
-                taskInfo.stageMessage = 'Characters queued into HappyHorse 1.1 AI video engine, rendering studio rap MV...';
+                taskInfo.stageMessage = isMotionMimic
+                  ? 'Characters queued into Wan 3.0 Video engine, tracking master video pose & motion...'
+                  : 'Characters queued into AI video engine, rendering studio rap MV...';
                 dispatched = true;
               } else {
                 const errMsg = vidJson.message || vidJson.output?.message || `HTTP ${vidFetch.status}`;
-                throw new Error(`阿里百炼 HappyHorse 调度失败: ${errMsg}`);
+                throw new Error(`阿里百炼 ${selectedModel} 调度失败: ${errMsg}`);
               }
             } catch (aliErr: any) {
-              console.error('[DashScope HappyHorse Dispatch Error]:', aliErr.message);
-              throw new Error(`阿里百炼 HappyHorse 视频驱动失败: ${aliErr.message}（请在后台 Settings -> AI 检查 API Key 与账户余额）`);
+              console.error('[DashScope Video Dispatch Error]:', aliErr.message);
+              throw new Error(`阿里百炼视频驱动失败: ${aliErr.message}（请在后台 Settings -> AI 检查 API Key 与账户余额）`);
             }
           } else {
             throw new Error('未配置阿里百炼 API Key。请在后台管理 [Settings -> AI -> Alibaba Cloud Model Studio] 填入有效的 Key 后保存。');
