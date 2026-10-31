@@ -123,7 +123,7 @@ const OCCASION_CHIPS: OccasionChipItem[] = [
     title: 'Gold Chain Pet Rap Flow',
     desc: 'Cute pet wearing sunglasses and heavy chain spitting hypersonic chopper flow to bouncy trap drums.',
     image: '/imgs/scenes/cute-pet-rap.jpg',
-    video: '/videos/showcase/generated/monster-bakery.mp4',
+    video: '/videos/cutepet15_vertical.mp4',
     prompt:
       'Cute cat wearing heavy gold chain and sunglasses, spitting fast chopper flow to upbeat trap drums, energetic head-bobbing, hilarious contrast with viral social media aesthetics',
     styleId: 'cyber-drill',
@@ -422,6 +422,13 @@ export function AiRapHeroGenerator() {
     } else if (chip.id === 'friends-roast') {
       setCustomVideoUrl('/videos/friendsroast15_vertical.mp4');
       setCustomVideoName('friendsroast15_vertical.mp4');
+      setStudioMode('mimic');
+      setAudioOption('original');
+      setSelectedDuration(15);
+      setAspectRatio('9:16');
+    } else if (chip.id === 'pet-rap') {
+      setCustomVideoUrl('/videos/cutepet15_vertical.mp4');
+      setCustomVideoName('cutepet15_vertical.mp4');
       setStudioMode('mimic');
       setAudioOption('original');
       setSelectedDuration(15);
