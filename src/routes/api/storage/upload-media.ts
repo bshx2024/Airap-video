@@ -43,6 +43,13 @@ function isVideoFile(file: File): boolean {
   );
 }
 
+function isAudioFile(file: File): boolean {
+  return (
+    file.type.startsWith('audio/') ||
+    /\.(mp3|wav|m4a|aac|ogg|flac)$/i.test(file.name)
+  );
+}
+
 function uploadRateLimited(key: string, limit: number): Response | null {
   const { allowed, retryAfterMs } = consumeSlidingWindowRateLimit({
     key: `upload-media|${key}`,
@@ -114,10 +121,11 @@ export async function POST({ request }: { request: Request }) {
 
     for (const file of files) {
       const isVideo = isVideoFile(file);
-      const maxSize = isVideo ? MAX_VIDEO_SIZE : MAX_IMAGE_SIZE;
+      const isAudio = isAudioFile(file);
+      const maxSize = isVideo ? MAX_VIDEO_SIZE : isAudio ? 25 * 1024 * 1024 : MAX_IMAGE_SIZE;
 
-      if (!isVideo && !isDeclaredImageType(file.type)) {
-        return respErr(`File ${file.name} is not an image or video`);
+      if (!isVideo && !isAudio && !isDeclaredImageType(file.type)) {
+        return respErr(`File ${file.name} is not an image, video, or audio file`);
       }
       if (typeof file.size === 'number' && file.size > maxSize) {
         return respErr(
@@ -139,6 +147,9 @@ export async function POST({ request }: { request: Request }) {
       if (isVideo) {
         mimeType = file.type || 'video/mp4';
         ext = file.name.split('.').pop()?.toLowerCase() || 'mp4';
+      } else if (isAudio) {
+        mimeType = file.type || 'audio/wav';
+        ext = file.name.split('.').pop()?.toLowerCase() || 'wav';
       } else {
         // Type and extension come from the bytes, not the client's claim.
         mimeType = sniffImageMime(body);

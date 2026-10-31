@@ -541,6 +541,43 @@ export function AiRapHeroGenerator() {
     toast.info('Custom master video cleared. Switched back to trending stage.');
   };
 
+  // 自动从当前激活的母视频中抽取无损原声音轨，避免用户因未重新点击上传而漏掉音轨
+  useEffect(() => {
+    if (customVideoUrl && !customAudioUrl && audioOption === 'original') {
+      let isMounted = true;
+      fetch(customVideoUrl)
+        .then((res) => {
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          return res.blob();
+        })
+        .then(async (blob) => {
+          if (!isMounted) return;
+          const file = new File([blob], 'master_video.mp4', { type: blob.type || 'video/mp4' });
+          const audioBlob = await extractAudioFromVideoFile(file);
+          const audioFile = new File([audioBlob], 'master_audio.wav', { type: 'audio/wav' });
+          const formData = new FormData();
+          formData.append('file', audioFile);
+          const uploadRes = await fetch('/api/storage/upload-media', {
+            method: 'POST',
+            body: formData,
+          });
+          const json = await uploadRes.json();
+          const extractedUrl = json.data?.url || json.data?.results?.[0]?.url || json.data?.urls?.[0];
+          if (isMounted && extractedUrl) {
+            setCustomAudioUrl(extractedUrl);
+            toast.success('🎵 母视频原声音轨已自动无损提取就绪！');
+          }
+        })
+        .catch((err) => {
+          console.warn('[Auto Audio Sync Note]:', err.message);
+        });
+
+      return () => {
+        isMounted = false;
+      };
+    }
+  }, [customVideoUrl, customAudioUrl, audioOption]);
+
   // AI Lyrics Generator (DeepSeek)
   const handleGenerateLyrics = async () => {
     if (!prompt.trim()) {
