@@ -567,10 +567,37 @@ export async function syncRapWorkflowTask(
     if (audioUrl) {
       taskInfo.audioUrl = audioUrl;
       taskInfo.stage = 'video';
-      taskInfo.progress = 70;
+      taskInfo.progress = 65;
       taskInfo.stageMessage = 'Vocals & 808 beat ready, directing performance & lip-sync...';
+      await db()
+        .update(aiTask)
+        .set({ taskInfo: JSON.stringify(taskInfo) })
+        .where(eq(aiTask.id, existingTask.id));
+    } else {
+      // 正在生成音乐中，更新微进度
+      taskInfo.progress = Math.min(65, 40 + Math.floor(elapsedSeconds * 1.5));
+      await db()
+        .update(aiTask)
+        .set({ taskInfo: JSON.stringify(taskInfo) })
+        .where(eq(aiTask.id, existingTask.id));
 
-      // 触发真实视频生成模型 (Alibaba DashScope HappyHorse / KIE / Fal / Mock)
+      return {
+        taskStatus: AITaskStatus.PROCESSING,
+        taskId: existingTask.id,
+        taskInfo,
+      };
+    }
+  }
+
+  // ─── 阶段 2: Video (面部咬字与动作驱动) ───
+  if (taskInfo.stage === 'video') {
+    let videoUrl = taskInfo.videoUrl;
+
+    // 尚未调度视频任务（无论来自音乐就绪，还是来自自定义母版原声直通车），立即发起调度
+    if (!taskInfo.videoTaskId && !videoUrl) {
+      const activeAudio =
+        taskInfo.audioUrl || taskInfo.referenceVideoUrl || 'https://pixanyoss.16781678.xyz/test.mp3';
+
       if (isMock) {
         taskInfo.videoTaskId = `mock_video_${existingTask.id}`;
       } else {
@@ -591,7 +618,7 @@ export async function syncRapWorkflowTask(
           const publicImages = await Promise.all(
             rawImgs.map((img) => ensurePublicMediaUrl(img, 'image'))
           );
-          const publicAudioUrl = await ensurePublicMediaUrl(audioUrl, 'audio');
+          const publicAudioUrl = await ensurePublicMediaUrl(activeAudio, 'audio');
 
           const isDuo = taskInfo.studioMode === 'duo' && publicImages.length > 1;
 
