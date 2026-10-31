@@ -290,10 +290,10 @@ export function AiRapHeroGenerator() {
 
   // Custom Master Video states (Default bound to Hotel Lobby 15s master reference)
   const [customVideoUrl, setCustomVideoUrl] = useState<string | null>(
-    '/videos/hotel-lobby-15s.mp4'
+    '/videos/hotellobby15.mp4'
   );
   const [customVideoName, setCustomVideoName] = useState<string>(
-    '原版15秒.mp4 (Hotel Lobby Master 15s)'
+    'hotellobby15.mp4'
   );
   const [customAudioUrl, setCustomAudioUrl] = useState<string | null>(null);
   const [isUploadingVideo, setIsUploadingVideo] = useState(false);
@@ -405,8 +405,8 @@ export function AiRapHeroGenerator() {
       setSelectedStyle(matched);
     }
     if (chip.id === 'hotel-lobby') {
-      setCustomVideoUrl('/videos/hotel-lobby-15s.mp4');
-      setCustomVideoName('原版15秒.mp4 (Hotel Lobby Master 15s)');
+      setCustomVideoUrl('/videos/hotellobby15.mp4');
+      setCustomVideoName('hotellobby15.mp4');
       setStudioMode('mimic');
       setAudioOption('original');
       setSelectedDuration(15);

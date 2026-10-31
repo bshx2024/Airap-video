@@ -66,6 +66,7 @@ package-lock.json
 !/public/videos/showcase/
 !/public/videos/reference-5s.mp4
 !/public/videos/hotel-lobby-15s.mp4
+!/public/videos/hotellobby15.mp4
 
 # Runtime image uploads (no-storage local fallback)
 /public/uploads/
