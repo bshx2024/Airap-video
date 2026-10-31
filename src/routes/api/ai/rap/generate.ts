@@ -22,6 +22,8 @@ async function POST({ request }: { request: Request }) {
       scenarioId = '',
       styleId = 'boom-bap',
       customLyrics = '',
+      referenceVideoUrl = '',
+      audioOption = 'original',
     } = body;
 
     const validImageUrls: string[] =
@@ -35,8 +37,8 @@ async function POST({ request }: { request: Request }) {
       return respErr('Portrait image is required');
     }
 
-    if (!prompt && !customLyrics) {
-      return respErr('Theme prompt or lyrics is required');
+    if (!prompt && !customLyrics && !referenceVideoUrl) {
+      return respErr('Theme prompt, lyrics, or reference video is required');
     }
 
     const taskResult = await startRapTask({
@@ -45,11 +47,13 @@ async function POST({ request }: { request: Request }) {
       imageUrl: validImageUrls[0],
       imageUrls: validImageUrls,
       studioMode,
-      prompt: prompt || 'AI Rap Freestyle',
+      prompt: prompt || (referenceVideoUrl ? 'Master Video Motion Mimic Rap' : 'AI Rap Freestyle'),
       videoPrompt,
       scenarioId,
       styleId,
       customLyrics,
+      referenceVideoUrl,
+      audioOption,
     });
 
     return respData({

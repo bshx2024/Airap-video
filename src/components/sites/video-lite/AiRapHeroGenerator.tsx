@@ -9,12 +9,15 @@ import {
   ChevronUp,
   Clock,
   Download,
+  FileVideo,
+  Film,
   Flame,
   Gift,
   Loader2,
   Mic,
   Mic2,
   Music,
+  Play,
   Plus,
   QrCode,
   RefreshCw,
@@ -24,6 +27,7 @@ import {
   Upload,
   User,
   Users,
+  Video,
   Volume2,
   VolumeX,
   Wand2,
@@ -45,7 +49,7 @@ import { QuickAuthModal } from '@/components/sites/root/QuickAuthModal';
 import { MobileQrUploadModal } from './MobileQrUploadModal';
 import { MobileVideoDownloadModal } from './MobileVideoDownloadModal';
 
-export type StudioMode = 'duo' | 'group' | 'solo';
+export type StudioMode = 'duo' | 'group' | 'solo' | 'mimic';
 
 export interface OccasionChipItem {
   id: string;
@@ -183,7 +187,7 @@ export function AiRapHeroGenerator() {
     enabled: Boolean(session?.user),
     staleTime: 2_000,
   });
-  const isAdmin = session?.user?.role === 'admin';
+  const isAdmin = (session?.user as any)?.role === 'admin';
   const balance = session?.user
     ? isAdmin
       ? 999999
@@ -240,7 +244,14 @@ export function AiRapHeroGenerator() {
   // File upload refs
   const fileInputRef1 = useRef<HTMLInputElement | null>(null);
   const fileInputRef2 = useRef<HTMLInputElement | null>(null);
+  const videoInputRef = useRef<HTMLInputElement | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+
+  // Custom Master Video states
+  const [customVideoUrl, setCustomVideoUrl] = useState<string | null>(null);
+  const [customVideoName, setCustomVideoName] = useState<string>('');
+  const [isUploadingVideo, setIsUploadingVideo] = useState(false);
+  const [audioOption, setAudioOption] = useState<'original' | 'generate'>('original');
 
   // Mobile QR Beam Upload modal
   const [qrModalOpen, setQrModalOpen] = useState(false);
@@ -381,6 +392,63 @@ export function AiRapHeroGenerator() {
     reader.readAsDataURL(file);
   };
 
+  // Upload Custom Master Video
+  const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 35 * 1024 * 1024) {
+      toast.error('Video file is too large. Please upload a short video under 35MB (5-15s recommended).');
+      return;
+    }
+
+    setIsUploadingVideo(true);
+    const toastId = toast.loading('Uploading master video to cloud storage...');
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const res = await fetch('/api/storage/upload-media', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const json = await res.json();
+      const uploadedUrl =
+        json.data?.url ||
+        json.data?.results?.[0]?.url ||
+        json.data?.urls?.[0];
+
+      if ((json.code === 0 || res.ok) && uploadedUrl) {
+        setCustomVideoUrl(uploadedUrl);
+        setCustomVideoName(file.name);
+        setStudioMode('mimic');
+        toast.success(`🎬 Master video "${file.name}" ready! Stage monitor synced.`, { id: toastId });
+      } else {
+        throw new Error(json.message || 'Upload failed');
+      }
+    } catch (err: any) {
+      console.warn('Direct upload error, falling back to local stream:', err);
+      const localUrl = URL.createObjectURL(file);
+      setCustomVideoUrl(localUrl);
+      setCustomVideoName(file.name);
+      setStudioMode('mimic');
+      toast.success(`🎬 Master video "${file.name}" loaded! Stage monitor synced.`, { id: toastId });
+    } finally {
+      setIsUploadingVideo(false);
+    }
+  };
+
+  const handleRemoveCustomVideo = () => {
+    setCustomVideoUrl(null);
+    setCustomVideoName('');
+    if (studioMode === 'mimic') {
+      setStudioMode('duo');
+    }
+    toast.info('Custom master video cleared. Switched back to trending stage.');
+  };
+
   // AI Lyrics Generator (DeepSeek)
   const handleGenerateLyrics = async () => {
     if (!prompt.trim()) {
@@ -423,7 +491,7 @@ export function AiRapHeroGenerator() {
     }
 
     const currentPhotos =
-      studioMode === 'duo'
+      studioMode === 'duo' || (studioMode === 'mimic' && photo2)
         ? [photo1, photo2].filter(Boolean)
         : [photo1].filter(Boolean);
 
@@ -434,9 +502,13 @@ export function AiRapHeroGenerator() {
 
     setIsSubmitting(true);
     setTaskStatus('processing');
-    setTaskStage('lyrics');
-    setTaskProgress(15);
-    setStageMessage('Starting multi-model pipeline: composing lyrics and 808 flow...');
+    setTaskStage(customVideoUrl && audioOption === 'original' ? 'video' : 'lyrics');
+    setTaskProgress(customVideoUrl && audioOption === 'original' ? 60 : 15);
+    setStageMessage(
+      customVideoUrl && audioOption === 'original'
+        ? 'Using master audio & flow, tracking body motion and camera angles...'
+        : 'Starting multi-model pipeline: composing lyrics and 808 flow...'
+    );
     setResultVideoUrl(null);
 
     try {
@@ -445,12 +517,14 @@ export function AiRapHeroGenerator() {
         {
           imageUrl: currentPhotos[0],
           imageUrls: currentPhotos,
-          studioMode,
+          studioMode: studioMode === 'mimic' ? (currentPhotos.length > 1 ? 'duo' : 'solo') : studioMode,
           prompt: prompt.trim() || currentChip.prompt,
           videoPrompt: currentChip.prompt,
           scenarioId: currentChip.id || activeChipId || 'hotel-lobby',
           styleId: selectedStyle.id,
           customLyrics: lyrics.trim(),
+          referenceVideoUrl: customVideoUrl || undefined,
+          audioOption,
         }
       );
 
@@ -485,6 +559,13 @@ export function AiRapHeroGenerator() {
         accept="image/*"
         className="hidden"
         onChange={(e) => handleLocalUpload(e, 2)}
+      />
+      <input
+        ref={videoInputRef}
+        type="file"
+        accept="video/mp4,video/webm,video/quicktime,video/*"
+        className="hidden"
+        onChange={handleVideoUpload}
       />
 
       {/* Top Header Banner */}
@@ -556,6 +637,28 @@ export function AiRapHeroGenerator() {
                   <User className="size-3.5" />
                   <span>Solo / Pet MC</span>
                 </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setStudioMode('mimic');
+                    if (!customVideoUrl) {
+                      videoInputRef.current?.click();
+                    }
+                  }}
+                  className={cn(
+                    'flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all',
+                    studioMode === 'mimic'
+                      ? 'bg-gradient-to-r from-amber-400 via-rose-500 to-purple-600 text-white shadow-md shadow-rose-500/25 font-bold'
+                      : 'text-white/70 hover:bg-white/10 hover:text-white'
+                  )}
+                >
+                  <Film className="size-3.5" />
+                  <span>Upload Master Video</span>
+                  <span className="hidden rounded-full bg-rose-500/30 px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider text-rose-200 sm:inline-block">
+                    Mimic
+                  </span>
+                </button>
               </div>
 
               {/* Quick Sample Photos Loader */}
@@ -569,8 +672,94 @@ export function AiRapHeroGenerator() {
               </button>
             </div>
 
-            {/* 2. Visual Staging Roles (Duo mode = Slot 1 + Swap + Slot 2) */}
-            {studioMode === 'duo' ? (
+            {/* Master Video Reference Banner / Control */}
+            {(customVideoUrl || studioMode === 'mimic') && (
+              <div className="mb-4 rounded-2xl border border-rose-500/30 bg-gradient-to-r from-rose-950/40 via-purple-950/30 to-slate-900/60 p-3.5 shadow-lg backdrop-blur-md">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <div className="flex size-10 items-center justify-center rounded-xl bg-gradient-to-br from-rose-500 to-purple-600 shadow-md shadow-rose-500/30">
+                      <Film className="size-5 text-white" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold text-white">
+                          {customVideoName ? customVideoName : 'Custom Reference Master Video'}
+                        </span>
+                        {customVideoUrl && (
+                          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-semibold text-emerald-300">
+                            <CheckCircle2 className="size-3" />
+                            Synced to Stage Monitor
+                          </span>
+                        )}
+                      </div>
+                      <p className="mt-0.5 text-[11px] text-slate-300">
+                        {customVideoUrl
+                          ? 'AI will transfer movements, camera tracking and flow from this video to your uploaded photos.'
+                          : 'Upload any rap video (5-15s, MP4/MOV) to transfer flow, motions & swag to your portraits.'}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => videoInputRef.current?.click()}
+                      disabled={isUploadingVideo}
+                      className="flex cursor-pointer items-center gap-1.5 rounded-lg border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-white/20 active:scale-95"
+                    >
+                      {isUploadingVideo ? (
+                        <Loader2 className="size-3.5 animate-spin text-amber-400" />
+                      ) : (
+                        <Upload className="size-3.5" />
+                      )}
+                      <span>{customVideoUrl ? 'Change Video' : 'Upload Video File'}</span>
+                    </button>
+
+                    {customVideoUrl && (
+                      <button
+                        type="button"
+                        onClick={handleRemoveCustomVideo}
+                        className="flex cursor-pointer items-center gap-1 rounded-lg border border-white/10 bg-white/[0.04] px-2.5 py-1.5 text-xs text-white/60 transition hover:bg-rose-500/20 hover:text-rose-300"
+                      >
+                        <X className="size-3.5" />
+                        <span>Clear</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Audio Flow Option Selector */}
+                {customVideoUrl && (
+                  <div className="mt-3 flex flex-wrap items-center gap-3 border-t border-white/10 pt-2.5 text-xs">
+                    <span className="text-[11px] font-semibold text-amber-300">Audio Track:</span>
+                    <label className="flex cursor-pointer items-center gap-1.5 text-white/90 hover:text-white">
+                      <input
+                        type="radio"
+                        name="audioOpt"
+                        checked={audioOption === 'original'}
+                        onChange={() => setAudioOption('original')}
+                        className="accent-amber-400"
+                      />
+                      <span className="font-medium">🎵 Keep Master Original Audio & Beat (Instant & True Flow)</span>
+                    </label>
+
+                    <label className="flex cursor-pointer items-center gap-1.5 text-white/70 hover:text-white">
+                      <input
+                        type="radio"
+                        name="audioOpt"
+                        checked={audioOption === 'generate'}
+                        onChange={() => setAudioOption('generate')}
+                        className="accent-amber-400"
+                      />
+                      <span>⚡ AI Compose New Flow & 808 Trap Beat</span>
+                    </label>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* 2. Visual Staging Roles (Duo or Mimic mode = Slot 1 + Swap + Slot 2) */}
+            {studioMode === 'duo' || studioMode === 'mimic' ? (
               <div className="mb-4">
                 <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-[1fr_auto_1fr] sm:items-center">
                   {/* Slot 1: Rapper 1 (Leads) */}
@@ -1065,7 +1254,9 @@ export function AiRapHeroGenerator() {
                     <Wand2 className="size-4 animate-pulse" />
                     <span>
                       {session?.user
-                        ? `Direct Rap MV (${RAP_COST_CREDITS} Credits)`
+                        ? customVideoUrl
+                          ? `🎬 Direct Motion Mimic Rap MV (${RAP_COST_CREDITS} Credits)`
+                          : `Direct Rap MV (${RAP_COST_CREDITS} Credits)`
                         : `Direct Rap MV (Get Free Signup Credits)`}
                     </span>
                   </>
@@ -1310,11 +1501,11 @@ export function AiRapHeroGenerator() {
                 ) : (
                   /* State 3: Default Idle (Live Authentic 9:16 Scene Visualizer) */
                   <div className="relative size-full overflow-hidden bg-slate-950">
-                    {currentChip.video ? (
+                    {customVideoUrl || currentChip.video ? (
                       <video
                         ref={stageVideoRef}
-                        key={currentChip.video}
-                        src={currentChip.video}
+                        key={customVideoUrl || currentChip.video}
+                        src={customVideoUrl || currentChip.video}
                         poster={currentChip.image}
                         autoPlay
                         loop
@@ -1350,21 +1541,25 @@ export function AiRapHeroGenerator() {
                     {/* Top Floating Badge */}
                     <div className="pointer-events-none absolute top-3 left-3 flex items-center gap-1.5 rounded-full border border-white/20 bg-black/60 px-2.5 py-1 text-[10px] font-semibold text-amber-300 backdrop-blur-md shadow-md">
                       <Sparkles className="size-3 text-amber-400" />
-                      <span>{currentChip.tag || '9:16 Authentic Output'}</span>
+                      <span>{customVideoUrl ? 'Motion Mimic Master' : currentChip.tag || '9:16 Authentic Output'}</span>
                     </div>
 
                     {/* Bottom HUD Information */}
                     <div className="pointer-events-none absolute inset-x-3 bottom-3 rounded-xl border border-white/15 bg-black/85 p-2.5 backdrop-blur-md shadow-lg">
                       <div className="flex items-center justify-between">
                         <p className="truncate text-xs font-bold text-white">
-                          {currentChip.title}
+                          {customVideoUrl
+                            ? (customVideoName ? `Master: ${customVideoName}` : 'Custom Master Motion Video')
+                            : currentChip.title}
                         </p>
                         <span className="rounded border border-amber-500/30 bg-amber-500/20 px-1.5 py-0.5 text-[9px] font-semibold text-amber-300">
                           LIVE PREVIEW
                         </span>
                       </div>
                       <p className="mt-0.5 line-clamp-2 text-[10px] leading-relaxed text-white/70">
-                        {currentChip.desc}
+                        {customVideoUrl
+                          ? 'Active master video loaded. Your uploaded portrait photos will mimic all movements, flow and expressions from this clip.'
+                          : currentChip.desc}
                       </p>
                       <div className="mt-1.5 flex items-center justify-between border-t border-white/10 pt-1.5 text-[9px] text-amber-300/80">
                         <span>Photos in → Viral Rap Video out</span>

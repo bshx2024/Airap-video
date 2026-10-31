@@ -12,12 +12,12 @@ import {
   sniffImageMime,
 } from '@/lib/upload-guard';
 
-/** Match client-side hero upload limit (video-hero-utils / HeroGenerator). */
-const MAX_FILE_SIZE = 5 * 1024 * 1024;
+const MAX_IMAGE_SIZE = 10 * 1024 * 1024;
+const MAX_VIDEO_SIZE = 35 * 1024 * 1024;
 const MAX_FILES = 10;
 
 // Per request: bounds memory (formData() buffers the whole body) and storage use.
-const MAX_REQUEST_BYTES = MAX_FILES * MAX_FILE_SIZE;
+const MAX_REQUEST_BYTES = MAX_VIDEO_SIZE + 1024 * 1024;
 
 // Sliding windows rather than a 1s minimum interval: the uploaders send several
 // files as parallel requests (gallery picks, editor pastes), which a minimum
@@ -33,6 +33,13 @@ function clientIp(request: Request): string {
     request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
     request.headers.get('x-real-ip') ||
     'unknown'
+  );
+}
+
+function isVideoFile(file: File): boolean {
+  return (
+    file.type.startsWith('video/') ||
+    /\.(mp4|webm|mov|m4v)$/i.test(file.name)
   );
 }
 
@@ -106,27 +113,39 @@ export async function POST({ request }: { request: Request }) {
     }> = [];
 
     for (const file of files) {
-      if (!isDeclaredImageType(file.type)) {
-        return respErr(`File ${file.name} is not an image`);
+      const isVideo = isVideoFile(file);
+      const maxSize = isVideo ? MAX_VIDEO_SIZE : MAX_IMAGE_SIZE;
+
+      if (!isVideo && !isDeclaredImageType(file.type)) {
+        return respErr(`File ${file.name} is not an image or video`);
       }
-      if (typeof file.size === 'number' && file.size > MAX_FILE_SIZE) {
+      if (typeof file.size === 'number' && file.size > maxSize) {
         return respErr(
-          `File ${file.name} exceeds the ${MAX_FILE_SIZE / 1024 / 1024}MB limit`
+          `File ${file.name} exceeds the ${Math.round(maxSize / 1024 / 1024)}MB limit`
         );
       }
 
       const arrayBuffer = await file.arrayBuffer();
-      if (arrayBuffer.byteLength > MAX_FILE_SIZE) {
+      if (arrayBuffer.byteLength > maxSize) {
         return respErr(
-          `File ${file.name} exceeds the ${MAX_FILE_SIZE / 1024 / 1024}MB limit`
+          `File ${file.name} exceeds the ${Math.round(maxSize / 1024 / 1024)}MB limit`
         );
       }
       const body = new Uint8Array(arrayBuffer);
-      // Type and extension come from the bytes, not the client's claim.
-      const mimeType = sniffImageMime(body);
-      const ext = extFromImageMime(mimeType);
-      if (!ext) {
-        return respErr(`File ${file.name} is not an image`);
+
+      let mimeType = '';
+      let ext: string | null = '';
+
+      if (isVideo) {
+        mimeType = file.type || 'video/mp4';
+        ext = file.name.split('.').pop()?.toLowerCase() || 'mp4';
+      } else {
+        // Type and extension come from the bytes, not the client's claim.
+        mimeType = sniffImageMime(body);
+        ext = extFromImageMime(mimeType);
+        if (!ext) {
+          return respErr(`File ${file.name} is not a supported image`);
+        }
       }
 
       const digest = md5(body);

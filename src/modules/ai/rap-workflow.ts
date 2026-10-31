@@ -45,7 +45,10 @@ export interface RapTaskInfo {
   title: string;
   musicTaskId?: string;
   audioUrl?: string;
+  referenceVideoUrl?: string;
+  audioOption?: 'original' | 'generate';
   videoTaskId?: string;
+  videoProvider?: string;
   videoUrl?: string;
   error?: string;
   mock?: boolean;
@@ -245,6 +248,8 @@ export async function startRapTask(params: {
   scenarioId?: string;
   styleId?: string;
   customLyrics?: string;
+  referenceVideoUrl?: string;
+  audioOption?: 'original' | 'generate';
 }): Promise<{ taskId: string; costCredits: number }> {
   const {
     userId,
@@ -257,6 +262,8 @@ export async function startRapTask(params: {
     scenarioId,
     styleId = 'boom-bap',
     customLyrics,
+    referenceVideoUrl = '',
+    audioOption = 'original',
   } = params;
 
   const validImageUrls = imageUrls.length > 0 ? imageUrls : imageUrl ? [imageUrl] : [];
@@ -281,7 +288,7 @@ export async function startRapTask(params: {
     credits: costCredits,
     scene: 'rap_video',
     description: `AI Rap Video Generation (${styleId})`,
-    metadata: JSON.stringify({ prompt, styleId, studioMode }),
+    metadata: JSON.stringify({ prompt, styleId, studioMode, referenceVideoUrl }),
   });
 
   if (!consumeRes.success || !consumeRes.consumedCredit) {
@@ -292,22 +299,28 @@ export async function startRapTask(params: {
   const dbTaskId = getUuid();
   const isMock = await isMockMode();
 
-  // 获取或生成歌词
+  // 获取或生成歌词（如果保留母版原声，可跳过歌词生成）
   let lyrics = customLyrics?.trim() || '';
   let title = prompt.slice(0, 16) || 'AI Rap MV';
   const stylePreset =
     RAP_STYLE_PRESETS.find((s) => s.id === styleId) || RAP_STYLE_PRESETS[0];
 
-  if (!lyrics) {
+  const isUsingOriginalAudio = Boolean(referenceVideoUrl && audioOption === 'original');
+
+  if (!lyrics && !isUsingOriginalAudio) {
     const lyrObj = await generateRapLyrics({ topic: prompt, styleId });
     lyrics = lyrObj.lyrics;
     title = lyrObj.title;
+  } else if (isUsingOriginalAudio && !lyrics) {
+    lyrics = '[Original Master Video Audio Track & Flow]';
+    title = 'Master Motion Mimic';
   }
 
   // Immediately upload base64 images to public R2 storage so DB rows remain tiny (<5KB)
   const { ensurePublicMediaUrl } = await import('@/modules/ai/public-media');
   let publicPrimaryImage = primaryImageUrl;
   let publicImageUrls = validImageUrls;
+  let publicReferenceVideo = referenceVideoUrl;
   try {
     if (primaryImageUrl.startsWith('data:')) {
       publicPrimaryImage = await ensurePublicMediaUrl(primaryImageUrl, 'image');
@@ -318,21 +331,29 @@ export async function startRapTask(params: {
     if (!publicPrimaryImage && publicImageUrls.length > 0) {
       publicPrimaryImage = publicImageUrls[0];
     }
+    if (referenceVideoUrl && referenceVideoUrl.startsWith('data:')) {
+      publicReferenceVideo = await ensurePublicMediaUrl(referenceVideoUrl, 'video');
+    }
   } catch (upErr) {
-    console.warn('Failed to upload portraits to public R2 during task start:', upErr);
+    console.warn('Failed to upload media to public R2 during task start:', upErr);
   }
 
   const initialTaskInfo: RapTaskInfo = {
     scene: 'rap_video',
-    stage: 'lyrics',
-    progress: 20,
-    stageMessage: 'Composed lyrics and beat design, sending to Suno arranger...',
+    stage: isUsingOriginalAudio ? 'video' : 'lyrics',
+    progress: isUsingOriginalAudio ? 60 : 20,
+    stageMessage: isUsingOriginalAudio
+      ? 'Master video & original audio loaded, directing character motion mimic...'
+      : 'Composed lyrics and beat design, sending to Suno arranger...',
     prompt,
     videoPrompt,
     scenarioId,
     styleId,
     imageUrl: publicPrimaryImage,
     imageUrls: publicImageUrls,
+    referenceVideoUrl: publicReferenceVideo,
+    audioOption,
+    audioUrl: isUsingOriginalAudio ? publicReferenceVideo : undefined,
     studioMode,
     lyrics,
     title,
@@ -351,6 +372,8 @@ export async function startRapTask(params: {
       options: JSON.stringify({
         imageUrl: publicPrimaryImage,
         imageUrls: publicImageUrls,
+        referenceVideoUrl: publicReferenceVideo,
+        audioOption,
         studioMode,
         styleId,
         styleTags: stylePreset.sunoStyle,
@@ -362,6 +385,11 @@ export async function startRapTask(params: {
       creditId,
       taskInfo: JSON.stringify(initialTaskInfo),
     });
+
+  // 如果使用母版原声，直接完成音频阶段，等待视频引擎接管
+  if (isUsingOriginalAudio) {
+    return { taskId: dbTaskId, costCredits };
+  }
 
   // 立即推进 Stage 1: 发起 Suno 音乐生成
   try {
@@ -687,9 +715,14 @@ export async function syncRapWorkflowTask(
 
           const action = isDuo ? preset.actionDirectivesDuo : preset.actionDirectivesSolo;
 
-          const effectivePrompt = isDuo
-            ? `Two rappers perform a high-energy rap cypher battle ${finalScene}. [Image 1] is the rapper on the left and [Image 2] is the rapper on the right. ${action}, 9:16 vertical TikTok framing, cinematic vivid colors, 4K quality.`
-            : `A high-energy hip-hop rapper shown in [Image 1] performs an intense rap delivery ${finalScene}. ${action}, 9:16 vertical framing, cinematic vivid colors, 4K quality.`;
+          const isMotionMimic = Boolean(taskInfo.referenceVideoUrl);
+          const effectivePrompt = isMotionMimic
+            ? isDuo
+              ? `Two rappers perform a motion-mimic rap video strictly following the movements, gestures, camera angles, body swag and choreography of the reference video. [Image 1] is the rapper on the left and [Image 2] is the rapper on the right. 9:16 vertical framing, cinematic vivid colors, 4K quality, rhythm-locked head nods and hip-hop hand flow.`
+              : `A rapper performs a motion-mimic rap video strictly following the movements, gestures, camera angles, body swag and choreography of the reference video shown in [Image 1]. 9:16 vertical framing, cinematic vivid colors, 4K quality, rhythm-locked head nods and hip-hop hand flow.`
+            : isDuo
+              ? `Two rappers perform a high-energy rap cypher battle ${finalScene}. [Image 1] is the rapper on the left and [Image 2] is the rapper on the right. ${action}, 9:16 vertical TikTok framing, cinematic vivid colors, 4K quality.`
+              : `A high-energy hip-hop rapper shown in [Image 1] performs an intense rap delivery ${finalScene}. ${action}, 9:16 vertical framing, cinematic vivid colors, 4K quality.`;
 
           const effectiveNegativePrompt = preset.negativePrompt;
 
@@ -700,6 +733,9 @@ export async function syncRapWorkflowTask(
             const selectedModel = isDuo ? 'happyhorse-1.1-r2v' : 'happyhorse-1.1-i2v';
 
             const mediaPayload: any[] = [];
+            if (taskInfo.referenceVideoUrl) {
+              mediaPayload.push({ type: 'reference_video', url: taskInfo.referenceVideoUrl });
+            }
             if (isDuo) {
               publicImages.forEach((url) => {
                 mediaPayload.push({ type: 'reference_image', url });
@@ -772,6 +808,8 @@ export async function syncRapWorkflowTask(
                   options: {
                     image_url: publicImages[0],
                     image_urls: publicImages,
+                    video_url: taskInfo.referenceVideoUrl,
+                    reference_video: taskInfo.referenceVideoUrl,
                     audio_url: publicAudioUrl,
                     resolution: envConfigs.rap_video_resolution || '480p',
                   },
