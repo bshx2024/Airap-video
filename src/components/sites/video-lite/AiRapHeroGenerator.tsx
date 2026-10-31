@@ -109,7 +109,7 @@ const OCCASION_CHIPS: OccasionChipItem[] = [
     title: 'Underground Cypher Roast Battle',
     desc: 'Two best friends roasting bar-for-bar in neon street alleyway, fast witty punchlines, crowd hype.',
     image: '/imgs/scenes/friends-roast-cypher.jpg',
-    video: '/videos/showcase/generated/monster-commuter.mp4',
+    video: '/videos/friendsroast15_vertical.mp4',
     prompt:
       'Two best friends roasting each other about always being late and ordering too much takeout, fast witty punchlines, underground cypher lighting, hyping crowd in background, 9:16 vertical TikTok style',
     styleId: 'boom-bap',
@@ -415,6 +415,13 @@ export function AiRapHeroGenerator() {
     } else if (chip.id === 'on-the-radar') {
       setCustomVideoUrl('/videos/ontheradar15_vertical.mp4');
       setCustomVideoName('ontheradar15_vertical.mp4');
+      setStudioMode('mimic');
+      setAudioOption('original');
+      setSelectedDuration(15);
+      setAspectRatio('9:16');
+    } else if (chip.id === 'friends-roast') {
+      setCustomVideoUrl('/videos/friendsroast15_vertical.mp4');
+      setCustomVideoName('friendsroast15_vertical.mp4');
       setStudioMode('mimic');
       setAudioOption('original');
       setSelectedDuration(15);
