@@ -1777,6 +1777,45 @@ export function AiRapHeroGenerator() {
                           </a>
                         </div>
                       )}
+
+                      {/* Interactive Session Extension: Remix, Community Showcase & Viral Tags */}
+                      <div className="flex items-center justify-between border-t border-white/10 pt-2 text-[11px]">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setTaskStatus('idle');
+                            const el = document.getElementById('studio-generator');
+                            if (el) el.scrollIntoView({ behavior: 'smooth' });
+                          }}
+                          className="flex cursor-pointer items-center gap-1 font-semibold text-amber-300 hover:text-amber-200 transition active:scale-95"
+                        >
+                          <Sparkles className="size-3 text-amber-400" />
+                          <span>Remix / New Round</span>
+                        </button>
+                        <a
+                          href="#showcase-evidence"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            document.getElementById('showcase-evidence')?.scrollIntoView({ behavior: 'smooth' });
+                          }}
+                          className="flex items-center gap-1 text-slate-300 hover:text-white transition"
+                        >
+                          <Flame className="size-3 text-rose-400" />
+                          <span>More Battles</span>
+                        </a>
+                        <button
+                          type="button"
+                          onClick={handleCopyViralTags}
+                          className="flex cursor-pointer items-center gap-1 text-slate-300 hover:text-emerald-300 transition active:scale-95"
+                        >
+                          {copiedTags ? (
+                            <Check className="size-3 text-emerald-400" />
+                          ) : (
+                            <Share2 className="size-3 text-purple-400" />
+                          )}
+                          <span>{copiedTags ? 'Tags Copied!' : 'Copy Tags'}</span>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ) : taskStatus === 'processing' ? (

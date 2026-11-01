@@ -18,14 +18,14 @@ zh['common.metadata.description'] =
 
 // Landing Meta
 en['landing.meta.title'] =
-  'Migos AI Rap Video Generator: Turn Two Photos into AI Rap Battle | Airap';
+  'AI Rap Battle Video Generator: Turn Photos to Rap | Airap';
 en['landing.meta.description'] =
-  'Create your own viral orange studio rap battle with just two photos. Airap turns selfies into animated rap performances with AI-generated lyrics, 808 beats, and synchronized lip movements.';
+  'Generate viral AI rap battle videos with Airap. Turn two photos into a Migos-style orange studio rap video with AI lyrics, 808 trap beats, and lip sync.';
 
 zh['landing.meta.title'] =
-  'AI 说唱视频生成器：制作爆款说唱对决与热门 MV | Airap';
+  'AI 说唱对决视频生成器：照片一键变 Migos 橙棚互怼 | Airap';
 zh['landing.meta.description'] =
-  '专业的 AI 说唱视频生成器：数秒内将照片转化为经典 Migos 橙色录音棚互怼、TikTok 热门神曲与叙事说唱 MV，精准对口型与律动卡点。';
+  '用 Airap 将两张照片一键生成爆款 AI 说唱对决视频。经典 Migos 橙色录音棚双人互怼、AI 原创歌词、808 陷阱鼓点与超精准对口型。';
 
 // Landing Hero
 en['landing.hero.title'] = 'AI Rap Video Generator';
