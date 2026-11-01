@@ -18,9 +18,9 @@ zh['common.metadata.description'] =
 
 // Landing Meta
 en['landing.meta.title'] =
-  'AI Rap Video Generator - Create Viral Rap Videos | Airap';
+  'Migos AI Rap Video Generator: Turn Two Photos into AI Rap Battle | Airap';
 en['landing.meta.description'] =
-  'Best AI rap video generator to create viral rap battles, meme tracks, and music videos in seconds. Generate Migos orange studio clips with beat-sync.';
+  'Create your own viral orange studio rap battle with just two photos. Airap turns selfies into animated rap performances with AI-generated lyrics, 808 beats, and synchronized lip movements.';
 
 zh['landing.meta.title'] =
   'AI 说唱视频生成器：制作爆款说唱对决与热门 MV | Airap';

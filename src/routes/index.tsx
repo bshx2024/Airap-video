@@ -9,18 +9,22 @@ import { getLocale, locales, localizeUrl } from '@/paraglide/runtime.js';
 import { Pricing } from '@/blocks/pricing';
 import { SupportWidget } from '@/blocks/support-widget';
 import { AiRapHeroGenerator } from '@/components/sites/video-lite/AiRapHeroGenerator';
+import { MigosStudioSection } from '@/components/sites/video-lite/MigosStudioSection';
+import { VideoShowcaseEvidence } from '@/components/sites/video-lite/VideoShowcaseEvidence';
+import { VideoHowItWorks } from '@/components/sites/video-lite/VideoHowItWorks';
+import { VideoFeatures } from '@/components/sites/video-lite/VideoFeatures';
+import { TechTransparencySection } from '@/components/sites/video-lite/TechTransparencySection';
 import { VideoCompetitorComparison } from '@/components/sites/video-lite/VideoCompetitorComparison';
+import { VideoUseCases } from '@/components/sites/video-lite/VideoUseCases';
+import { VideoCostCalculator } from '@/components/sites/video-lite/VideoCostCalculator';
+import { TrustSafetySection } from '@/components/sites/video-lite/TrustSafetySection';
 import { VideoCta } from '@/components/sites/video-lite/VideoCta';
 import { VideoFaq } from '@/components/sites/video-lite/VideoFaq';
-import { VideoFeatures } from '@/components/sites/video-lite/VideoFeatures';
 import { VideoFooter } from '@/components/sites/video-lite/VideoFooter';
 import { VideoHeader } from '@/components/sites/video-lite/VideoHeader';
 import { VideoHeroGenerator } from '@/components/sites/video-lite/VideoHeroGenerator';
-import { VideoHowItWorks } from '@/components/sites/video-lite/VideoHowItWorks';
 import { VideoMarquee } from '@/components/sites/video-lite/VideoMarquee';
 import { VideoPromptInspirations } from '@/components/sites/video-lite/VideoPromptInspirations';
-import { VideoUseCases } from '@/components/sites/video-lite/VideoUseCases';
-import { WhatIsVideoGenerator } from '@/components/sites/video-lite/WhatIsVideoGenerator';
 
 function HomePage() {
   const [generatorMode, setGeneratorMode] = useState<'rap' | 'classic'>('rap');
@@ -102,15 +106,19 @@ function HomePage() {
             }
           }}
         />
-        <WhatIsVideoGenerator />
+        <MigosStudioSection />
+        <VideoShowcaseEvidence />
         <VideoHowItWorks />
         <VideoFeatures />
+        <TechTransparencySection />
         <VideoCompetitorComparison />
         <VideoUseCases />
         <VideoPromptInspirations onUsePrompt={handleUsePrompt} />
         <div className="text-foreground bg-white transition-colors dark:bg-[#060a13]">
+          <VideoCostCalculator />
           <Pricing isSection showFaq={false} />
         </div>
+        <TrustSafetySection />
         <VideoFaq />
         <VideoCta />
       </main>

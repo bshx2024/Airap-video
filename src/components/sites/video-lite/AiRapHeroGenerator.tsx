@@ -233,7 +233,7 @@ export function AiRapHeroGenerator() {
     : null;
 
   // Studio Mode & Occasion States (Using chip.id for strict matching)
-  const [studioMode, setStudioMode] = useState<StudioMode>('mimic');
+  const [studioMode, setStudioMode] = useState<StudioMode>('duo');
   const [activeChipId, setActiveChipId] = useState<string>(
     OCCASION_CHIPS[0].id
   );
@@ -764,26 +764,87 @@ export function AiRapHeroGenerator() {
       <div className="mx-auto max-w-4xl text-center">
         <div className="inline-flex items-center gap-2 rounded-full border border-amber-500/30 bg-amber-500/10 px-4 py-1.5 text-xs font-semibold text-amber-300 shadow-[0_0_25px_rgba(245,158,11,0.2)] backdrop-blur-md">
           <Flame className="size-4 animate-pulse text-amber-400" />
-          <span>Full-Stack Pipeline: AI Lyrics ➔ Suno 808 Rap Beats ➔ Lip-Sync & Motion ➔ 4K Output</span>
+          <span>Iconic Orange Studio Preset · Two Rappers · One Hanging Microphone</span>
         </div>
         <h1 className="mt-4 text-3xl font-extrabold tracking-tight text-white sm:text-5xl lg:text-6xl">
-          AI Rap Video:{' '}
+          Turn Two Photos Into a{' '}
           <span className="bg-gradient-to-r from-amber-400 via-rose-500 to-purple-500 bg-clip-text text-transparent">
-            Create Viral TikTok & Migos Rap Trends
+            Migos-Style AI Rap Battle Video
           </span>
         </h1>
-        <p className="mt-3 text-sm text-slate-300 sm:text-base lg:text-lg">
-          Turn photos into an authentic AI rap video in seconds. Zero drifting lips, synchronized 808 trap beats, multisyllabic rhyme schemes, and full hip-hop body swag delivery.
+        <p className="mx-auto mt-4 max-w-3xl text-sm leading-relaxed text-slate-300 sm:text-base lg:text-lg">
+          Create your own viral orange studio rap battle with just two photos. Airap turns selfies into animated rap performances with AI-generated lyrics, rap vocals, 808 beats, synchronized lip movements, and hip-hop gestures.
         </p>
+        <p className="mt-2 text-xs font-semibold tracking-wide text-amber-300/90 sm:text-sm">
+          No filming. No recording. No editing skills required.
+        </p>
+
+        {/* Action CTAs */}
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-3.5">
+          <button
+            type="button"
+            onClick={() => {
+              const el = document.getElementById('studio-generator');
+              if (el) {
+                el.scrollIntoView({ behavior: 'smooth' });
+              }
+            }}
+            className="flex cursor-pointer items-center gap-2 rounded-full bg-gradient-to-r from-amber-500 via-rose-500 to-purple-600 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-amber-500/25 transition-all hover:scale-105 hover:shadow-rose-500/35 active:scale-95"
+          >
+            <Mic className="size-4" />
+            <span>Create My AI Rap Video</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              const el = document.getElementById('showcase-evidence');
+              if (el) {
+                el.scrollIntoView({ behavior: 'smooth' });
+              }
+            }}
+            className="flex cursor-pointer items-center gap-2 rounded-full border border-white/20 bg-white/10 px-6 py-3 text-sm font-semibold text-white backdrop-blur-md transition-all hover:bg-white/20 hover:scale-105 active:scale-95"
+          >
+            <Play className="size-4 fill-current text-amber-400" />
+            <span>Watch Real AI Rap Examples</span>
+          </button>
+        </div>
+
+        {/* Trust Notes */}
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-slate-300">
+          <span className="flex items-center gap-1.5">
+            <CheckCircle2 className="size-3.5 text-amber-400" />
+            <span>Upload Two Separate Photos</span>
+          </span>
+          <span className="flex items-center gap-1.5">
+            <CheckCircle2 className="size-3.5 text-amber-400" />
+            <span>AI-Generated Rap Lyrics & Music</span>
+          </span>
+          <span className="flex items-center gap-1.5">
+            <CheckCircle2 className="size-3.5 text-amber-400" />
+            <span>9:16 Social Video Export</span>
+          </span>
+          <span className="flex items-center gap-1.5">
+            <CheckCircle2 className="size-3.5 text-amber-400" />
+            <span>Free Credits to Try</span>
+          </span>
+        </div>
       </div>
 
       {/* Studio Workbench */}
-      <div className="mt-8 rounded-3xl border border-white/12 bg-[#0d1527]/95 p-3.5 shadow-[0_24px_80px_rgba(2,6,23,0.65)] backdrop-blur-2xl transition-all duration-200 hover:border-amber-400/20 sm:p-5">
+      <div id="studio-generator" className="mt-8 rounded-3xl border border-white/12 bg-[#0d1527]/95 p-3.5 shadow-[0_24px_80px_rgba(2,6,23,0.65)] backdrop-blur-2xl transition-all duration-200 hover:border-amber-400/20 sm:p-5">
         <div className="grid grid-cols-1 items-stretch gap-6 lg:grid-cols-[1fr_340px] xl:grid-cols-[1fr_390px] 2xl:grid-cols-[1fr_420px]">
           {/* Left Column: Directing & Inputs */}
           <div className="flex flex-col justify-between min-w-0">
-            {/* 1. Mode Selector Tabs */}
+            {/* STEP 1: Video Mode Selector */}
             <div className="mb-4 flex flex-wrap items-center justify-between gap-2 border-b border-white/10 pb-3">
+              <div className="flex items-center gap-2">
+                <span className="rounded-md bg-amber-500/20 px-2 py-0.5 text-[10px] font-black tracking-wider text-amber-300 uppercase">
+                  STEP 1
+                </span>
+                <span className="text-xs font-bold text-white/90">
+                  Choose Your Video Mode:
+                </span>
+              </div>
               <div className="inline-flex rounded-xl border border-white/10 bg-white/[0.06] p-1">
                 <button
                   type="button"
@@ -796,9 +857,9 @@ export function AiRapHeroGenerator() {
                   )}
                 >
                   <Mic className="size-3.5" />
-                  <span>Duo Cypher (2 Photos)</span>
-                  <span className="hidden rounded-full bg-slate-900/30 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-amber-950 sm:inline-block">
-                    Viral
+                  <span>Duo Rap Battle</span>
+                  <span className="rounded-full bg-slate-900/30 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-amber-950">
+                    Recommended
                   </span>
                 </button>
 
@@ -813,7 +874,7 @@ export function AiRapHeroGenerator() {
                   )}
                 >
                   <Users className="size-3.5" />
-                  <span>Group Photo (1 Photo)</span>
+                  <span>Group Rap</span>
                 </button>
 
                 <button
@@ -1513,13 +1574,33 @@ export function AiRapHeroGenerator() {
               </div>
             </div>
 
-            {/* 8. Action CTA Button */}
-            <div className="pt-1">
+            {/* STEP 5: Generate Your Video & Transparent Cost */}
+            <div className="rounded-2xl border border-amber-500/25 bg-amber-500/[0.04] p-3 pt-2">
+              <div className="mb-2 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="rounded-md bg-amber-500/20 px-2 py-0.5 text-[10px] font-black tracking-wider text-amber-300 uppercase">
+                    STEP 5
+                  </span>
+                  <span className="text-xs font-bold text-white/90">
+                    Generate Your AI Rap Battle Video:
+                  </span>
+                </div>
+                <div className="text-[11px] font-medium text-amber-300">
+                  Estimated Cost:{' '}
+                  <strong className="font-bold text-amber-400">
+                    {getRapCostCredits(selectedDuration)} Credits
+                  </strong>{' '}
+                  <span className="text-white/50">
+                    ({selectedDuration}s · {aspectRatio} · {studioMode === 'duo' ? 'Duo Battle' : 'Solo Rap'})
+                  </span>
+                </div>
+              </div>
+
               <button
                 type="button"
                 onClick={handleStartGeneration}
                 disabled={isSubmitting || (taskStatus === 'processing' && taskProgress < 100)}
-                className="group relative flex h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 via-rose-500 to-purple-600 px-6 text-sm font-bold text-white shadow-[0_0_30px_rgba(245,158,11,0.35)] transition-all hover:opacity-95 hover:shadow-[0_0_40px_rgba(245,158,11,0.5)] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50"
+                className="group relative flex h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 via-rose-500 to-purple-600 px-6 text-sm font-bold text-white shadow-[0_0_30px_rgba(245,158,11,0.35)] transition-all hover:opacity-95 hover:shadow-[0_0_40px_rgba(245,158,11,0.5)] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {taskStatus === 'processing' && taskProgress < 100 ? (
                   <>
@@ -1531,16 +1612,14 @@ export function AiRapHeroGenerator() {
                     <Wand2 className="size-4 animate-pulse" />
                     <span>
                       {session?.user
-                        ? customVideoUrl
-                          ? `🎬 Direct Motion Mimic Rap MV (${getRapCostCredits(selectedDuration)} Credits · ${selectedDuration}s)`
-                          : `Direct Rap MV (${getRapCostCredits(selectedDuration)} Credits · ${selectedDuration}s)`
-                        : `Direct Rap MV (Get Free Signup Credits)`}
+                        ? `Generate My Rap Video (${getRapCostCredits(selectedDuration)} Credits · ${selectedDuration}s)`
+                        : `Generate My Rap Video (Get Free Signup Credits)`}
                     </span>
                   </>
                 )}
               </button>
               <div className="mt-2 flex items-center justify-between px-1 text-[11px] text-slate-400">
-                <span>Est. time: ~45–90s · 9:16 Ultra HD Output</span>
+                <span>Est. time: ~45–90s · 1080P Social Export</span>
                 <span>
                   Credit Balance:{' '}
                   <strong className="text-amber-300">

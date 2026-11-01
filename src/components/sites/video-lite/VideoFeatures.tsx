@@ -1,57 +1,101 @@
 'use client';
 
+import React from 'react';
 import {
-  Files,
-  Images,
-  Layers,
-  Library,
-  MessageSquareText,
-  SlidersHorizontal,
+  Activity,
+  Flame,
+  Mic2,
+  Music,
+  Share2,
+  Smartphone,
+  Sparkles,
+  Users,
 } from 'lucide-react';
 
-import { tDynamic } from '@/core/i18n/dynamic';
-import { VIDEO_FEATURES } from '@/config/video-landing-data';
-import { m } from '@/paraglide/messages.js';
-
-const FEATURE_ICONS = [
-  MessageSquareText,
-  Images,
-  Files,
-  Layers,
-  SlidersHorizontal,
-  Library,
+const RAP_FEATURES = [
+  {
+    id: 'lyrics-roasts',
+    title: '1. AI Rap Lyrics & Roasts',
+    desc: 'Turn any topic, inside joke, or birthday message into original rap lyrics. Customize names, punchlines, and verses before generating your video.',
+    icon: Sparkles,
+    gradient: 'from-amber-400 to-amber-600',
+  },
+  {
+    id: 'music-beats',
+    title: '2. AI Rap Music & 808 Beats',
+    desc: 'Choose from Trap, Boom Bap, UK Drill, and other hip-hop styles. Generate original rap audio or upload your own compatible music track.',
+    icon: Music,
+    gradient: 'from-rose-400 to-rose-600',
+  },
+  {
+    id: 'lip-sync',
+    title: '3. Synchronized Rap Lip-Sync',
+    desc: 'Animate uploaded portraits to match the generated rap vocals. Designed for rhythmic performances and fast-paced rap delivery.',
+    icon: Mic2,
+    gradient: 'from-purple-400 to-purple-600',
+  },
+  {
+    id: 'body-groove',
+    title: '4. Dynamic Hip-Hop Movements',
+    desc: 'Add rhythmic head nods, shoulder movements, and rap-inspired hand gestures to bring your characters to life.',
+    icon: Activity,
+    gradient: 'from-blue-400 to-blue-600',
+  },
+  {
+    id: 'two-photo-battle',
+    title: '5. Two-Photo Rap Battle',
+    desc: 'Upload two separate selfies and place both people into the same rap battle scene. No joint photo or filming session required.',
+    icon: Users,
+    gradient: 'from-emerald-400 to-emerald-600',
+  },
+  {
+    id: 'short-videos',
+    title: '6. Ready-to-Share Short Videos',
+    desc: 'Create vertical videos for TikTok, Instagram Reels, and YouTube Shorts, with supported export formats and optional animated lyrics.',
+    icon: Smartphone,
+    gradient: 'from-orange-400 to-rose-500',
+  },
 ];
 
 export function VideoFeatures() {
   return (
     <section
       id="features"
-      className="bg-white px-4 py-20 text-slate-900 transition-colors sm:px-6 sm:py-24 lg:py-28 dark:bg-[#030712] dark:text-white"
+      className="bg-[#030712] px-4 py-20 text-white transition-colors sm:px-6 sm:py-24 lg:py-28"
     >
       <div className="mx-auto w-full max-w-7xl">
-        <h2 className="mx-auto max-w-5xl text-center font-serif text-4xl leading-[1.08] tracking-[-0.025em] text-slate-900 sm:text-5xl lg:text-[56px] dark:text-[#f8fafc]">
-          {m['landing.features.section_title']()}
-        </h2>
+        <div className="mx-auto max-w-3xl text-center">
+          <div className="inline-flex items-center gap-2 rounded-full border border-amber-500/30 bg-amber-500/10 px-4 py-1.5 text-xs font-semibold text-amber-300">
+            <Flame className="size-3.5 text-amber-400" />
+            <span>Vertical AI Rap Studio Suite</span>
+          </div>
+          <h2 className="mt-4 text-3xl font-extrabold tracking-tight text-white sm:text-5xl lg:text-6xl">
+            Everything You Need to Create an AI Rap Battle
+          </h2>
+          <p className="mt-4 text-base leading-relaxed text-slate-300 sm:text-lg">
+            Built specifically for hip-hop creators, viral social memes, and birthday roast battles.
+          </p>
+        </div>
 
-        <div className="mt-10 grid gap-px overflow-hidden rounded-[24px] border border-slate-200 bg-slate-200 md:mt-12 md:grid-cols-2 lg:grid-cols-3 dark:border-[#1e293b] dark:bg-[#1e293b]">
-          {VIDEO_FEATURES.map((item, index) => {
-            const Icon = FEATURE_ICONS[index % FEATURE_ICONS.length];
+        <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {RAP_FEATURES.map((item) => {
+            const Icon = item.icon;
             return (
               <article
                 key={item.id}
-                className="min-h-52 bg-white p-7 transition-colors duration-300 hover:bg-slate-50/80 sm:p-8 dark:bg-[#080d19] dark:hover:bg-[#0b1222]"
+                className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-white/10 bg-[#0a101f] p-7 transition-all duration-300 hover:border-amber-400/30 hover:bg-[#0e162b] hover:shadow-xl hover:shadow-amber-500/5"
               >
-                <Icon
-                  className="size-5 text-slate-700 dark:text-[#e2e8f0]"
-                  strokeWidth={1.75}
-                  aria-hidden="true"
-                />
-                <h3 className="mt-7 text-[15px] font-medium text-slate-900 sm:text-base dark:text-[#f8fafc]">
-                  {tDynamic(item.titleKey)}
-                </h3>
-                <p className="mt-2 text-sm leading-6 text-slate-600 sm:text-[15px] sm:leading-7 dark:text-[#94a3b8]">
-                  {tDynamic(item.descKey)}
-                </p>
+                <div>
+                  <div className={`inline-flex size-11 items-center justify-center rounded-xl bg-gradient-to-br ${item.gradient} text-white shadow-md`}>
+                    <Icon className="size-5" />
+                  </div>
+                  <h3 className="mt-5 text-lg font-bold text-white">
+                    {item.title}
+                  </h3>
+                  <p className="mt-2.5 text-sm leading-relaxed text-slate-300">
+                    {item.desc}
+                  </p>
+                </div>
               </article>
             );
           })}
