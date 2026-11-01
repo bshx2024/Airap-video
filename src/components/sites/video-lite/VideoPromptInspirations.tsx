@@ -164,7 +164,7 @@ export function VideoPromptInspirations({
   };
 
   const handleCardClick = (prompt: string) => {
-    onUsePrompt(prompt, 'MiniMax H3');
+    onUsePrompt(prompt, 'Kling 4.0 Studio');
     const generatorEl = document.getElementById('generator');
     if (generatorEl) {
       generatorEl.scrollIntoView({ behavior: 'smooth' });

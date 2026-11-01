@@ -194,7 +194,7 @@ const HUD_TICKER_MESSAGES = [
   '⚡ Extracting 3D head rotation matrix & micro-nod gestures...',
   '🎙️ Aligning vocal phonemes to lip curvature & jaw drop...',
   '🔊 Synchronizing 808 sub-bass drops with shoulder sway...',
-  '🎬 Synthesizing cinematic volumetric lighting & 4K grain...',
+  '🎬 Synthesizing cinematic volumetric lighting & 1080P Full HD master...',
   '🔥 Injecting swagger micro-expressions & cadence delivery...',
 ];
 

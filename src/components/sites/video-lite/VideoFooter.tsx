@@ -48,9 +48,10 @@ export function VideoFooter() {
     {
       title: m['landing.nav.models'](),
       links: [
-        { label: 'Seedance 2.5', href: '/#generator' },
-        { label: 'MiniMax H3', href: '/#generator' },
-        { label: m['landing.footer.compare_models'](), href: '/#generator' },
+        { label: 'Kling 4.0 Studio', href: '/#generator' },
+        { label: 'Wan 2.6 Flash', href: '/#generator' },
+        { label: 'Seedance 2.5 Pro', href: '/#generator' },
+        { label: 'Suno 808 Audio Engine', href: '/#technical-transparency' },
       ],
     },
     {

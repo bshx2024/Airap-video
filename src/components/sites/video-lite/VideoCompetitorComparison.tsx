@@ -174,9 +174,9 @@ export function VideoCompetitorComparison() {
               Viral Migos Studio Specialist
             </h3>
             <p className="mt-2 text-xs leading-5 text-slate-600 dark:text-slate-400">
-              Pixel-perfect recreation of Quavo & Takeoff's iconic Hotel Lobby
-              orange booth with hanging studio microphone and alternating
-              punchlines.
+              High-fidelity staging of the iconic Hotel Lobby orange booth with
+              hanging studio condenser microphone, alternating punchlines, and
+              808 beat drops.
             </p>
           </div>
 
@@ -195,12 +195,12 @@ export function VideoCompetitorComparison() {
           <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-blue-400/40 dark:border-white/10 dark:bg-[#080d19]">
             <span className="text-2xl">🎵</span>
             <h3 className="mt-3 text-base font-bold text-slate-900 dark:text-white">
-              Suno Beats or Custom MP3
+              Suno 808 Engine or Custom MP3
             </h3>
             <p className="mt-2 text-xs leading-5 text-slate-600 dark:text-slate-400">
               Generate fresh 808 Trap, Boom Bap, and Drill beats with auto vocal
-              melodies, or upload your own favorite audio track for instant
-              lip-sync.
+              melodies via Suno v4, or upload your own favorite audio track for
+              instant lip-sync.
             </p>
           </div>
 

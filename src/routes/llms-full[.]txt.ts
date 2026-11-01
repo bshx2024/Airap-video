@@ -27,7 +27,7 @@ const STATIC_PAGES: { path: string; title: string; description: string }[] = [
     path: '/models',
     title: 'AI Video & Audio Models',
     description:
-      'High-energy diffusion models (Kling 3.0 Turbo, Wan 3.0, HappyHorse) optimized for hip-hop flow, dynamic head nods, and micro-lip-sync.',
+      'High-energy diffusion models (Kling 4.0 Studio, Wan 2.6 Flash, Seedance 2.5 Pro) with Suno v4 audio engine optimized for hip-hop flow, dynamic head nods, and viseme lip-sync.',
   },
   {
     path: '/my-creations',
