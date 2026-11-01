@@ -296,7 +296,7 @@ export const Route = createFileRoute('/')({
         {
           name: 'keywords',
           content:
-            'ai rap battle video, ai rap battle generator, ai rap video generator, turn photos into rap battle, migos ai rap video, orange studio rap battle, ai rap duo video, ai rap battle, ai rap video trend, ai rap video online free, ai rap video maker, ai rap video tiktok, hotel lobby ai, ai rap video free',
+            'ai rap video generator, ai rap video, turn photos into rap video, ai rap video maker, ai rap battle video, migos ai rap video, orange studio rap battle, ai rap duo video, ai rap video trend, ai rap video online free, ai rap video tiktok, hotel lobby ai, ai rap battle generator, ai rap video free',
         },
         { property: 'og:site_name', content: appName },
         { property: 'og:title', content: title },

@@ -767,9 +767,9 @@ export function AiRapHeroGenerator() {
           <span>Iconic Orange Studio Preset · Two Rappers · One Hanging Microphone</span>
         </div>
         <h1 className="mt-4 text-3xl font-extrabold tracking-tight text-white sm:text-5xl lg:text-6xl">
-          Turn Two Photos Into a{' '}
+          Turn Two Photos into a{' '}
           <span className="bg-gradient-to-r from-amber-400 via-rose-500 to-purple-500 bg-clip-text text-transparent">
-            Migos-Style AI Rap Battle Video
+            Viral AI Rap Video
           </span>
         </h1>
         <p className="mx-auto mt-4 max-w-3xl text-sm leading-relaxed text-slate-300 sm:text-base lg:text-lg">
