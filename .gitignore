@@ -71,6 +71,7 @@ package-lock.json
 !/public/videos/friendsroast15_vertical.mp4
 !/public/videos/cutepet15_vertical.mp4
 !/public/videos/birthday15_vertical.mp4
+!/public/videos/drill15_vertical.mp4
 
 
 # Runtime image uploads (no-storage local fallback)

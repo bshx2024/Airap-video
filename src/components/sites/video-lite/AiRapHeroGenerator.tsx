@@ -147,16 +147,16 @@ const OCCASION_CHIPS: OccasionChipItem[] = [
   {
     id: 'choreo-drill',
     label: '⚡ Choreo & Drill Dance',
-    tag: 'High Energy',
-    title: 'Drill & Choreo Duet Stage',
-    desc: 'Full-body choreography, sharp beat-synced isolations, matching heavy UK drill sliding 808 bass.',
+    tag: 'Brooklyn Drill',
+    title: 'Pop Smoke Woo Walk Stage',
+    desc: 'The iconic Pop Smoke "Woo Walk" glide: effortless sliding footwork, heavy 808 sub-bass, and confident raw swagger.',
     image: '/imgs/scenes/on-the-radar-booth.jpg',
-    video: '/videos/showcase/generated/airglide-remake.mp4',
+    video: '/videos/drill15_vertical.mp4',
     prompt:
-      'Full-body hip-hop choreography and energetic dance moves, sharp isolations matching heavy UK drill sliding bass, expressive facial confidence, fluid dynamic motion with spotlight tracking',
+      'Brooklyn drill dance performance, Pop Smoke iconic Woo Walk glide, deep sliding 808 sub-bass sync, cinematic dark street aesthetic with subtle neon rim light, confident raw swagger, 9:16 vertical TikTok viral style',
     styleId: 'cyber-drill',
     lyrics:
-      '[Intro]\nWatch the sliding bass, lock the frame!\n[Verse 1]\nStep to the left, sync to the snare\nSliding drill bass floating in the air\nSharp isolations, cameras locked in tight\n[Chorus]\nTwo rappers dancing under strobe light flare\nDrill choreography without compare!',
+      '[Intro]\nWoo! Watch the slide, lock the frame!\n[Verse 1]\nGliding on the 808, ice on my wrist\nStepping to the left with a Brooklyn twist\nBass hits heavy, cameras locked in tight\n[Chorus]\nWoo Walk smooth under flashing lights\nKing of the drill taking over the night!',
   },
   {
     id: 'neon-freestyle',
@@ -436,6 +436,13 @@ export function AiRapHeroGenerator() {
     } else if (chip.id === 'birthday-hype') {
       setCustomVideoUrl('/videos/birthday15_vertical.mp4');
       setCustomVideoName('birthday15_vertical.mp4');
+      setStudioMode('mimic');
+      setAudioOption('original');
+      setSelectedDuration(15);
+      setAspectRatio('9:16');
+    } else if (chip.id === 'choreo-drill') {
+      setCustomVideoUrl('/videos/drill15_vertical.mp4');
+      setCustomVideoName('drill15_vertical.mp4');
       setStudioMode('mimic');
       setAudioOption('original');
       setSelectedDuration(15);

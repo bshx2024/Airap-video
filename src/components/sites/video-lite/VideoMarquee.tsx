@@ -47,11 +47,11 @@ export const MARQUEE_CLIPS: MarqueeClip[] = [
   },
   {
     id: 'choreo-drill',
-    title: 'Drill & Choreo Duet',
-    tag: 'UK Drill / 808',
-    video: '/videos/showcase/generated/airglide-remake.mp4',
-    badge: '⚡ High Energy',
-    description: 'Sharp choreography, synced head nods, and sliding 808 bass.',
+    title: 'Pop Smoke Woo Walk Stage',
+    tag: 'Brooklyn Drill / 808',
+    video: '/videos/drill15_vertical.mp4',
+    badge: '⚡ Drill Glide',
+    description: 'Iconic Pop Smoke Woo Walk glide, synced swagger, and sliding 808 sub-bass.',
   },
   {
     id: 'night-neon',

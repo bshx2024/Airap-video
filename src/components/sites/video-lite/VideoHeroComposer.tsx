@@ -113,12 +113,12 @@ const OCCASION_CHIPS: OccasionChipItem[] = [
   {
     id: 'choreo-drill',
     label: '⚡ Choreo & Drill Dance',
-    tag: 'High Energy',
-    title: 'Drill & Choreo Duet Stage',
-    desc: 'Full-body choreography, sharp beat-synced isolations, matching heavy UK drill sliding 808 bass.',
-    video: '/videos/showcase/generated/airglide-remake.mp4',
+    tag: 'Brooklyn Drill',
+    title: 'Pop Smoke Woo Walk Stage',
+    desc: 'The iconic Pop Smoke "Woo Walk" glide: effortless sliding footwork, heavy 808 sub-bass, and confident raw swagger.',
+    video: '/videos/drill15_vertical.mp4',
     prompt:
-      'Full-body hip-hop choreography and energetic dance moves, sharp isolations matching heavy UK drill sliding bass, expressive facial confidence, fluid dynamic motion with spotlight tracking',
+      'Brooklyn drill dance performance, Pop Smoke iconic Woo Walk glide, deep sliding 808 sub-bass sync, cinematic dark street aesthetic with subtle neon rim light, confident raw swagger, 9:16 vertical TikTok viral style',
   },
   {
     id: 'neon-freestyle',
