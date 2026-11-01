@@ -830,7 +830,9 @@ export const crawlerLog = table(
     method: text('method').notNull().default('GET'),
     path: text('path').notNull().default(''),
     statusCode: integer('status_code').notNull().default(200),
-    botType: text('bot_type').notNull().default('other'), // googlebot, bingbot, ahrefs, semrush, bytespider, scanner, other
+    botType: text('bot_type').notNull().default('other'), // googlebot, bingbot, ahrefs, semrush, bytespider, openai, claude, apple, scanner, other
+    isVerified: integer('is_verified').notNull().default(0), // 1 if verified via rDNS or cloudflare bot management
+    isContent: integer('is_content').notNull().default(1), // 1 if requesting substantive content page, 0 for /robots.txt /sitemap.xml etc.
     userAgent: text('user_agent').notNull().default(''),
     createdAt: integer('created_at', { mode: 'timestamp_ms' })
       .default(sqliteNowMs)
@@ -839,6 +841,8 @@ export const crawlerLog = table(
   (t) => [
     index('idx_crawler_log_created_at').on(t.createdAt),
     index('idx_crawler_log_bot_type').on(t.botType),
+    index('idx_crawler_log_is_verified').on(t.isVerified),
+    index('idx_crawler_log_is_content').on(t.isContent),
   ]
 );
 

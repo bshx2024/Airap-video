@@ -51,6 +51,8 @@ interface CrawlerLogItem {
   path: string;
   statusCode: number;
   botType: string;
+  isVerified?: number;
+  isContent?: number;
   userAgent: string;
   createdAt: string;
 }
@@ -63,36 +65,94 @@ interface CrawlerLogsResponse {
   stats: {
     totalAll: number;
     todayHits: number;
+    verifiedHits: number;
+    contentHits: number;
     googleHits: number;
     bingHits: number;
+    openaiHits: number;
+    claudeHits: number;
+    byteSpiderHits: number;
     ahrefsHits: number;
     scannerHits: number;
   };
 }
 
 const BOT_TYPE_OPTIONS = [
-  { value: 'all', label: 'All Bots & Spiders' },
+  { value: 'all', label: '全部爬虫与蜘蛛 (All)' },
   { value: 'googlebot', label: 'Googlebot' },
   { value: 'bingbot', label: 'Bingbot' },
+  { value: 'openai', label: 'OpenAI (ChatGPT/SearchBot)' },
+  { value: 'claude', label: 'ClaudeBot (Anthropic)' },
+  { value: 'apple', label: 'Applebot' },
+  { value: 'perplexity', label: 'PerplexityBot' },
+  { value: 'bytespider', label: 'ByteSpider (TikTok)' },
   { value: 'ahrefs', label: 'AhrefsBot' },
   { value: 'semrush', label: 'Semrush' },
-  { value: 'bytespider', label: 'ByteSpider (TikTok)' },
-  { value: 'scanner', label: 'Vulnerability Scanner' },
-  { value: 'other_bot', label: 'Other Crawlers' },
+  { value: 'scanner', label: '漏洞探测扫描器 (Scanner)' },
+  { value: 'other_bot', label: '其他爬虫 (Other)' },
 ];
 
-function getBotBadge(botType: string) {
+function getBotBadge(botType: string, isVerified?: number) {
+  const verifiedBadge = isVerified ? (
+    <span className="inline-flex items-center text-[10px] bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-bold px-1 rounded ml-1 border border-emerald-500/30">
+      VERIFIED
+    </span>
+  ) : null;
+
   switch (botType) {
     case 'googlebot':
-      return <Badge className="bg-blue-500/15 text-blue-500 border-blue-500/30">Googlebot</Badge>;
+      return (
+        <div className="flex items-center">
+          <Badge className="bg-blue-500/15 text-blue-500 border-blue-500/30">Googlebot</Badge>
+          {verifiedBadge}
+        </div>
+      );
     case 'bingbot':
-      return <Badge className="bg-emerald-500/15 text-emerald-500 border-emerald-500/30">Bingbot</Badge>;
+      return (
+        <div className="flex items-center">
+          <Badge className="bg-teal-500/15 text-teal-500 border-teal-500/30">Bingbot</Badge>
+          {verifiedBadge}
+        </div>
+      );
+    case 'openai':
+      return (
+        <div className="flex items-center">
+          <Badge className="bg-emerald-500/15 text-emerald-500 border-emerald-500/30">OpenAI</Badge>
+          {verifiedBadge}
+        </div>
+      );
+    case 'claude':
+      return (
+        <div className="flex items-center">
+          <Badge className="bg-amber-500/15 text-amber-500 border-amber-500/30">ClaudeBot</Badge>
+          {verifiedBadge}
+        </div>
+      );
+    case 'apple':
+      return (
+        <div className="flex items-center">
+          <Badge className="bg-sky-500/15 text-sky-500 border-sky-500/30">Applebot</Badge>
+          {verifiedBadge}
+        </div>
+      );
+    case 'perplexity':
+      return (
+        <div className="flex items-center">
+          <Badge className="bg-indigo-500/15 text-indigo-500 border-indigo-500/30">Perplexity</Badge>
+          {verifiedBadge}
+        </div>
+      );
     case 'ahrefs':
       return <Badge className="bg-orange-500/15 text-orange-500 border-orange-500/30">AhrefsBot</Badge>;
     case 'semrush':
       return <Badge className="bg-purple-500/15 text-purple-500 border-purple-500/30">Semrush</Badge>;
     case 'bytespider':
-      return <Badge className="bg-cyan-500/15 text-cyan-500 border-cyan-500/30">ByteSpider</Badge>;
+      return (
+        <div className="flex items-center">
+          <Badge className="bg-cyan-500/15 text-cyan-500 border-cyan-500/30">ByteSpider</Badge>
+          {verifiedBadge}
+        </div>
+      );
     case 'scanner':
       return <Badge className="bg-rose-500/15 text-rose-500 border-rose-500/30">Scanner</Badge>;
     default:
@@ -117,11 +177,13 @@ export function CrawlerLogsPage() {
   const [page, setPage] = useState(1);
   const [pageSize] = useState(25);
   const [botType, setBotType] = useState('all');
+  const [onlyContent, setOnlyContent] = useState(false);
+  const [onlyVerified, setOnlyVerified] = useState(false);
   const [search, setSearch] = useState('');
   const [searchInput, setSearchInput] = useState('');
 
   const { data, isLoading, isFetching, refetch } = useQuery<CrawlerLogsResponse>({
-    queryKey: ['admin-crawler-logs', { page, pageSize, botType, search }],
+    queryKey: ['admin-crawler-logs', { page, pageSize, botType, search, onlyContent, onlyVerified }],
     queryFn: async () => {
       const params = new URLSearchParams({
         page: String(page),
@@ -129,6 +191,8 @@ export function CrawlerLogsPage() {
       });
       if (botType && botType !== 'all') params.set('botType', botType);
       if (search) params.set('search', search);
+      if (onlyContent) params.set('onlyContent', 'true');
+      if (onlyVerified) params.set('onlyVerified', 'true');
 
       const res = await apiGet<CrawlerLogsResponse>(`/api/admin/crawler-logs?${params.toString()}`);
       return res;
@@ -139,8 +203,13 @@ export function CrawlerLogsPage() {
   const stats = data?.stats || {
     totalAll: 0,
     todayHits: 0,
+    verifiedHits: 0,
+    contentHits: 0,
     googleHits: 0,
     bingHits: 0,
+    openaiHits: 0,
+    claudeHits: 0,
+    byteSpiderHits: 0,
     ahrefsHits: 0,
     scannerHits: 0,
   };
@@ -179,11 +248,11 @@ export function CrawlerLogsPage() {
           </Button>
         </div>
 
-        {/* Overview Stats Cards */}
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {/* Overview Stats Cards (Aligned with APIVALE Cohorts) */}
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">今日爬取总频次</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">今日爬取总数</CardTitle>
               <Activity className="size-4 text-primary" />
             </CardHeader>
             <CardContent>
@@ -209,23 +278,42 @@ export function CrawlerLogsPage() {
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">商业 SEO 爬虫</CardTitle>
-              <Sparkles className="size-4 text-orange-500" />
+              <CardTitle className="text-sm font-medium text-muted-foreground">AI 搜索与索引</CardTitle>
+              <Sparkles className="size-4 text-cyan-500" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-orange-500">{stats.ahrefsHits.toLocaleString()}</div>
-              <p className="text-xs text-muted-foreground mt-1">AhrefsBot / Semrush 抓取</p>
+              <div className="text-2xl font-bold text-cyan-500">
+                {(stats.openaiHits + stats.claudeHits).toLocaleString()}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                OpenAI: {stats.openaiHits} · Claude: {stats.claudeHits}
+              </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">恶意路径扫描</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">实质页面抓取</CardTitle>
+              <Bot className="size-4 text-indigo-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-indigo-500">
+                {stats.contentHits.toLocaleString()}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Verified 认证率: {stats.totalAll > 0 ? Math.round((stats.verifiedHits / stats.totalAll) * 100) : 0}%
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">安全与探针拦截</CardTitle>
               <ShieldAlert className="size-4 text-rose-500" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-rose-500">{stats.scannerHits.toLocaleString()}</div>
-              <p className="text-xs text-muted-foreground mt-1">.env / php / wp 探针拦截</p>
+              <p className="text-xs text-muted-foreground mt-1">.env / php / 漏洞探针</p>
             </CardContent>
           </Card>
         </div>
@@ -261,26 +349,54 @@ export function CrawlerLogsPage() {
             )}
           </form>
 
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">类型筛选:</span>
-            <Select
-              value={botType}
-              onValueChange={(val) => {
-                setBotType(val);
+          <div className="flex flex-wrap items-center gap-3">
+            {/* Quick Cohort Filters from APIVALE */}
+            <Button
+              type="button"
+              variant={onlyContent ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => {
+                setOnlyContent(!onlyContent);
                 setPage(1);
               }}
+              className="text-xs"
             >
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="全部爬虫类型" />
-              </SelectTrigger>
-              <SelectContent>
-                {BOT_TYPE_OPTIONS.map((opt) => (
-                  <SelectItem key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              📄 仅看实质页面 (Content)
+            </Button>
+            <Button
+              type="button"
+              variant={onlyVerified ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => {
+                setOnlyVerified(!onlyVerified);
+                setPage(1);
+              }}
+              className="text-xs"
+            >
+              🛡️ 仅看 Verified 官方真蜘蛛
+            </Button>
+
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">类型:</span>
+              <Select
+                value={botType}
+                onValueChange={(val) => {
+                  setBotType(val);
+                  setPage(1);
+                }}
+              >
+                <SelectTrigger className="w-[190px]">
+                  <SelectValue placeholder="全部爬虫类型" />
+                </SelectTrigger>
+                <SelectContent>
+                  {BOT_TYPE_OPTIONS.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </div>
 
@@ -290,8 +406,8 @@ export function CrawlerLogsPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[180px]">时间 (UTC/Local)</TableHead>
-                  <TableHead className="w-[140px]">爬虫类型</TableHead>
+                  <TableHead className="w-[180px]">时间 (Local/UTC)</TableHead>
+                  <TableHead className="w-[160px]">爬虫与认证状态</TableHead>
                   <TableHead className="w-[80px]">状态码</TableHead>
                   <TableHead className="w-[160px]">来源 IP / 国家</TableHead>
                   <TableHead className="min-w-[240px]">抓取路径</TableHead>
@@ -313,7 +429,7 @@ export function CrawlerLogsPage() {
                       <TableCell className="font-mono text-xs text-muted-foreground whitespace-nowrap">
                         {formatDateTime(item.createdAt)}
                       </TableCell>
-                      <TableCell>{getBotBadge(item.botType)}</TableCell>
+                      <TableCell>{getBotBadge(item.botType, item.isVerified)}</TableCell>
                       <TableCell>{getStatusBadge(item.statusCode)}</TableCell>
                       <TableCell>
                         <div className="flex items-center gap-1.5 font-mono text-xs">
@@ -326,15 +442,26 @@ export function CrawlerLogsPage() {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Tooltip>
-                          <TooltipTrigger className="font-mono text-xs text-left block truncate max-w-[340px] hover:text-primary transition-colors cursor-pointer">
-                            <span className="text-muted-foreground mr-1.5 font-semibold">{item.method}</span>
-                            {item.path}
-                          </TooltipTrigger>
-                          <TooltipContent side="top" className="max-w-md break-all font-mono text-xs">
-                            {item.method} {item.path}
-                          </TooltipContent>
-                        </Tooltip>
+                        <div className="flex items-center gap-1.5">
+                          {item.isContent === 1 ? (
+                            <span className="inline-flex items-center text-[9px] bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-semibold px-1 rounded">
+                              页面
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center text-[9px] bg-muted text-muted-foreground px-1 rounded">
+                              探针
+                            </span>
+                          )}
+                          <Tooltip>
+                            <TooltipTrigger className="font-mono text-xs text-left block truncate max-w-[300px] hover:text-primary transition-colors cursor-pointer">
+                              <span className="text-muted-foreground mr-1.5 font-semibold">{item.method}</span>
+                              {item.path}
+                            </TooltipTrigger>
+                            <TooltipContent side="top" className="max-w-md break-all font-mono text-xs">
+                              {item.method} {item.path}
+                            </TooltipContent>
+                          </Tooltip>
+                        </div>
                       </TableCell>
                       <TableCell>
                         <Tooltip>

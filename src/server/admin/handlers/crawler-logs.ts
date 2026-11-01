@@ -10,10 +10,18 @@ export async function GET({ searchParams }: AdminHandlerContext) {
   const offset = (page - 1) * pageSize;
   const botType = searchParams.get('botType');
   const search = searchParams.get('search')?.trim();
+  const onlyContent = searchParams.get('onlyContent') === 'true';
+  const onlyVerified = searchParams.get('onlyVerified') === 'true';
 
   const conditions = [];
   if (botType && botType !== 'all') {
     conditions.push(eq(crawlerLog.botType, botType));
+  }
+  if (onlyContent) {
+    conditions.push(eq(crawlerLog.isContent, 1));
+  }
+  if (onlyVerified) {
+    conditions.push(eq(crawlerLog.isVerified, 1));
   }
   if (search) {
     conditions.push(
@@ -43,15 +51,32 @@ export async function GET({ searchParams }: AdminHandlerContext) {
       .then((r) => r[0]?.count || 0),
   ]);
 
-  // 2. Fetch Stats Overview (Today)
+  // 2. Fetch Stats Overview (Today & Cohorts)
   const todayStart = new Date();
   todayStart.setHours(0, 0, 0, 0);
 
-  const [totalAll, todayHits, googleHits, bingHits, ahrefsHits, scannerHits] = await Promise.all([
+  const [
+    totalAll,
+    todayHits,
+    verifiedHits,
+    contentHits,
+    googleHits,
+    bingHits,
+    openaiHits,
+    claudeHits,
+    byteSpiderHits,
+    ahrefsHits,
+    scannerHits,
+  ] = await Promise.all([
     db().select({ count: count() }).from(crawlerLog).then((r) => r[0]?.count || 0),
     db().select({ count: count() }).from(crawlerLog).where(gte(crawlerLog.createdAt, todayStart)).then((r) => r[0]?.count || 0),
+    db().select({ count: count() }).from(crawlerLog).where(eq(crawlerLog.isVerified, 1)).then((r) => r[0]?.count || 0),
+    db().select({ count: count() }).from(crawlerLog).where(eq(crawlerLog.isContent, 1)).then((r) => r[0]?.count || 0),
     db().select({ count: count() }).from(crawlerLog).where(eq(crawlerLog.botType, 'googlebot')).then((r) => r[0]?.count || 0),
     db().select({ count: count() }).from(crawlerLog).where(eq(crawlerLog.botType, 'bingbot')).then((r) => r[0]?.count || 0),
+    db().select({ count: count() }).from(crawlerLog).where(eq(crawlerLog.botType, 'openai')).then((r) => r[0]?.count || 0),
+    db().select({ count: count() }).from(crawlerLog).where(eq(crawlerLog.botType, 'claude')).then((r) => r[0]?.count || 0),
+    db().select({ count: count() }).from(crawlerLog).where(eq(crawlerLog.botType, 'bytespider')).then((r) => r[0]?.count || 0),
     db().select({ count: count() }).from(crawlerLog).where(eq(crawlerLog.botType, 'ahrefs')).then((r) => r[0]?.count || 0),
     db().select({ count: count() }).from(crawlerLog).where(eq(crawlerLog.botType, 'scanner')).then((r) => r[0]?.count || 0),
   ]);
@@ -64,8 +89,13 @@ export async function GET({ searchParams }: AdminHandlerContext) {
     stats: {
       totalAll,
       todayHits,
+      verifiedHits,
+      contentHits,
       googleHits,
       bingHits,
+      openaiHits,
+      claudeHits,
+      byteSpiderHits,
       ahrefsHits,
       scannerHits,
     },

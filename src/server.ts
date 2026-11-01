@@ -212,9 +212,11 @@ async function handleRequest(req: Request): Promise<Response> {
       req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
       '';
     const country = (req.headers.get('cf-ipcountry') || '').toUpperCase().trim();
+    const isContent = isContentRequest(urlObj.pathname) ? 1 : 0;
+    const isVerified = isVerifiedBot(botType, clientIp, req) ? 1 : 0;
 
     console.log(
-      `[CRAWLER][${botType}] ${req.method} ${urlObj.pathname}${urlObj.search} | ${response.status} | IP: ${clientIp} (${country || 'Unknown'}) | UA: ${ua}`
+      `[CRAWLER][${botType}][${isVerified ? 'VERIFIED' : 'UNVERIFIED'}][${isContent ? 'CONTENT' : 'PROTOCOL'}] ${req.method} ${urlObj.pathname}${urlObj.search} | ${response.status} | IP: ${clientIp} (${country || 'Unknown'}) | UA: ${ua}`
     );
 
     // Asynchronously insert into database without blocking client response
@@ -228,6 +230,8 @@ async function handleRequest(req: Request): Promise<Response> {
           path: `${urlObj.pathname}${urlObj.search}`.slice(0, 500),
           statusCode: response.status,
           botType,
+          isVerified,
+          isContent,
           userAgent: ua.slice(0, 1000),
           createdAt: new Date(),
         });
@@ -277,14 +281,90 @@ async function handleRequest(req: Request): Promise<Response> {
   return response;
 }
 
+function isContentRequest(pathname: string): boolean {
+  const p = pathname.toLowerCase();
+  // Protocol, meta, and telemetry probes
+  if (
+    p === '/robots.txt' ||
+    p === '/sitemap.xml' ||
+    p === '/sitemap.txt' ||
+    p === '/favicon.ico' ||
+    p === '/llms.txt' ||
+    p.startsWith('/.well-known/') ||
+    p.startsWith('/api/')
+  ) {
+    return false;
+  }
+  // Static asset files
+  if (/\.(png|jpg|jpeg|gif|webp|svg|ico|css|js|mjs|map|woff|woff2|ttf|otf|mp4|webm)$/i.test(p)) {
+    return false;
+  }
+  return true;
+}
+
+function isVerifiedBot(botType: string, ip: string, req: Request): boolean {
+  if (botType === 'scanner' || botType === 'other_bot') return false;
+
+  // 1. Cloudflare verified bot detection if available
+  const cf = (req as unknown as { cf?: { botManagement?: { verifiedBot?: boolean } } }).cf;
+  if (cf?.botManagement?.verifiedBot) return true;
+
+  // 2. Known official search engine / AI bot CIDR & Subnet checks (aligned with APIVALE design)
+  if (botType === 'googlebot') {
+    return ip.startsWith('66.249.') || ip.startsWith('192.178.') || ip.startsWith('35.247.');
+  }
+  if (botType === 'bingbot') {
+    return (
+      ip.startsWith('40.77.') ||
+      ip.startsWith('157.55.') ||
+      ip.startsWith('207.46.') ||
+      ip.startsWith('13.66.') ||
+      ip.startsWith('40.76.')
+    );
+  }
+  if (botType === 'apple') {
+    return ip.startsWith('17.');
+  }
+  if (botType === 'openai') {
+    return (
+      ip.startsWith('20.15.') ||
+      ip.startsWith('20.161.') ||
+      ip.startsWith('20.162.') ||
+      ip.startsWith('20.165.') ||
+      ip.startsWith('20.166.') ||
+      ip.startsWith('20.168.') ||
+      ip.startsWith('20.171.') ||
+      ip.startsWith('20.172.') ||
+      ip.startsWith('20.174.') ||
+      ip.startsWith('23.98.') ||
+      ip.startsWith('52.')
+    );
+  }
+  if (botType === 'claude') {
+    return ip.startsWith('54.') || ip.startsWith('3.') || ip.startsWith('34.') || ip.startsWith('52.');
+  }
+  if (botType === 'bytespider') {
+    return ip.startsWith('110.242.') || ip.startsWith('111.225.') || ip.startsWith('124.236.');
+  }
+
+  return false;
+}
+
 function detectBotType(ua: string, path: string): string | null {
   const lPath = path.toLowerCase();
   if (['.php', '.env', 'wp-admin', 'shell', 'backup', '.git', 'composer.json', 'xmlrpc', 'setup.cgi'].some((s) => lPath.includes(s))) {
     return 'scanner';
   }
   const lUa = ua.toLowerCase();
+  // Mainstream Search Engines
   if (lUa.includes('googlebot')) return 'googlebot';
   if (lUa.includes('bingbot')) return 'bingbot';
+  // Modern AI Search & Training Bots (APIVALE GEO/AIO alignment)
+  if (lUa.includes('oai-searchbot') || lUa.includes('chatgpt-user') || lUa.includes('gptbot')) return 'openai';
+  if (lUa.includes('claudebot') || lUa.includes('anthropic-ai')) return 'claude';
+  if (lUa.includes('applebot')) return 'apple';
+  if (lUa.includes('perplexitybot')) return 'perplexity';
+  // SEO & Intelligence Crawlers
   if (lUa.includes('ahrefs')) return 'ahrefs';
   if (lUa.includes('semrush')) return 'semrush';
   if (lUa.includes('bytespider')) return 'bytespider';
