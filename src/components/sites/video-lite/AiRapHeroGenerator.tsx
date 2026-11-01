@@ -79,11 +79,11 @@ const OCCASION_CHIPS: OccasionChipItem[] = [
     label: '🔥 Hotel Lobby · Orange Studio',
     tag: 'Viral Duo Trend',
     title: 'Hotel Lobby · Migos Orange Studio Stage',
-    desc: 'The viral Quavo & Takeoff "Hotel Lobby" aesthetic: 2 rappers trading punchy roast bars on a hanging mic, heavy 808 Trap beat, 9:16 vertical framing.',
+    desc: 'The viral Quavo & Takeoff "Hotel Lobby" aesthetic: 2 rappers trading punchy roast bars on a hanging mic, heavy 808 Trap beat, vertical video framing.',
     image: '/imgs/scenes/hotel-lobby-studio.jpg',
     video: '/videos/showcase/duo-generated-demo.mp4',
     prompt:
-      'Two rappers in an iconic bright orange studio with a single hanging microphone, inspired by Quavo and Takeoff Hotel Lobby, trading punchy roast bars, heavy 808 trap beat, rhythmic head nods, hip-hop hand gestures, 9:16 vertical TikTok style',
+      'Two rappers in an iconic bright orange studio with a single hanging microphone, inspired by Quavo and Takeoff Hotel Lobby, trading punchy roast bars, heavy 808 trap beat, rhythmic head nods, hip-hop hand gestures, viral rap music video style',
     styleId: 'trap-808',
     lyrics:
       '[Intro]\nYeah, check the mic in the orange room!\nTakeoff and Quavo vibe, let us get it!\n[Verse 1]\nYou always talking big but you showed up late\nI drop the heavy 808 to seal your fate\nLook at your drip, man, it expired in 08\nWe run the lobby while you hesitate\n[Chorus]\nHotel Lobby with the hanging mic swing\nHeavy 808s make the whole booth ring\nWho is the real king running this thing!',
@@ -97,7 +97,7 @@ const OCCASION_CHIPS: OccasionChipItem[] = [
     image: '/imgs/scenes/on-the-radar-booth.jpg',
     video: '/videos/ontheradar15_vertical.mp4',
     prompt:
-      'A rapper inside the legendary On The Radar dark studio with neon green fluorescent tube lights and a standing microphone, intense aggressive UK drill freestyle, sharp sliding 808 bass, rapid rhythmic hand gestures and head nods, 9:16 vertical cinema',
+      'A rapper inside the legendary On The Radar dark studio with neon green fluorescent tube lights and a standing microphone, intense aggressive UK drill freestyle, sharp sliding 808 bass, rapid rhythmic hand gestures and head nods, cinematic dark studio style',
     styleId: 'cyber-drill',
     lyrics:
       '[Intro]\n(Whisper) On The Radar, green lights on.\nCheck the mic, sliding bass drop.\n[Verse 1]\nStanding by the mic under neon green tube\nEvery sliding 808 breaking every old rule\nGot the rapid drill flow cutting through the dark night\nDouble rhyme scheme locked beneath the spotlight\n[Chorus]\nOn The Radar, watch the green glow flare\nSliding drill bass taking over everywhere!',
@@ -111,7 +111,7 @@ const OCCASION_CHIPS: OccasionChipItem[] = [
     image: '/imgs/scenes/friends-roast-cypher.jpg',
     video: '/videos/friendsroast15_vertical.mp4',
     prompt:
-      'Two best friends roasting each other about always being late and ordering too much takeout, fast witty punchlines, underground cypher lighting, hyping crowd in background, 9:16 vertical TikTok style',
+      'Two best friends roasting each other about always being late and ordering too much takeout, fast witty punchlines, underground cypher lighting, hyping crowd in background, viral TikTok rap battle style',
     styleId: 'boom-bap',
     lyrics:
       '[Intro]\nRound one, let us see who got the real bars!\n[Verse 1]\nYou order takeout five times a day\nSaying you on a diet, what a cliché\nI drop the boom bap while you still text delay\n[Chorus]\nBest friends roasting under underground lights\nTaking the mic and reaching new heights!',
@@ -139,7 +139,7 @@ const OCCASION_CHIPS: OccasionChipItem[] = [
     image: '/imgs/scenes/hotel-lobby-studio.jpg',
     video: '/videos/birthday15_vertical.mp4',
     prompt:
-      'Birthday celebration rap concert, 50 Cent In Da Club aesthetic, golden studio lighting, confetti and champagne, high-energy party delivery, 9:16 vertical TikTok style',
+      'Birthday celebration rap concert, 50 Cent In Da Club aesthetic, golden studio lighting, confetti and champagne, high-energy party delivery, viral party rap style',
     styleId: 'trap-808',
     lyrics:
       '[Intro]\nGo shorty, it is your birthday!\nWe gonna party like it is your birthday!\nWe gonna sip Bacardi like it is your birthday!\n[Verse 1]\nAnother year older, still acting twenty-one\nGolden chains swinging, the party just begun\nHit the VIP section, bottles in the air\n[Chorus]\nHappy birthday to the legend in the place\nTonight we taking over the whole space!',
@@ -153,7 +153,7 @@ const OCCASION_CHIPS: OccasionChipItem[] = [
     image: '/imgs/scenes/on-the-radar-booth.jpg',
     video: '/videos/drill15_vertical.mp4',
     prompt:
-      'Brooklyn drill dance performance, Pop Smoke iconic Woo Walk glide, deep sliding 808 sub-bass sync, cinematic dark street aesthetic with subtle neon rim light, confident raw swagger, 9:16 vertical TikTok viral style',
+      'Brooklyn drill dance performance, Pop Smoke iconic Woo Walk glide, deep sliding 808 sub-bass sync, cinematic dark street aesthetic with subtle neon rim light, confident raw swagger, viral Brooklyn drill dance style',
     styleId: 'cyber-drill',
     lyrics:
       '[Intro]\nWoo! Watch the slide, lock the frame!\n[Verse 1]\nGliding on the 808, ice on my wrist\nStepping to the left with a Brooklyn twist\nBass hits heavy, cameras locked in tight\n[Chorus]\nWoo Walk smooth under flashing lights\nKing of the drill taking over the night!',
@@ -163,11 +163,11 @@ const OCCASION_CHIPS: OccasionChipItem[] = [
     label: '🌃 Neon Street Freestyle',
     tag: 'Cyberpunk Lo-Fi',
     title: 'Neon Street Session Stage',
-    desc: 'Midnight cyberpunk alley with neon reflections: stylish rapper delivering sharp freestyle bars, gold chain, 808 beat, 9:16 vertical cinema.',
+    desc: 'Midnight cyberpunk alley with neon reflections: stylish rapper delivering sharp freestyle bars, gold chain, 808 beat, cinematic music video.',
     image: '/imgs/scenes/neon-street-freestyle.jpg',
     video: '/videos/neonfreestyle15_vertical.mp4',
     prompt:
-      'Solo rapper flowing effortlessly in a rain-slicked cyberpunk alley with neon reflections, gold chain, street gestures and rhythmic head nods, vintage warm tube lighting, punchy lo-fi trap beat, 9:16 vertical cinema',
+      'Solo rapper flowing effortlessly in a rain-slicked cyberpunk alley with neon reflections, gold chain, street gestures and rhythmic head nods, vintage warm tube lighting, punchy lo-fi trap beat, cinematic music video style',
     styleId: 'melodic-rap',
     lyrics:
       '[Intro]\nRain dropping on the neon pavement...\n[Verse 1]\nReflections of cyan, echoes in the mist\nA handheld mic and a story in the fist\nMelodic rhythm floating through the street\n[Chorus]\nCity never sleeps, but the flow so deep\nMidnight verses that the memories keep.',

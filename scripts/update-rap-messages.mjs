@@ -20,7 +20,7 @@ zh['common.metadata.description'] =
 en['landing.meta.title'] =
   'AI Rap Video Generator: Photos to Rap Battle | Airap';
 en['landing.meta.description'] =
-  'Create viral AI rap videos with Airap. Turn two photos into a Migos-style orange studio rap battle with AI lyrics, 808 trap beats, and auto lip-sync.';
+  'The #1 AI rap video generator. Turn two photos into a viral Migos-style orange studio rap battle with AI lyrics, 808 trap beats, and auto lip-sync.';
 
 zh['landing.meta.title'] =
   'AI 说唱视频生成器：照片一键变说唱对决 MV | Airap';
