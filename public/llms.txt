@@ -31,9 +31,18 @@
 4. **Instant Video Generation**: Click "Direct Rap MV" to render synchronized lip-sync and body motion video, with direct MP4 downloads.
 
 ## Frequently Asked Questions (FAQ)
+- **Q: How to create an AI rap video online?**
+  - A: To create an AI rap video, select a preset like the viral Migos Orange Studio or Freestyle Cypher, upload 1 or 2 portrait photos, and enter a topic or roast idea. Airap Video automatically drafts multisyllabic rhymes, pairs them with an 808 trap beat, and animates characters with synchronized lip-sync and rhythmic head nods in under 60 seconds.
+- **Q: What makes Airap Video different from standard AI avatar tools like HeyGen or D-ID?**
+  - A: Unlike traditional AI avatar generators that produce stiff, static talking heads suited only for corporate presentations, Airap Video is purpose-built for high-energy hip-hop performance. It features rhythmic 808 head-bobbing, authentic shoulder bounces, expressive rap hand gestures, and high-BPM lip-sync engineered specifically for fast chopper flows rather than monotone speech.
+- **Q: How to create the viral Migos orange studio rap video?**
+  - A: Step 1: Select the "Iconic Orange Studio" preset on our homepage. Step 2: Upload 1 or 2 front-facing portrait photos. Step 3: Enter your roast or topic prompt. Airap Video automatically synthesizes alternating rhyming bars, drops an 808 trap beat, and renders both MCs around a hanging studio mic in 9:16 vertical format in under 60 seconds.
+- **Q: Do I need a microphone, studio equipment, or rap skills to use Airap?**
+  - A: Not at all. You don't need any musical background, songwriting experience, or microphone equipment. Simply upload your photos and type a topic; Airap's full-stack pipeline handles lyric writing, flow arrangement, professional trap vocal synthesis, and synchronized video rendering entirely in the cloud.
+- **Q: Can I monetize AI rap videos on TikTok, Instagram Reels, and YouTube Shorts?**
+  - A: Yes, 100%. All instrumental beats, vocal tracks, and videos generated on Airap Video are completely royalty-free with full commercial usage rights. Videos export directly in 9:16 vertical MP4 format with embedded animated subtitles, ready for creator monetization, ad revenue, and sponsorship campaigns without copyright strikes.
 - **Q: Is Airap Video free to use online?**
-  - A: Yes, Airap Video offers free signup credits for users to generate and download their first AI rap music video online without watermarks.
-- **Q: Can I create the viral Migos orange studio rap video here?**
-  - A: Yes, Airap Video natively provides the "Migos Orange Studio" preset featuring the bright orange booth, hanging microphone, and Quavo/Takeoff style dual delivery.
-- **Q: Does it support both Solo and Duo rap battles?**
-  - A: Yes, both Solo MC and Duo Cypher modes are supported with dedicated model architectures (HappyHorse 1.1 I2V for solo, R2V for duo).
+  - A: Yes, Airap Video is 100% web-based and free to try. Every new account receives free welcome credits to create AI rap music videos directly in your browser without software downloads or credit cards. Affordable single-use passes ($9.9) and creator subscriptions are available for high-priority rendering.
+- **Q: Can I export high-definition AI rap videos without watermarks?**
+  - A: Yes! Pro plans and single-use packs allow you to export crisp 1080p AI rap videos completely without watermarks. You can render videos from prompts, uploaded photos, or custom audio tracks with 100% commercial clearance.
+
