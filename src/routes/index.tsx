@@ -9,7 +9,6 @@ import { getLocale, locales, localizeUrl } from '@/paraglide/runtime.js';
 import { Pricing } from '@/blocks/pricing';
 import { SupportWidget } from '@/blocks/support-widget';
 import { AiRapHeroGenerator } from '@/components/sites/video-lite/AiRapHeroGenerator';
-import { MigosStudioSection } from '@/components/sites/video-lite/MigosStudioSection';
 import { VideoShowcaseEvidence } from '@/components/sites/video-lite/VideoShowcaseEvidence';
 import { VideoHowItWorks } from '@/components/sites/video-lite/VideoHowItWorks';
 import { VideoFeatures } from '@/components/sites/video-lite/VideoFeatures';
@@ -106,7 +105,6 @@ function HomePage() {
             }
           }}
         />
-        <MigosStudioSection />
         <VideoShowcaseEvidence />
         <VideoHowItWorks />
         <VideoFeatures />
