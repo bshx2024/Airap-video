@@ -149,6 +149,48 @@ export const RAP_THEME_PRESETS: RapThemePreset[] = [
   },
 ];
 
+export type RapModelId = 'kling-4-0' | 'wan-2-6' | 'seedance-2-5';
+
+export interface RapModelOption {
+  id: RapModelId;
+  name: string;
+  badge: string;
+  tag: string;
+  description: string;
+  baseWaitTime: number;
+  multiplier: number;
+}
+
+export const RAP_MODEL_OPTIONS: RapModelOption[] = [
+  {
+    id: 'kling-4-0',
+    name: 'Kling 4.0 Studio',
+    badge: 'Recommended',
+    tag: 'Cinema Lip-Sync & Flow',
+    description: 'Specialized for multi-character rapid vocal phonemes, hanging mic body groove, and crisp facial tracking.',
+    baseWaitTime: 40,
+    multiplier: 1.0,
+  },
+  {
+    id: 'wan-2-6',
+    name: 'Wan 2.6 Flash',
+    badge: 'Fast Rap',
+    tag: 'High-Speed Flow',
+    description: 'Fastest pipeline (~30–45s) for instant TikTok viral sharing and lightweight roast clips.',
+    baseWaitTime: 25,
+    multiplier: 0.8333,
+  },
+  {
+    id: 'seedance-2-5',
+    name: 'Seedance 2.5 Pro',
+    badge: 'Ultra Motion',
+    tag: 'Extreme Choreography',
+    description: 'Advanced dance choreography, Pop Smoke Woo Walk glides, and heavy 808 motion-sync dynamics.',
+    baseWaitTime: 55,
+    multiplier: 1.5,
+  },
+];
+
 export const RAP_COST_CREDITS = 120; // 5秒基准点数
 
 export const RAP_DURATION_OPTIONS = [
@@ -157,10 +199,44 @@ export const RAP_DURATION_OPTIONS = [
   { duration: 15, label: '15s Master Cypher', credits: 360 },
 ] as const;
 
-export function getRapCostCredits(duration: number = 5): number {
-  if (duration >= 15) return 360;
-  if (duration >= 10) return 240;
-  return 120;
+export function getRapCostCredits(
+  duration: number = 15,
+  mode: string = 'duo',
+  modelId: string = 'kling-4-0'
+): number {
+  let base = 360;
+  if (duration <= 5) base = 120;
+  else if (duration <= 10) base = 240;
+
+  // Mode adjustment
+  let modeFactor = 1.0;
+  if (mode === 'solo') modeFactor = 0.67; // Solo 1-photo: 80 / 160 / 240
+  else if (mode === 'group') modeFactor = 1.5; // Group 3+ photos: 180 / 360 / 540
+
+  // Model multiplier
+  const model = RAP_MODEL_OPTIONS.find((m) => m.id === modelId) || RAP_MODEL_OPTIONS[0];
+  const total = Math.round((base * modeFactor * model.multiplier) / 10) * 10;
+  return total;
+}
+
+export function getRapEstimatedWaitTime(
+  duration: number = 15,
+  mode: string = 'duo',
+  modelId: string = 'kling-4-0'
+): string {
+  const model = RAP_MODEL_OPTIONS.find((m) => m.id === modelId) || RAP_MODEL_OPTIONS[0];
+  let baseSeconds = model.baseWaitTime;
+  if (duration === 10) baseSeconds += 15;
+  if (duration === 15) baseSeconds += 30;
+  if (mode === 'solo') baseSeconds = Math.max(20, baseSeconds - 10);
+  if (mode === 'group') baseSeconds += 20;
+  const min = Math.max(20, baseSeconds - 10);
+  const max = baseSeconds + 15;
+  return `~${min}–${max}s`;
+}
+
+export function getRapResolution(aspectRatio: string = '9:16'): string {
+  return aspectRatio === '16:9' ? '1080P Widescreen (16:9)' : '1080P Full HD (9:16)';
 }
 
 export interface RapHomepageTheme {

@@ -9,7 +9,7 @@ export function VideoCostCalculator() {
   const [resolution, setResolution] = useState<'720P' | '1080P'>('1080P');
   const [mode, setMode] = useState<'duo' | 'solo'>('duo');
 
-  const baseCredits = getRapCostCredits(duration);
+  const baseCredits = getRapCostCredits(duration, mode);
   // Estimate video yields across plans
   const starterCredits = 600;
   const proCredits = 1800;

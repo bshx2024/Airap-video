@@ -48,9 +48,14 @@ import {
   RAP_AVATAR_PRESETS,
   RAP_COST_CREDITS,
   RAP_DURATION_OPTIONS,
+  RAP_MODEL_OPTIONS,
   RAP_STYLE_PRESETS,
   getRapCostCredits,
+  getRapEstimatedWaitTime,
+  getRapResolution,
   type RapAvatarPreset,
+  type RapModelId,
+  type RapModelOption,
   type RapStylePreset,
 } from '@/config/rap-presets';
 import { QuickAuthModal } from '@/components/sites/root/QuickAuthModal';
@@ -244,6 +249,12 @@ export function AiRapHeroGenerator() {
   const [monitorMode, setMonitorMode] = useState<'demo' | 'reference'>('demo');
   const [selectedDuration, setSelectedDuration] = useState<number>(15);
   const [aspectRatio, setAspectRatio] = useState<'9:16' | '16:9'>('9:16');
+  const [selectedModelId, setSelectedModelId] = useState<RapModelId>('kling-4-0');
+
+  // Real-time dynamic cost, wait time, and resolution
+  const currentCost = getRapCostCredits(selectedDuration, studioMode, selectedModelId);
+  const currentWaitTime = getRapEstimatedWaitTime(selectedDuration, studioMode, selectedModelId);
+  const currentResolution = getRapResolution(aspectRatio);
 
   // Portrait Photos (Duo mode supports two slots)
   const [photo1, setPhoto1] = useState<string>(
@@ -405,52 +416,17 @@ export function AiRapHeroGenerator() {
     if (matched) {
       setSelectedStyle(matched);
     }
-    if (chip.id === 'hotel-lobby') {
-      setCustomVideoUrl('/videos/hotellobby15.mp4');
-      setCustomVideoName('hotellobby15.mp4');
-      setStudioMode('mimic');
+    if (chip.id === 'hotel-lobby' || chip.id === 'friends-roast' || chip.id === 'birthday-hype') {
+      setCustomVideoUrl(chip.video || '/videos/hotellobby15.mp4');
+      setCustomVideoName((chip.video ? chip.video.split('/').pop() : 'hotellobby15.mp4') || 'hotellobby15.mp4');
+      setStudioMode('duo');
       setAudioOption('original');
       setSelectedDuration(15);
       setAspectRatio('9:16');
-    } else if (chip.id === 'on-the-radar') {
-      setCustomVideoUrl('/videos/ontheradar15_vertical.mp4');
-      setCustomVideoName('ontheradar15_vertical.mp4');
-      setStudioMode('mimic');
-      setAudioOption('original');
-      setSelectedDuration(15);
-      setAspectRatio('9:16');
-    } else if (chip.id === 'friends-roast') {
-      setCustomVideoUrl('/videos/friendsroast15_vertical.mp4');
-      setCustomVideoName('friendsroast15_vertical.mp4');
-      setStudioMode('mimic');
-      setAudioOption('original');
-      setSelectedDuration(15);
-      setAspectRatio('9:16');
-    } else if (chip.id === 'pet-rap') {
-      setCustomVideoUrl('/videos/cutepet15_vertical.mp4');
-      setCustomVideoName('cutepet15_vertical.mp4');
-      setStudioMode('mimic');
-      setAudioOption('original');
-      setSelectedDuration(15);
-      setAspectRatio('9:16');
-    } else if (chip.id === 'birthday-hype') {
-      setCustomVideoUrl('/videos/birthday15_vertical.mp4');
-      setCustomVideoName('birthday15_vertical.mp4');
-      setStudioMode('mimic');
-      setAudioOption('original');
-      setSelectedDuration(15);
-      setAspectRatio('9:16');
-    } else if (chip.id === 'choreo-drill') {
-      setCustomVideoUrl('/videos/drill15_vertical.mp4');
-      setCustomVideoName('drill15_vertical.mp4');
-      setStudioMode('mimic');
-      setAudioOption('original');
-      setSelectedDuration(15);
-      setAspectRatio('9:16');
-    } else if (chip.id === 'neon-freestyle') {
-      setCustomVideoUrl('/videos/neonfreestyle15_vertical.mp4');
-      setCustomVideoName('neonfreestyle15_vertical.mp4');
-      setStudioMode('mimic');
+    } else {
+      setCustomVideoUrl(chip.video || null);
+      setCustomVideoName((chip.video ? chip.video.split('/').pop() : '') || '');
+      setStudioMode('solo');
       setAudioOption('original');
       setSelectedDuration(15);
       setAspectRatio('9:16');
@@ -671,10 +647,10 @@ export function AiRapHeroGenerator() {
     // 先强制刷新一次最新的 credits 数据（防止后台刚充值或扣费但前端缓存未过期）
     const freshRes = await creditsQuery.refetch();
     const realBalance = freshRes.data?.balance ?? balance ?? 0;
-    const requiredCredits = getRapCostCredits(selectedDuration);
+    const requiredCredits = getRapCostCredits(selectedDuration, studioMode, selectedModelId);
     if (realBalance < requiredCredits) {
       toast.error(
-        `Insufficient credits. This ${selectedDuration}s generation requires ${requiredCredits} credits. Current balance: ${realBalance}`
+        `Insufficient credits. This generation requires ${requiredCredits} credits (${selectedDuration}s · ${studioMode.toUpperCase()} · ${selectedModelId}). Current balance: ${realBalance}`
       );
       return;
     }
@@ -711,6 +687,7 @@ export function AiRapHeroGenerator() {
           videoPrompt: currentChip.prompt,
           scenarioId: currentChip.id || activeChipId || 'hotel-lobby',
           styleId: selectedStyle.id,
+          videoModel: selectedModelId,
           customLyrics: lyrics.trim(),
           referenceVideoUrl: customVideoUrl || undefined,
           audioOption,
@@ -836,13 +813,16 @@ export function AiRapHeroGenerator() {
           {/* Left Column: Directing & Inputs */}
           <div className="flex flex-col justify-between min-w-0">
             {/* STEP 1: Video Mode Selector */}
-            <div className="mb-4 flex flex-wrap items-center justify-between gap-2 border-b border-white/10 pb-3">
+            <div className="mb-2.5 flex flex-wrap items-center justify-between gap-2 border-b border-white/10 pb-3">
               <div className="flex items-center gap-2">
                 <span className="rounded-md bg-amber-500/20 px-2 py-0.5 text-[10px] font-black tracking-wider text-amber-300 uppercase">
                   STEP 1
                 </span>
                 <span className="text-xs font-bold text-white/90">
-                  Choose Your Video Mode:
+                  Select Rap Mode:
+                </span>
+                <span className="hidden text-[11px] font-medium text-amber-300/80 sm:inline-block">
+                  (Default: Duo Cypher for 2-Photo Battles)
                 </span>
               </div>
               <div className="inline-flex rounded-xl border border-white/10 bg-white/[0.06] p-1">
@@ -850,16 +830,23 @@ export function AiRapHeroGenerator() {
                   type="button"
                   onClick={() => setStudioMode('duo')}
                   className={cn(
-                    'flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all',
+                    'relative flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all',
                     studioMode === 'duo'
-                      ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
+                      ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/25 ring-1 ring-amber-300 font-bold'
                       : 'text-white/70 hover:bg-white/10 hover:text-white'
                   )}
                 >
                   <Mic className="size-3.5" />
-                  <span>Duo Rap Battle</span>
-                  <span className="rounded-full bg-slate-900/30 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-amber-950">
-                    Recommended
+                  <span>Duo Cypher (2 Photos)</span>
+                  <span
+                    className={cn(
+                      'rounded-full px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider',
+                      studioMode === 'duo'
+                        ? 'bg-slate-950 text-amber-300'
+                        : 'bg-amber-400/20 text-amber-300'
+                    )}
+                  >
+                    Default
                   </span>
                 </button>
 
@@ -869,12 +856,12 @@ export function AiRapHeroGenerator() {
                   className={cn(
                     'flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all',
                     studioMode === 'group'
-                      ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
+                      ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20 font-bold'
                       : 'text-white/70 hover:bg-white/10 hover:text-white'
                   )}
                 >
                   <Users className="size-3.5" />
-                  <span>Group Rap</span>
+                  <span>Group Rap (Crew)</span>
                 </button>
 
                 <button
@@ -883,7 +870,7 @@ export function AiRapHeroGenerator() {
                   className={cn(
                     'flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all',
                     studioMode === 'solo'
-                      ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
+                      ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20 font-bold'
                       : 'text-white/70 hover:bg-white/10 hover:text-white'
                   )}
                 >
@@ -907,10 +894,7 @@ export function AiRapHeroGenerator() {
                   )}
                 >
                   <Film className="size-3.5" />
-                  <span>Upload Master Video</span>
-                  <span className="hidden rounded-full bg-rose-500/30 px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider text-rose-200 sm:inline-block">
-                    Mimic
-                  </span>
+                  <span>Master Video Mimic</span>
                 </button>
               </div>
 
@@ -923,6 +907,38 @@ export function AiRapHeroGenerator() {
                 <Sparkles className="size-3 text-amber-400" />
                 <span>Try Duo Demo Photos</span>
               </button>
+            </div>
+
+            {/* Mode Guide Pill Banner */}
+            <div className="mb-3.5 flex items-center justify-between rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-xs">
+              <div className="flex items-center gap-2">
+                <span className="flex size-2 rounded-full bg-amber-400 animate-pulse" />
+                <span className="text-white/80">
+                  {studioMode === 'duo' && (
+                    <>
+                      <strong className="font-bold text-amber-300">Default Mode: Duo Cypher (2 Photos Rap Battle)</strong> — Directs two people into split-screen bars, turn-based punchlines, and 808 beat drops.
+                    </>
+                  )}
+                  {studioMode === 'group' && (
+                    <>
+                      <strong className="font-bold text-amber-300">Group Rap Mode (3-4 Avatars)</strong> — Synchronized crew cypher with multi-vocal hype and stage camera movement.
+                    </>
+                  )}
+                  {studioMode === 'solo' && (
+                    <>
+                      <strong className="font-bold text-amber-300">Solo / Pet MC Mode</strong> — Single portrait or cute pet spitting hypersonic chopper flow to bouncy trap drums.
+                    </>
+                  )}
+                  {studioMode === 'mimic' && (
+                    <>
+                      <strong className="font-bold text-amber-300">Upload Master Video Mode</strong> — Upload your own reference rap video and replace avatars with custom photos.
+                    </>
+                  )}
+                </span>
+              </div>
+              <span className="hidden text-[11px] font-semibold text-amber-400/90 sm:inline-block">
+                Auto-Synchronized 808 Beat
+              </span>
             </div>
 
             {/* Master Video Reference Banner / Control */}
@@ -1494,8 +1510,8 @@ export function AiRapHeroGenerator() {
               )}
             </div>
 
-            {/* 7. Aspect Ratio & Video Duration Settings */}
-            <div className="mb-3 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+            {/* 7. Directing Settings: Aspect Ratio, Video Duration & AI Video Model */}
+            <div className="mb-3 grid grid-cols-1 gap-2.5 sm:grid-cols-3">
               {/* Aspect Ratio Selector */}
               <div className="rounded-xl border border-white/10 bg-white/[0.03] p-2.5">
                 <div className="mb-1.5 flex items-center justify-between">
@@ -1545,12 +1561,13 @@ export function AiRapHeroGenerator() {
                     <span>Duration</span>
                   </span>
                   <span className="text-[10px] font-semibold text-amber-300">
-                    {selectedDuration}s · {getRapCostCredits(selectedDuration)} Credits
+                    {selectedDuration}s · {currentCost} Credits
                   </span>
                 </div>
                 <div className="grid grid-cols-3 gap-1.5">
                   {RAP_DURATION_OPTIONS.map((opt) => {
                     const isSelected = selectedDuration === opt.duration;
+                    const optCost = getRapCostCredits(opt.duration, studioMode, selectedModelId);
                     return (
                       <button
                         key={opt.duration}
@@ -1565,7 +1582,44 @@ export function AiRapHeroGenerator() {
                       >
                         <span className="text-xs font-bold">{opt.duration}s</span>
                         <span className={cn('text-[9px]', isSelected ? 'text-amber-300 font-semibold' : 'text-white/50')}>
-                          {opt.credits} C
+                          {optCost} C
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* AI Video Model Selector */}
+              <div className="rounded-xl border border-white/10 bg-white/[0.03] p-2.5">
+                <div className="mb-1.5 flex items-center justify-between">
+                  <span className="flex items-center gap-1.5 text-xs font-bold text-white">
+                    <Sparkles className="size-3.5 text-amber-400" />
+                    <span>AI Video Model</span>
+                  </span>
+                  <span className="text-[10px] font-semibold text-amber-300">
+                    {RAP_MODEL_OPTIONS.find((m) => m.id === selectedModelId)?.name.split(' ')[0] || 'Kling 4.0'}
+                  </span>
+                </div>
+                <div className="grid grid-cols-3 gap-1.5">
+                  {RAP_MODEL_OPTIONS.map((model) => {
+                    const isSelected = selectedModelId === model.id;
+                    return (
+                      <button
+                        key={model.id}
+                        type="button"
+                        onClick={() => setSelectedModelId(model.id)}
+                        className={cn(
+                          'flex cursor-pointer flex-col items-center justify-center rounded-lg border py-1.5 px-1 text-center transition-all active:scale-95',
+                          isSelected
+                            ? 'border-amber-400 bg-amber-400/20 text-white shadow-[0_0_15px_rgba(251,191,36,0.25)] ring-1 ring-amber-400'
+                            : 'border-white/10 bg-white/5 text-white/70 hover:border-white/25 hover:bg-white/10 hover:text-white'
+                        )}
+                        title={model.desc}
+                      >
+                        <span className="text-xs font-bold truncate max-w-full">{model.name.split(' ')[0]}</span>
+                        <span className={cn('text-[9px]', isSelected ? 'text-amber-300 font-semibold' : 'text-white/50')}>
+                          {model.badge}
                         </span>
                       </button>
                     );
@@ -1574,33 +1628,70 @@ export function AiRapHeroGenerator() {
               </div>
             </div>
 
-            {/* STEP 5: Generate Your Video & Transparent Cost */}
-            <div className="rounded-2xl border border-amber-500/25 bg-amber-500/[0.04] p-3 pt-2">
-              <div className="mb-2 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="rounded-md bg-amber-500/20 px-2 py-0.5 text-[10px] font-black tracking-wider text-amber-300 uppercase">
-                    STEP 5
+            {/* STEP 5: Generate Your Video & Transparent Real-Time Specs */}
+            <div className="rounded-2xl border border-amber-500/30 bg-gradient-to-b from-[#0e1628] to-[#090e1a] p-3.5 shadow-lg">
+              {/* Live Spec Matrix Bar: Mode, Resolution, Wait Time & Actual Cost */}
+              <div className="mb-3 grid grid-cols-2 gap-2 rounded-xl border border-white/10 bg-white/[0.04] p-2.5 sm:grid-cols-4">
+                <div className="flex flex-col">
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                    Active Mode
                   </span>
-                  <span className="text-xs font-bold text-white/90">
-                    Generate Your AI Rap Battle Video:
+                  <span
+                    className="mt-0.5 truncate text-xs font-bold text-amber-300"
+                    title={
+                      studioMode === 'duo'
+                        ? 'Duo Cypher (2 Photos Rap Battle · Default)'
+                        : studioMode === 'group'
+                        ? 'Group Rap (Crew Cypher)'
+                        : studioMode === 'solo'
+                        ? 'Solo / Pet MC'
+                        : 'Master Video Mimic'
+                    }
+                  >
+                    {studioMode === 'duo'
+                      ? '🎤 Duo Cypher (Default)'
+                      : studioMode === 'group'
+                      ? '👥 Group Rap'
+                      : studioMode === 'solo'
+                      ? '👤 Solo MC'
+                      : '🎬 Video Mimic'}
                   </span>
                 </div>
-                <div className="text-[11px] font-medium text-amber-300">
-                  Estimated Cost:{' '}
-                  <strong className="font-bold text-amber-400">
-                    {getRapCostCredits(selectedDuration)} Credits
-                  </strong>{' '}
-                  <span className="text-white/50">
-                    ({selectedDuration}s · {aspectRatio} · {studioMode === 'duo' ? 'Duo Battle' : 'Solo Rap'})
+
+                <div className="flex flex-col border-l border-white/10 pl-2">
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                    Resolution
+                  </span>
+                  <span className="mt-0.5 text-xs font-bold text-white">
+                    {currentResolution}
+                  </span>
+                </div>
+
+                <div className="flex flex-col border-l border-white/10 pl-2">
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                    Est. Wait Time
+                  </span>
+                  <span className="mt-0.5 text-xs font-bold text-cyan-300">
+                    ⏱️ {currentWaitTime}
+                  </span>
+                </div>
+
+                <div className="flex flex-col border-l border-white/10 pl-2">
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                    Estimated Cost
+                  </span>
+                  <span className="mt-0.5 text-xs font-extrabold text-amber-400">
+                    ⚡ {currentCost} Credits
                   </span>
                 </div>
               </div>
 
+              {/* Primary Action Button */}
               <button
                 type="button"
                 onClick={handleStartGeneration}
                 disabled={isSubmitting || (taskStatus === 'processing' && taskProgress < 100)}
-                className="group relative flex h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 via-rose-500 to-purple-600 px-6 text-sm font-bold text-white shadow-[0_0_30px_rgba(245,158,11,0.35)] transition-all hover:opacity-95 hover:shadow-[0_0_40px_rgba(245,158,11,0.5)] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50"
+                className="group relative flex h-13 w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 via-rose-500 to-purple-600 px-6 text-sm font-bold text-white shadow-[0_0_30px_rgba(245,158,11,0.35)] transition-all hover:opacity-95 hover:shadow-[0_0_40px_rgba(245,158,11,0.5)] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {taskStatus === 'processing' && taskProgress < 100 ? (
                   <>
@@ -1612,14 +1703,21 @@ export function AiRapHeroGenerator() {
                     <Wand2 className="size-4 animate-pulse" />
                     <span>
                       {session?.user
-                        ? `Generate My Rap Video (${getRapCostCredits(selectedDuration)} Credits · ${selectedDuration}s)`
+                        ? `Generate My Rap Video · ${currentCost} Credits (${selectedDuration}s · 1080P · ${currentWaitTime})`
                         : `Generate My Rap Video (Get Free Signup Credits)`}
                     </span>
                   </>
                 )}
               </button>
-              <div className="mt-2 flex items-center justify-between px-1 text-[11px] text-slate-400">
-                <span>Est. time: ~45–90s · 1080P Social Export</span>
+
+              {/* Status & Balance Footer */}
+              <div className="mt-2.5 flex flex-wrap items-center justify-between gap-1 px-1 text-[11px] text-slate-400">
+                <span className="flex items-center gap-1.5">
+                  <span className="size-1.5 rounded-full bg-emerald-400" />
+                  <span>
+                    Model: <strong className="text-white/80">{RAP_MODEL_OPTIONS.find(m => m.id === selectedModelId)?.name || 'Kling 4.0'}</strong> · {currentResolution} · Est. {currentWaitTime}
+                  </span>
+                </span>
                 <span>
                   Credit Balance:{' '}
                   <strong className="text-amber-300">

@@ -273,6 +273,7 @@ export async function startRapTask(params: {
     audioUrl = '',
     duration = 5,
     aspectRatio = '9:16',
+    videoModel = 'kling-4-0',
   } = params;
 
   const validImageUrls = imageUrls.length > 0 ? imageUrls : imageUrl ? [imageUrl] : [];
@@ -282,7 +283,7 @@ export async function startRapTask(params: {
   const primaryImageUrl = validImageUrls[0];
 
   const selectedDuration = Number(duration) === 15 ? 15 : Number(duration) === 10 ? 10 : 5;
-  const costCredits = getRapCostCredits(selectedDuration);
+  const costCredits = getRapCostCredits(selectedDuration, studioMode, videoModel);
   const balance = await getBalance(userId);
 
   if (balance < costCredits) {
