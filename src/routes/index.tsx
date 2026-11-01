@@ -9,6 +9,7 @@ import { getLocale, locales, localizeUrl } from '@/paraglide/runtime.js';
 import { Pricing } from '@/blocks/pricing';
 import { SupportWidget } from '@/blocks/support-widget';
 import { AiRapHeroGenerator } from '@/components/sites/video-lite/AiRapHeroGenerator';
+import { VideoCompetitorComparison } from '@/components/sites/video-lite/VideoCompetitorComparison';
 import { VideoCta } from '@/components/sites/video-lite/VideoCta';
 import { VideoFaq } from '@/components/sites/video-lite/VideoFaq';
 import { VideoFeatures } from '@/components/sites/video-lite/VideoFeatures';
@@ -104,6 +105,7 @@ function HomePage() {
         <WhatIsVideoGenerator />
         <VideoHowItWorks />
         <VideoFeatures />
+        <VideoCompetitorComparison />
         <VideoUseCases />
         <VideoPromptInspirations onUsePrompt={handleUsePrompt} />
         <div className="text-foreground bg-white transition-colors dark:bg-[#060a13]">

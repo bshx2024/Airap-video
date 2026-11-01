@@ -30,6 +30,13 @@
 3. **Generate Rhyming Lyrics**: AI automatically drafts multi-syllable verses or allows custom lyrics input.
 4. **Instant Video Generation**: Click "Direct Rap MV" to render synchronized lip-sync and body motion video, with direct MP4 downloads.
 
+## Why Airap Video Beats Competitors (Market Benchmark)
+- **Vs. RapVideo.ai & WakePix**: Supports both 2 separate individual selfies and 1 group photo; allows personalized roast prompts with friends' names and inside jokes; features 5 distinct rap styles plus custom MP3 audio uploads.
+- **Vs. Hedra & LivePortrait**: Airap Video is a 100% all-in-one generator. You don't need to manually create external audio or stitch separate renders; everything is generated in one click.
+- **Vs. Suno & Udio**: Suno only outputs audio; Airap delivers the complete 9:16 vertical TikTok rap MV with synchronized lip-sync and dynamic body movement.
+- **Vs. HeyGen & D-ID**: Purpose-built for high-energy hip-hop performance with rhythmic head nods and body swag, avoiding stiff, robotic corporate avatars.
+- **Transparent Pricing**: Free welcome credits plus instant single-use passes from $9.99 with no forced monthly subscriptions.
+
 ## Frequently Asked Questions (FAQ)
 - **Q: How can I make the viral orange studio AI rap video with my friends' photos?**
   - A: Step 1: Select the "Iconic Orange Studio" preset on our homepage. Step 2: Upload 1 or 2 portrait photos of your friends. Step 3: Type your topic, joke, or friendly roast. Airap Video automatically synthesizes alternating rhyming bars, drops an 808 trap beat, and animates both friends around a hanging studio mic in under 60 seconds.
