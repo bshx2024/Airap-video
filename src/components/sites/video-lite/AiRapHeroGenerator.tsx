@@ -135,14 +135,14 @@ const OCCASION_CHIPS: OccasionChipItem[] = [
     label: '🎂 Birthday Roast & Hype',
     tag: 'Party Hype',
     title: 'Birthday Concert Hype Stage',
-    desc: 'Custom milestone birthday lyrics, golden studio setup, confetti, gold chains, and high-energy flow.',
+    desc: 'The legendary 50 Cent "In Da Club" birthday vibe: iconic "Go shorty, it is your birthday" hook, party hype, heavy 808 club beat.',
     image: '/imgs/scenes/hotel-lobby-studio.jpg',
-    video: '/videos/showcase/generated/glacier-titan.mp4',
+    video: '/videos/birthday15_vertical.mp4',
     prompt:
-      'Two friends celebrating a milestone birthday in a golden hip-hop studio, hilarious witty birthday roast verses, concert-level hype, confetti and gold chains, high-energy delivery',
+      'Birthday celebration rap concert, 50 Cent In Da Club aesthetic, golden studio lighting, confetti and champagne, high-energy party delivery, 9:16 vertical TikTok style',
     styleId: 'trap-808',
     lyrics:
-      '[Intro]\nBlow out the candles, crank up the bass!\n[Verse 1]\nAnother year older, wrinkles on your face\nStill acting twenty-one all over the place\nGolden chains swinging, confetti in the air\n[Chorus]\nHappy birthday to the legendary clown\nTonight we taking over the whole town!',
+      '[Intro]\nGo shorty, it is your birthday!\nWe gonna party like it is your birthday!\nWe gonna sip Bacardi like it is your birthday!\n[Verse 1]\nAnother year older, still acting twenty-one\nGolden chains swinging, the party just begun\nHit the VIP section, bottles in the air\n[Chorus]\nHappy birthday to the legend in the place\nTonight we taking over the whole space!',
   },
   {
     id: 'choreo-drill',
@@ -429,6 +429,13 @@ export function AiRapHeroGenerator() {
     } else if (chip.id === 'pet-rap') {
       setCustomVideoUrl('/videos/cutepet15_vertical.mp4');
       setCustomVideoName('cutepet15_vertical.mp4');
+      setStudioMode('mimic');
+      setAudioOption('original');
+      setSelectedDuration(15);
+      setAspectRatio('9:16');
+    } else if (chip.id === 'birthday-hype') {
+      setCustomVideoUrl('/videos/birthday15_vertical.mp4');
+      setCustomVideoName('birthday15_vertical.mp4');
       setStudioMode('mimic');
       setAudioOption('original');
       setSelectedDuration(15);
