@@ -64,6 +64,7 @@ const UTM_COOKIE_KEYS = [
 ];
 const ATTRIBUTION_COOKIE_ATTRS = 'Max-Age=2592000; Path=/; SameSite=Lax';
 const FT_COOKIE_ATTRS = 'Max-Age=31536000; Path=/; SameSite=Lax';
+const LT_COOKIE_ATTRS = 'Max-Age=2592000; Path=/; SameSite=Lax';
 
 // Behind a proxy req.url can carry an internal host, so also treat the public
 // app URL as "self" when filtering referrers.
@@ -140,66 +141,59 @@ export default {
 
 async function handleRequest(req: Request): Promise<Response> {
   const response = await paraglideMiddleware(req, () => handler.fetch(req));
-  // First-touch attribution: remember UTM params for 30 days so sign-up can
-  // stamp them onto the user row. Never overwrite an existing cookie.
   const urlObj = new URL(req.url);
-  const params = urlObj.searchParams;
   const cookieHeader = req.headers.get('cookie');
-  let hasNewUtm = false;
-  const capturedUtms: Record<string, string> = {};
 
-  for (const key of UTM_COOKIE_KEYS) {
-    const value = params.get(key);
-    if (!value || getCookieFromHeader(cookieHeader, key)) continue;
-    const sanitized = sanitizeUtm(value);
-    if (sanitized) {
-      hasNewUtm = true;
-      capturedUtms[key] = sanitized;
-      response.headers.append(
-        'Set-Cookie',
-        `${key}=${encodeURIComponent(sanitized)}; ${ATTRIBUTION_COOKIE_ATTRS}`
-      );
-    }
-  }
+  // Double-Touch Attribution Engine (Aligned with APIVALE design):
+  // 1. First-Touch (attr_ft, 1 year): records visitor's initial acquisition origin, never overwritten.
+  // 2. Last-Touch (attr_lt, 30 days): records most recent marketing touchpoint upon campaign re-entry.
+  const traffic = parseTrafficSource(urlObj, req.headers.get('referer'), [
+    urlObj.host,
+    appHost(),
+  ]);
 
-  // First-touch referrer: only page navigations arriving from another site.
-  const referer = req.headers.get('referer');
-  let capturedReferrer = '';
-  if (
-    referer &&
-    req.method === 'GET' &&
-    (req.headers.get('accept') || '').includes('text/html') &&
-    !getCookieFromHeader(cookieHeader, REFERRER_COOKIE)
-  ) {
-    const sanitized = sanitizeReferrer(referer, [
-      urlObj.host,
-      appHost(),
-    ]);
-    if (sanitized) {
-      capturedReferrer = sanitized;
-      response.headers.append(
-        'Set-Cookie',
-        `${REFERRER_COOKIE}=${encodeURIComponent(sanitized)}; ${ATTRIBUTION_COOKIE_ATTRS}`
-      );
-    }
-  }
-
-  // Structured First-Touch (attr_ft) cookie for robust cross-environment attribution
-  if (!getCookieFromHeader(cookieHeader, 'attr_ft') && (hasNewUtm || capturedReferrer)) {
-    const ftPayload = {
-      source: capturedUtms.utm_source || (capturedReferrer ? new URL(capturedReferrer.startsWith('http') ? capturedReferrer : `https://${capturedReferrer}`).hostname : 'direct'),
-      medium: capturedUtms.utm_medium || (capturedReferrer ? 'referral' : 'none'),
-      campaign: capturedUtms.utm_campaign || '',
-      term: capturedUtms.utm_term || '',
-      content: capturedUtms.utm_content || '',
-      referrer: capturedReferrer || referer || '',
-      landing: `${urlObj.pathname}${urlObj.search}`,
-      timestamp: Date.now(),
+  if (traffic.source) {
+    const now = Date.now();
+    const touchData = {
+      source: traffic.source,
+      medium: traffic.medium,
+      campaign: traffic.campaign,
+      term: traffic.term,
+      content: traffic.content,
+      referrer: traffic.referrer,
+      landing: traffic.landing,
+      timestamp: now,
     };
-    response.headers.append(
-      'Set-Cookie',
-      `attr_ft=${encodeURIComponent(JSON.stringify(ftPayload))}; ${FT_COOKIE_ATTRS}`
-    );
+
+    // 1. First-Touch Cookie (1 year)
+    if (!getCookieFromHeader(cookieHeader, 'attr_ft')) {
+      response.headers.append(
+        'Set-Cookie',
+        `attr_ft=${encodeURIComponent(JSON.stringify(touchData))}; ${FT_COOKIE_ATTRS}`
+      );
+    }
+
+    // 2. Last-Touch Cookie (30 days) — update on explicit marketing engagement
+    if (traffic.hasExplicitMarketing) {
+      response.headers.append(
+        'Set-Cookie',
+        `attr_lt=${encodeURIComponent(JSON.stringify(touchData))}; ${LT_COOKIE_ATTRS}`
+      );
+    }
+
+    // Also persist individual standard UTM cookies for backward compatibility
+    for (const key of UTM_COOKIE_KEYS) {
+      const val = urlObj.searchParams.get(key);
+      if (val && !getCookieFromHeader(cookieHeader, key)) {
+        const sanitized = sanitizeUtm(val);
+        if (sanitized) {
+          response.headers.append(
+            'Set-Cookie',
+            `${key}=${encodeURIComponent(sanitized)}; ${ATTRIBUTION_COOKIE_ATTRS}`
+          );
+        }
+      }
+    }
   }
 
   // Detect and persist crawler & scanner requests to database for admin review
@@ -374,3 +368,166 @@ function detectBotType(ua: string, path: string): string | null {
   if (lUa.includes('bot') || lUa.includes('spider') || lUa.includes('crawler') || lUa.includes('slurp')) return 'other_bot';
   return null;
 }
+
+export interface TrafficSource {
+  source: string;
+  medium: string;
+  campaign: string;
+  term: string;
+  content: string;
+  referrer: string;
+  landing: string;
+  hasExplicitMarketing: boolean;
+}
+
+export function parseTrafficSource(
+  urlObj: URL,
+  rawReferrer: string | null,
+  selfHosts: string[]
+): TrafficSource {
+  const params = urlObj.searchParams;
+
+  // 1. Standard UTM parameters
+  const utmSource = sanitizeUtm(params.get('utm_source') || '');
+  const utmMedium = sanitizeUtm(params.get('utm_medium') || '');
+  const utmCampaign = sanitizeUtm(params.get('utm_campaign') || '');
+  const utmTerm = sanitizeUtm(params.get('utm_term') || '');
+  const utmContent = sanitizeUtm(params.get('utm_content') || '');
+
+  // 2. Short and referral query parameters (APIVALE alignment: channel, ref, f, aff)
+  const channelParam = sanitizeUtm(params.get('channel') || '');
+  const refParam = sanitizeUtm(params.get('ref') || '');
+  const fParam = sanitizeUtm(params.get('f') || '');
+  const affParam = sanitizeUtm(params.get('aff') || '');
+
+  let source = utmSource || channelParam || refParam || fParam || '';
+  let medium = utmMedium || '';
+  let campaign = utmCampaign || '';
+  let hasExplicitMarketing = false;
+
+  if (affParam) {
+    if (!source) {
+      source = `aff_${affParam}`;
+      medium = 'referral';
+    }
+    hasExplicitMarketing = true;
+  }
+
+  if (source || medium || campaign) {
+    hasExplicitMarketing = true;
+    if (!medium) medium = 'campaign';
+    return {
+      source,
+      medium,
+      campaign,
+      term: utmTerm,
+      content: utmContent,
+      referrer: rawReferrer || '',
+      landing: `${urlObj.pathname}${urlObj.search}`,
+      hasExplicitMarketing,
+    };
+  }
+
+  // 3. Smart Referrer classification for video platforms & search engines
+  const cleanReferrer = rawReferrer?.trim() || '';
+  if (!cleanReferrer) {
+    return {
+      source: 'direct',
+      medium: 'none',
+      campaign: '',
+      term: '',
+      content: '',
+      referrer: '',
+      landing: `${urlObj.pathname}${urlObj.search}`,
+      hasExplicitMarketing: false,
+    };
+  }
+
+  try {
+    const refUrl = new URL(cleanReferrer.startsWith('http') ? cleanReferrer : `https://${cleanReferrer}`);
+    const host = refUrl.hostname.toLowerCase();
+
+    // Ignore internal navigation
+    if (selfHosts.some((sh) => sh && (host === sh.toLowerCase() || host.endsWith(`.${sh.toLowerCase()}`)))) {
+      return {
+        source: '',
+        medium: '',
+        campaign: '',
+        term: '',
+        content: '',
+        referrer: cleanReferrer,
+        landing: `${urlObj.pathname}${urlObj.search}`,
+        hasExplicitMarketing: false,
+      };
+    }
+
+    // Short-video & social media platforms (Crucial for AI Rap Video distribution)
+    if (host === 'tiktok.com' || host.endsWith('.tiktok.com') || host.includes('byteoversea')) {
+      source = 'tiktok';
+      medium = 'social';
+    } else if (host === 'instagram.com' || host.endsWith('.instagram.com')) {
+      source = 'instagram';
+      medium = 'social';
+    } else if (host === 'youtube.com' || host.endsWith('.youtube.com') || host === 'youtu.be' || host.endsWith('.youtu.be')) {
+      source = 'youtube';
+      medium = 'social';
+    } else if (
+      host === 'twitter.com' ||
+      host.endsWith('.twitter.com') ||
+      host === 'x.com' ||
+      host.endsWith('.x.com') ||
+      host === 't.co' ||
+      host.endsWith('.t.co')
+    ) {
+      source = 'twitter';
+      medium = 'social';
+    } else if (host === 'reddit.com' || host.endsWith('.reddit.com')) {
+      source = 'reddit';
+      medium = 'community';
+    } else if (host === 'facebook.com' || host.endsWith('.facebook.com') || host === 'fb.com' || host.endsWith('.fb.com')) {
+      source = 'facebook';
+      medium = 'social';
+    } else if (host === 'discord.com' || host.endsWith('.discord.com') || host === 'discord.gg') {
+      source = 'discord';
+      medium = 'social';
+    } else if (host.includes('google.')) {
+      source = 'google';
+      medium = 'organic';
+    } else if (host.includes('bing.')) {
+      source = 'bing';
+      medium = 'organic';
+    } else if (host.includes('baidu.')) {
+      source = 'baidu';
+      medium = 'organic';
+    } else if (host.includes('duckduckgo.')) {
+      source = 'duckduckgo';
+      medium = 'organic';
+    } else {
+      source = host;
+      medium = 'referral';
+    }
+
+    return {
+      source,
+      medium,
+      campaign: '',
+      term: '',
+      content: '',
+      referrer: cleanReferrer,
+      landing: `${urlObj.pathname}${urlObj.search}`,
+      hasExplicitMarketing: true,
+    };
+  } catch {
+    return {
+      source: 'referral',
+      medium: 'referral',
+      campaign: '',
+      term: '',
+      content: '',
+      referrer: cleanReferrer,
+      landing: `${urlObj.pathname}${urlObj.search}`,
+      hasExplicitMarketing: true,
+    };
+  }
+}
+
