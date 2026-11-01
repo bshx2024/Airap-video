@@ -31,18 +31,23 @@
 4. **Instant Video Generation**: Click "Direct Rap MV" to render synchronized lip-sync and body motion video, with direct MP4 downloads.
 
 ## Frequently Asked Questions (FAQ)
-- **Q: How to create an AI rap video online?**
-  - A: To create an AI rap video, select a preset like the viral Migos Orange Studio or Freestyle Cypher, upload 1 or 2 portrait photos, and enter a topic or roast idea. Airap Video automatically drafts multisyllabic rhymes, pairs them with an 808 trap beat, and animates characters with synchronized lip-sync and rhythmic head nods in under 60 seconds.
-- **Q: What makes Airap Video different from standard AI avatar tools like HeyGen or D-ID?**
-  - A: Unlike traditional AI avatar generators that produce stiff, static talking heads suited only for corporate presentations, Airap Video is purpose-built for high-energy hip-hop performance. It features rhythmic 808 head-bobbing, authentic shoulder bounces, expressive rap hand gestures, and high-BPM lip-sync engineered specifically for fast chopper flows rather than monotone speech.
-- **Q: How to create the viral Migos orange studio rap video?**
-  - A: Step 1: Select the "Iconic Orange Studio" preset on our homepage. Step 2: Upload 1 or 2 front-facing portrait photos. Step 3: Enter your roast or topic prompt. Airap Video automatically synthesizes alternating rhyming bars, drops an 808 trap beat, and renders both MCs around a hanging studio mic in 9:16 vertical format in under 60 seconds.
-- **Q: Do I need a microphone, studio equipment, or rap skills to use Airap?**
-  - A: Not at all. You don't need any musical background, songwriting experience, or microphone equipment. Simply upload your photos and type a topic; Airap's full-stack pipeline handles lyric writing, flow arrangement, professional trap vocal synthesis, and synchronized video rendering entirely in the cloud.
-- **Q: Can I monetize AI rap videos on TikTok, Instagram Reels, and YouTube Shorts?**
-  - A: Yes, 100%. All instrumental beats, vocal tracks, and videos generated on Airap Video are completely royalty-free with full commercial usage rights. Videos export directly in 9:16 vertical MP4 format with embedded animated subtitles, ready for creator monetization, ad revenue, and sponsorship campaigns without copyright strikes.
-- **Q: Is Airap Video free to use online?**
-  - A: Yes, Airap Video is 100% web-based and free to try. Every new account receives free welcome credits to create AI rap music videos directly in your browser without software downloads or credit cards. Affordable single-use passes ($9.9) and creator subscriptions are available for high-priority rendering.
-- **Q: Can I export high-definition AI rap videos without watermarks?**
-  - A: Yes! Pro plans and single-use packs allow you to export crisp 1080p AI rap videos completely without watermarks. You can render videos from prompts, uploaded photos, or custom audio tracks with 100% commercial clearance.
-
+- **Q: How can I make the viral orange studio AI rap video with my friends' photos?**
+  - A: Step 1: Select the "Iconic Orange Studio" preset on our homepage. Step 2: Upload 1 or 2 portrait photos of your friends. Step 3: Type your topic, joke, or friendly roast. Airap Video automatically synthesizes alternating rhyming bars, drops an 808 trap beat, and animates both friends around a hanging studio mic in under 60 seconds.
+- **Q: Is there an AI tool that turns two photos into a rap battle video?**
+  - A: Yes, Airap Video is built specifically for this. With our Duo Cypher mode, simply upload two individual photos. The AI stages both characters in a high-energy rap duel, alternating punchlines with rhythmic head-bobbing, authentic hip-hop hand gestures, and synchronized lip-sync.
+- **Q: Can AI automatically write rap lyrics and create a beat for my photos?**
+  - A: Yes, 100% automatically. Airap Video features a built-in AI Lyrics Studio and 808 beat engine. Input any topic or roast idea, and the AI automatically writes multisyllabic rhyming verses, arranges an authentic hip-hop flow (Trap, Boom Bap, or Drill), and pairs it with royalty-free music.
+- **Q: How do I make two people rap together with realistic lip sync using AI?**
+  - A: Airap Video solves the drifting mouth problem by combining specialized rap vocal synthesis with high-frame-rate diffusion models (Kling 3.0 Turbo & Wan 3.0). It tracks phonemes and fast consonants (B/P/T) so both characters rap their respective verses with razor-sharp lip alignment and body bounce.
+- **Q: What's the easiest AI rap video generator for beginners with no editing skills?**
+  - A: Airap Video is designed for complete beginners with zero video editing or musical skills. Everything runs in your browser in 4 simple steps: pick a preset, upload photos, enter a roast prompt, and click generate. No CapCut, Premiere, or complex timeline editing required.
+- **Q: Can I make a Hotel Lobby AI rap video using two separate selfies?**
+  - A: Yes! You do not need a joint photo of both people together. Simply upload two separate individual selfies taken in completely different lighting, times, or locations. Airap Video automatically extracts both subjects, standardizes the perspective, and places them side-by-side in the iconic orange studio booth.
+- **Q: Which AI rap video generator can create original lyrics, vocals and music automatically?**
+  - A: Airap Video is the leading all-in-one generator that handles the entire pipeline: AI-written multisyllabic rap lyrics, studio-quality rap vocals, royalty-free 808 trap beats, and synced 9:16 vertical video animation with animated karaoke subtitles in one single render.
+- **Q: What's the best free AI rap video maker for TikTok and YouTube Shorts?**
+  - A: Airap Video is the top choice for TikTok, Instagram Reels, and YouTube Shorts creators. It is free to try with welcome credits, exports natively in 9:16 vertical MP4 format, and generates 100% royalty-free tracks with animated subtitles so you can monetize without copyright issues.
+- **Q: How can I make my friends' faces look realistic while rapping in an AI video?**
+  - A: To prevent facial melting and distortions: 1) Upload clear, front-facing photos with even lighting and no sunglasses or heavy obstructions. 2) Airap Video uses high-fidelity facial landmark anchors that preserve distinctive facial features, expressions, and likeness even during fast rhythmic head bobs.
+- **Q: Can I create a funny AI rap battle video from photos without using complicated software?**
+  - A: Yes! Airap Video includes instant comedic roast presets (Banter, Workplace Grievances, Birthday Roasts). Just upload your friends' photos and pick a funny prompt. The AI generates hilarious back-and-forth bars and punchlines with comic timing, ready to share directly to social media in under 60 seconds.

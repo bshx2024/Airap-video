@@ -3,23 +3,23 @@ import { createFileRoute } from '@tanstack/react-router';
 
 import { envConfigs } from '@/config';
 import { getPublicSiteMetaFn } from '@/modules/config/server';
+import { cn } from '@/lib/utils';
 import { m } from '@/paraglide/messages.js';
 import { getLocale, locales, localizeUrl } from '@/paraglide/runtime.js';
 import { Pricing } from '@/blocks/pricing';
 import { SupportWidget } from '@/blocks/support-widget';
+import { AiRapHeroGenerator } from '@/components/sites/video-lite/AiRapHeroGenerator';
 import { VideoCta } from '@/components/sites/video-lite/VideoCta';
 import { VideoFaq } from '@/components/sites/video-lite/VideoFaq';
 import { VideoFeatures } from '@/components/sites/video-lite/VideoFeatures';
 import { VideoFooter } from '@/components/sites/video-lite/VideoFooter';
 import { VideoHeader } from '@/components/sites/video-lite/VideoHeader';
 import { VideoHeroGenerator } from '@/components/sites/video-lite/VideoHeroGenerator';
-import { VideoMarquee } from '@/components/sites/video-lite/VideoMarquee';
 import { VideoHowItWorks } from '@/components/sites/video-lite/VideoHowItWorks';
+import { VideoMarquee } from '@/components/sites/video-lite/VideoMarquee';
 import { VideoPromptInspirations } from '@/components/sites/video-lite/VideoPromptInspirations';
 import { VideoUseCases } from '@/components/sites/video-lite/VideoUseCases';
 import { WhatIsVideoGenerator } from '@/components/sites/video-lite/WhatIsVideoGenerator';
-import { AiRapHeroGenerator } from '@/components/sites/video-lite/AiRapHeroGenerator';
-import { cn } from '@/lib/utils';
 
 function HomePage() {
   const [generatorMode, setGeneratorMode] = useState<'rap' | 'classic'>('rap');
@@ -55,7 +55,7 @@ function HomePage() {
       <VideoHeader />
       <main>
         {/* Generator Mode Switcher */}
-        <div className="pt-24 pb-2 text-center bg-[#020617]">
+        <div className="bg-[#020617] pt-24 pb-2 text-center">
           <div className="inline-flex rounded-full border border-white/10 bg-white/[0.04] p-1.5 shadow-xl backdrop-blur-md">
             <button
               type="button"
@@ -174,6 +174,14 @@ export const Route = createFileRoute('/')({
         q: m['landing.video_faq.8.question']({}, { locale: locale as any }),
         a: m['landing.video_faq.8.answer']({}, { locale: locale as any }),
       },
+      {
+        q: m['landing.video_faq.9.question']({}, { locale: locale as any }),
+        a: m['landing.video_faq.9.answer']({}, { locale: locale as any }),
+      },
+      {
+        q: m['landing.video_faq.10.question']({}, { locale: locale as any }),
+        a: m['landing.video_faq.10.answer']({}, { locale: locale as any }),
+      },
     ];
 
     const jsonLdData = [
@@ -210,23 +218,47 @@ export const Route = createFileRoute('/')({
         step: [
           {
             '@type': 'HowToStep',
-            name: m['landing.how_to.step_1_title']({}, { locale: locale as any }),
-            text: m['landing.how_to.step_1_desc']({}, { locale: locale as any }),
+            name: m['landing.how_to.step_1_title'](
+              {},
+              { locale: locale as any }
+            ),
+            text: m['landing.how_to.step_1_desc'](
+              {},
+              { locale: locale as any }
+            ),
           },
           {
             '@type': 'HowToStep',
-            name: m['landing.how_to.step_2_title']({}, { locale: locale as any }),
-            text: m['landing.how_to.step_2_desc']({}, { locale: locale as any }),
+            name: m['landing.how_to.step_2_title'](
+              {},
+              { locale: locale as any }
+            ),
+            text: m['landing.how_to.step_2_desc'](
+              {},
+              { locale: locale as any }
+            ),
           },
           {
             '@type': 'HowToStep',
-            name: m['landing.how_to.step_3_title']({}, { locale: locale as any }),
-            text: m['landing.how_to.step_3_desc']({}, { locale: locale as any }),
+            name: m['landing.how_to.step_3_title'](
+              {},
+              { locale: locale as any }
+            ),
+            text: m['landing.how_to.step_3_desc'](
+              {},
+              { locale: locale as any }
+            ),
           },
           {
             '@type': 'HowToStep',
-            name: m['landing.how_to.step_4_title']({}, { locale: locale as any }),
-            text: m['landing.how_to.step_4_desc']({}, { locale: locale as any }),
+            name: m['landing.how_to.step_4_title'](
+              {},
+              { locale: locale as any }
+            ),
+            text: m['landing.how_to.step_4_desc'](
+              {},
+              { locale: locale as any }
+            ),
           },
         ],
       },
@@ -238,15 +270,18 @@ export const Route = createFileRoute('/')({
         { name: 'description', content: description },
         {
           name: 'robots',
-          content: 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1',
+          content:
+            'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1',
         },
         {
           name: 'googlebot',
-          content: 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1',
+          content:
+            'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1',
         },
         {
           name: 'bingbot',
-          content: 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1',
+          content:
+            'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1',
         },
         {
           name: 'keywords',

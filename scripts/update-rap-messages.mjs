@@ -144,78 +144,83 @@ zh['landing.how_to.step_4_title'] = '一键生成并导出';
 zh['landing.how_to.step_4_desc'] =
   '点击生成，数十秒内获取带卡点字幕的高清 9:16 竖屏成片，直接分享至各大平台。';
 
-// FAQ (Aligned for ChatGPT GEO & Google PAA)
+// FAQ (10 Exact User Questions Aligned for ChatGPT & Search Engines)
 en['landing.video_faq.title'] =
   'Frequently Asked Questions about AI Rap Videos';
-en['landing.video_faq.1.question'] = 'How to create an AI rap video online?';
+
+en['landing.video_faq.1.question'] =
+  "How can I make the viral orange studio AI rap video with my friends' photos?";
 en['landing.video_faq.1.answer'] =
-  'To create an AI rap video, select a preset like the viral Migos Orange Studio or Freestyle Cypher, upload 1 or 2 portrait photos, and enter a topic or roast idea. Airap Video automatically drafts multisyllabic rhymes, pairs them with an 808 trap beat, and animates characters with synchronized lip-sync and rhythmic head nods in under 60 seconds.';
+  'Step 1: Select the "Iconic Orange Studio" preset on our homepage. Step 2: Upload 1 or 2 portrait photos of your friends. Step 3: Type your topic, joke, or friendly roast. Airap Video automatically synthesizes alternating rhyming bars, drops an 808 trap beat, and animates both friends around a hanging studio mic in under 60 seconds.';
 
 en['landing.video_faq.2.question'] =
-  'What makes Airap Video different from standard AI avatar tools like HeyGen or D-ID?';
+  'Is there an AI tool that turns two photos into a rap battle video?';
 en['landing.video_faq.2.answer'] =
-  'Unlike traditional AI avatar generators that produce stiff, static talking heads suited only for corporate presentations, Airap Video is purpose-built for high-energy hip-hop performance. It features rhythmic 808 head-bobbing, authentic shoulder bounces, dynamic rap hand gestures, and high-BPM lip-sync engineered specifically for fast chopper flows rather than monotone speech.';
+  'Yes, Airap Video is built specifically for this. With our Duo Cypher mode, simply upload two individual photos. The AI stages both characters in a high-energy rap duel, alternating punchlines with rhythmic head-bobbing, authentic hip-hop hand gestures, and synchronized lip-sync.';
 
 en['landing.video_faq.3.question'] =
-  'How to create the viral Migos orange studio rap video?';
+  'Can AI automatically write rap lyrics and create a beat for my photos?';
 en['landing.video_faq.3.answer'] =
-  'Step 1: Select the "Iconic Orange Studio" preset on our homepage. Step 2: Upload 1 or 2 front-facing portrait photos. Step 3: Enter your roast or topic prompt. Airap Video automatically synthesizes alternating rhyming bars, drops an 808 trap beat, and renders both MCs around a hanging studio mic in 9:16 vertical format in under 60 seconds.';
+  'Yes, 100% automatically. Airap Video features a built-in AI Lyrics Studio and 808 beat engine. Input any topic or roast idea, and the AI automatically writes multisyllabic rhyming verses, arranges an authentic hip-hop flow (Trap, Boom Bap, or Drill), and pairs it with royalty-free music.';
 
 en['landing.video_faq.4.question'] =
-  'Do I need a microphone, studio equipment, or rap skills to use Airap?';
+  'How do I make two people rap together with realistic lip sync using AI?';
 en['landing.video_faq.4.answer'] =
-  "Not at all. You don't need any musical background, songwriting experience, or microphone equipment. Simply upload your photos and type a topic; Airap's full-stack pipeline handles lyric writing, flow arrangement, professional trap vocal synthesis, and synchronized video rendering entirely in the cloud.";
+  'Airap Video solves the drifting mouth problem by combining specialized rap vocal synthesis with high-frame-rate diffusion models (Kling 3.0 Turbo & Wan 3.0). It tracks phonemes and fast consonants (B/P/T) so both characters rap their respective verses with razor-sharp lip alignment and body bounce.';
 
 en['landing.video_faq.5.question'] =
-  'Can I monetize AI rap videos on TikTok, Instagram Reels, and YouTube Shorts?';
+  "What's the easiest AI rap video generator for beginners with no editing skills?";
 en['landing.video_faq.5.answer'] =
-  'Yes, 100%. All instrumental beats, vocal tracks, and videos generated on Airap Video are completely royalty-free with full commercial usage rights. Videos export directly in 9:16 vertical MP4 format with embedded animated subtitles, ready for creator monetization, ad revenue, and sponsorship campaigns without copyright strikes.';
+  'Airap Video is designed for complete beginners with zero video editing or musical skills. Everything runs in your browser in 4 simple steps: pick a preset, upload photos, enter a roast prompt, and click generate. No CapCut, Premiere, or complex timeline editing required.';
 
 en['landing.video_faq.6.question'] =
-  'Can AI create an entire rap song and video from photos alone?';
+  'Can I make a Hotel Lobby AI rap video using two separate selfies?';
 en['landing.video_faq.6.answer'] =
-  'Yes! Airap Video generates the entire rap from photos: original lyrics with multisyllabic rhyme schemes, royalty-free trap and boombap beats, expressive rap vocals, and dynamic performance videos with animated karaoke subtitles.';
+  'Yes! You do not need a joint photo of both people together. Simply upload two separate individual selfies taken in completely different lighting, times, or locations. Airap Video automatically extracts both subjects, standardizes the perspective, and places them side-by-side in the iconic orange studio booth.';
 
-en['landing.video_faq.7.question'] = 'Is Airap Video free to use online?';
+en['landing.video_faq.7.question'] =
+  'Which AI rap video generator can create original lyrics, vocals and music automatically?';
 en['landing.video_faq.7.answer'] =
-  'Yes, Airap Video is 100% web-based and free to try. Every new account receives free welcome credits to create AI rap music videos directly in your browser without software downloads or credit cards. Upgrading to a Pro plan unlocks unlimited high-priority generations and watermark-free downloads.';
+  'Airap Video is the leading all-in-one generator that handles the entire pipeline: AI-written multisyllabic rap lyrics, studio-quality rap vocals, royalty-free 808 trap beats, and synced 9:16 vertical video animation with animated karaoke subtitles in one single render.';
 
 en['landing.video_faq.8.question'] =
-  'Can I export high-definition AI rap videos without watermarks from MP3 or audio?';
+  "What's the best free AI rap video maker for TikTok and YouTube Shorts?";
 en['landing.video_faq.8.answer'] =
-  'Yes! While free preview generations may include a standard identifier, Pro and Creator plans allow you to export crisp 1080p AI rap videos completely without watermarks. You can generate raps from prompts, uploaded photos, or custom audio and MP3 tracks with 100% commercial clearance.';
+  'Airap Video is the top choice for TikTok, Instagram Reels, and YouTube Shorts creators. It is free to try with welcome credits, exports natively in 9:16 vertical MP4 format, and generates 100% royalty-free tracks with animated subtitles so you can monetize without copyright issues.';
 
-zh['landing.video_faq.title'] = '关于 AI 说唱视频的常见问题';
-zh['landing.video_faq.1.question'] = 'How to create an AI rap video online?';
-zh['landing.video_faq.1.answer'] =
-  '在 Airap Video 首页选择“经典橙色录音棚”或“双人对战”模板，上传 1 到 2 张人物照片，输入吐槽主题或提示词，点击生成即可。系统会在 60 秒内全自动完成写词、编曲、唇形对齐与身体律动渲染，输出带字幕的高清成片。';
-zh['landing.video_faq.2.question'] =
-  'What makes Airap Video different from standard AI avatar tools like HeyGen or D-ID?';
-zh['landing.video_faq.2.answer'] =
-  '不同于 HeyGen 或 D-ID 等仅适合做企业口播、呆板站桩说话的传统数字人，Airap Video 专为说唱视听表演定制。它具备随 808 鼓点律动的真实点头、耸肩反弹、专业 Hip-Hop 破框手势以及针对高 BPM 快节奏说唱深度优化的音画同步，呈现出极具视觉张力的爆款 MV 效果。';
-zh['landing.video_faq.3.question'] =
-  'How to create the viral Migos orange studio rap video?';
-zh['landing.video_faq.3.answer'] =
-  '第一步：在首页选择【经典橙色录音棚（Orange Studio）】预设；第二步：上传 1 到 2 张正脸人物照片；第三步：输入互怼吐槽主题或直接使用推荐词。Airap 将在 60 秒内全自动生成押韵歌词、808 伴奏以及置身于标志性明亮橙色背景与单只吊麦前的双人轮流开麦对战视频。';
-zh['landing.video_faq.4.question'] =
-  'Do I need a microphone, studio equipment, or rap skills to use Airap?';
-zh['landing.video_faq.4.answer'] =
-  '完全不需要。你无需任何乐理知识、作词能力或录音设备。只需上传照片并输入一句你想吐槽的话或想法，Airap 的全流程云端引擎就会全自动完成押韵词创作、Flow 编排、Trap 拟真人声录制与视频音画渲染。';
-zh['landing.video_faq.5.question'] =
-  'Can I monetize AI rap videos on TikTok, Instagram Reels, and YouTube Shorts?';
-zh['landing.video_faq.5.answer'] =
-  '完全可以，100% 支持商业变现。Airap Video 生成的所有伴奏编曲、人声与视频素材均为原创免版税授权。成片直接输出 9:16 竖屏高清 MP4 并内嵌酷炫动态卡点字幕，可无缝用于 TikTok、YouTube Shorts、抖音、快手等平台的创作者激励与商业接单。';
-zh['landing.video_faq.6.question'] =
-  'Can AI create an entire rap song and video from photos alone?';
-zh['landing.video_faq.6.answer'] =
-  '完全可以！Airap Video 涵盖从词、曲、唱到演的全流程：原创多音节押韵歌词、免版税 Trap/Boombap 节拍、拟真说唱声线以及音画同步的高清 MV 视频。';
-zh['landing.video_faq.7.question'] = 'Is Airap Video free to use online?';
-zh['landing.video_faq.7.answer'] =
-  'Yes, Airap Video is 100% online and free to try. Every new account receives free welcome credits to create AI rap music videos right in your browser without software downloads or credit cards. Upgrading to a Pro plan unlocks unlimited high-priority generations and watermark-free downloads.';
-zh['landing.video_faq.8.question'] =
-  'Can I export high-definition AI rap videos without watermarks from MP3 or audio?';
-zh['landing.video_faq.8.answer'] =
-  'Yes! While free preview generations may include a standard identifier, Pro and Creator plans allow you to export crisp 1080p AI rap videos completely without watermarks. You can generate raps from prompts, uploaded photos, or custom audio and MP3 tracks with 100% commercial clearance.';
+en['landing.video_faq.9.question'] =
+  "How can I make my friends' faces look realistic while rapping in an AI video?";
+en['landing.video_faq.9.answer'] =
+  'To prevent facial melting and distortions: 1) Upload clear, front-facing photos with even lighting and no sunglasses or heavy obstructions. 2) Airap Video uses high-fidelity facial landmark anchors that preserve distinctive facial features, expressions, and likeness even during fast rhythmic head bobs.';
+
+en['landing.video_faq.10.question'] =
+  'Can I create a funny AI rap battle video from photos without using complicated software?';
+en['landing.video_faq.10.answer'] =
+  "Yes! Airap Video includes instant comedic roast presets (Banter, Workplace Grievances, Birthday Roasts). Just upload your friends' photos and pick a funny prompt. The AI generates hilarious back-and-forth bars and punchlines with comic timing, ready to share directly to social media in under 60 seconds.";
+
+zh['landing.video_faq.title'] =
+  'Frequently Asked Questions about AI Rap Videos';
+
+zh['landing.video_faq.1.question'] = en['landing.video_faq.1.question'];
+zh['landing.video_faq.1.answer'] = en['landing.video_faq.1.answer'];
+zh['landing.video_faq.2.question'] = en['landing.video_faq.2.question'];
+zh['landing.video_faq.2.answer'] = en['landing.video_faq.2.answer'];
+zh['landing.video_faq.3.question'] = en['landing.video_faq.3.question'];
+zh['landing.video_faq.3.answer'] = en['landing.video_faq.3.answer'];
+zh['landing.video_faq.4.question'] = en['landing.video_faq.4.question'];
+zh['landing.video_faq.4.answer'] = en['landing.video_faq.4.answer'];
+zh['landing.video_faq.5.question'] = en['landing.video_faq.5.question'];
+zh['landing.video_faq.5.answer'] = en['landing.video_faq.5.answer'];
+zh['landing.video_faq.6.question'] = en['landing.video_faq.6.question'];
+zh['landing.video_faq.6.answer'] = en['landing.video_faq.6.answer'];
+zh['landing.video_faq.7.question'] = en['landing.video_faq.7.question'];
+zh['landing.video_faq.7.answer'] = en['landing.video_faq.7.answer'];
+zh['landing.video_faq.8.question'] = en['landing.video_faq.8.question'];
+zh['landing.video_faq.8.answer'] = en['landing.video_faq.8.answer'];
+zh['landing.video_faq.9.question'] = en['landing.video_faq.9.question'];
+zh['landing.video_faq.9.answer'] = en['landing.video_faq.9.answer'];
+zh['landing.video_faq.10.question'] = en['landing.video_faq.10.question'];
+zh['landing.video_faq.10.answer'] = en['landing.video_faq.10.answer'];
 
 // Use Cases
 en['landing.use_cases.title'] = 'What You Can Create with Airap Video';

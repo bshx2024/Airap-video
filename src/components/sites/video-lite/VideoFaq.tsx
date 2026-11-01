@@ -3,7 +3,7 @@
 import { tDynamic } from '@/core/i18n/dynamic';
 import { m } from '@/paraglide/messages.js';
 
-const FAQ_IDS = ['1', '2', '3', '4', '5', '6', '7', '8'] as const;
+const FAQ_IDS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'] as const;
 
 export function VideoFaq() {
   return (
