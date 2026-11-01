@@ -5,32 +5,42 @@ import { baseLocale } from '@/paraglide/runtime.js';
 import { getLocalPosts, mergePosts } from '@/content/posts';
 
 const STATIC_PAGES: { path: string; title: string; description: string }[] = [
-  { path: '', title: 'Home', description: 'Landing page' },
-  { path: '/pricing', title: 'Pricing', description: 'Pricing plans' },
-  { path: '/blog', title: 'Blog', description: 'Blog posts and articles' },
   {
-    path: '/text-to-image',
-    title: 'Text to Image',
-    description: 'Generate images from text prompts',
+    path: '',
+    title: 'AI Rap Video Studio',
+    description:
+      'The #1 AI Rap Video Generator. Transform photos into viral Migos orange studio rap battles, TikTok meme raps, and synced music videos in 60 seconds.',
   },
   {
-    path: '/image-to-image',
-    title: 'Image to Image',
-    description: 'Transform images with AI',
+    path: '/pricing',
+    title: 'Pricing & Credit Packages',
+    description:
+      'Transparent single-use passes and creator subscriptions for AI rap video generation with 100% royalty-free commercial rights.',
   },
-  {
-    path: '/prompts',
-    title: 'Prompts',
-    description: 'Curated AI image prompts',
-  },
-  { path: '/models', title: 'Models', description: 'AI image model catalog' },
-  { path: '/styles', title: 'Styles', description: 'Image style presets' },
   {
     path: '/templates',
-    title: 'Templates',
-    description: 'Ready-to-use generation templates',
+    title: 'Rap Video Templates',
+    description:
+      'Iconic templates including Migos Orange Studio, Underground Cypher, Trap Duel, and TikTok Meme Battles.',
   },
-  { path: '/tools', title: 'Tools', description: 'AI image editing tools' },
+  {
+    path: '/models',
+    title: 'AI Video & Audio Models',
+    description:
+      'High-energy diffusion models (Kling 3.0 Turbo, Wan 3.0, HappyHorse) optimized for hip-hop flow, dynamic head nods, and micro-lip-sync.',
+  },
+  {
+    path: '/my-creations',
+    title: 'Creations & Download',
+    description:
+      'Manage and download rendered 9:16 vertical MP4 rap videos with animated lyrics.',
+  },
+  {
+    path: '/blog',
+    title: 'Guides & Tutorials',
+    description:
+      'Step-by-step guides on creating viral TikTok rap videos, prompt inspirations, and lyric generation tips.',
+  },
 ];
 
 export const Route = createFileRoute('/llms-full.txt')({

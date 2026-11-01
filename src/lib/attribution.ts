@@ -108,7 +108,20 @@ export function parseTrafficSource(): {
 
   if (source || medium || campaign || term || content) {
     hasExplicitMarketing = true;
-    if (!medium) medium = 'campaign';
+    if (!medium) {
+      const s = source.toLowerCase();
+      if (
+        s.includes('chatgpt') ||
+        s.includes('claude') ||
+        s.includes('perplexity') ||
+        s.includes('copilot') ||
+        s.includes('gemini')
+      ) {
+        medium = 'ai_referral';
+      } else {
+        medium = 'campaign';
+      }
+    }
     return {
       source,
       medium,
@@ -156,8 +169,40 @@ export function parseTrafficSource(): {
 
     const host = refUrl.hostname.toLowerCase();
 
+    // AI Assistants & LLM referral platforms (GEO tracking)
+    if (host.includes('chatgpt.com') || host.includes('openai.com')) {
+      source = 'chatgpt';
+      medium = 'ai_referral';
+    } else if (host.includes('claude.ai') || host.includes('anthropic.com')) {
+      source = 'claude';
+      medium = 'ai_referral';
+    } else if (host.includes('perplexity.ai')) {
+      source = 'perplexity';
+      medium = 'ai_referral';
+    } else if (
+      host.includes('gemini.google.com') ||
+      host.includes('bard.google.com')
+    ) {
+      source = 'gemini';
+      medium = 'ai_referral';
+    } else if (host.includes('copilot.microsoft.com')) {
+      source = 'copilot';
+      medium = 'ai_referral';
+    } else if (host.includes('poe.com')) {
+      source = 'poe';
+      medium = 'ai_referral';
+    } else if (host.includes('grok.com') || host.includes('x.ai')) {
+      source = 'grok';
+      medium = 'ai_referral';
+    } else if (host.includes('kimi.moonshot.cn') || host.includes('kimi.ai')) {
+      source = 'kimi';
+      medium = 'ai_referral';
+    } else if (host.includes('doubao.com')) {
+      source = 'doubao';
+      medium = 'ai_referral';
+    }
     // Standard organic search engines
-    if (host.includes('google.')) {
+    else if (host.includes('google.')) {
       source = 'google';
       medium = 'organic';
     } else if (host.includes('bing.')) {
