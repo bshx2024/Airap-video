@@ -56,10 +56,10 @@ export const MARQUEE_CLIPS: MarqueeClip[] = [
   {
     id: 'night-neon',
     title: 'Neon Street Session',
-    tag: 'Boombap Freestyle',
-    video: '/videos/showcase/generated/night-conservatory.mp4',
+    tag: 'Cyberpunk Lo-Fi',
+    video: '/videos/neonfreestyle15_vertical.mp4',
     badge: '🌃 Night Cypher',
-    description: 'Late-night street cypher vibes with warm reflections and deep rhythm.',
+    description: 'Late-night street cypher vibes with neon reflections, gold chain, and deep rhythm.',
   },
 ];
 

@@ -163,11 +163,11 @@ const OCCASION_CHIPS: OccasionChipItem[] = [
     label: '🌃 Neon Street Freestyle',
     tag: 'Cyberpunk Lo-Fi',
     title: 'Neon Street Session Stage',
-    desc: 'Rain-slicked cyberpunk alley with neon reflections, handheld mic, relaxed head nods, chill boombap beat.',
-    image: '/imgs/scenes/friends-roast-cypher.jpg',
-    video: '/videos/showcase/generated/night-conservatory.mp4',
+    desc: 'Midnight cyberpunk alley with neon reflections: stylish rapper delivering sharp freestyle bars, gold chain, 808 beat, 9:16 vertical cinema.',
+    image: '/imgs/scenes/neon-street-freestyle.jpg',
+    video: '/videos/neonfreestyle15_vertical.mp4',
     prompt:
-      'Solo rapper flowing effortlessly in a rain-slicked cyberpunk alley with neon reflections, handheld mic, relaxed head nods, vintage warm tube lighting, lo-fi boombap chill beat, 9:16 vertical cinema',
+      'Solo rapper flowing effortlessly in a rain-slicked cyberpunk alley with neon reflections, gold chain, street gestures and rhythmic head nods, vintage warm tube lighting, punchy lo-fi trap beat, 9:16 vertical cinema',
     styleId: 'melodic-rap',
     lyrics:
       '[Intro]\nRain dropping on the neon pavement...\n[Verse 1]\nReflections of cyan, echoes in the mist\nA handheld mic and a story in the fist\nMelodic rhythm floating through the street\n[Chorus]\nCity never sleeps, but the flow so deep\nMidnight verses that the memories keep.',
@@ -443,6 +443,13 @@ export function AiRapHeroGenerator() {
     } else if (chip.id === 'choreo-drill') {
       setCustomVideoUrl('/videos/drill15_vertical.mp4');
       setCustomVideoName('drill15_vertical.mp4');
+      setStudioMode('mimic');
+      setAudioOption('original');
+      setSelectedDuration(15);
+      setAspectRatio('9:16');
+    } else if (chip.id === 'neon-freestyle') {
+      setCustomVideoUrl('/videos/neonfreestyle15_vertical.mp4');
+      setCustomVideoName('neonfreestyle15_vertical.mp4');
       setStudioMode('mimic');
       setAudioOption('original');
       setSelectedDuration(15);
