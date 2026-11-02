@@ -344,9 +344,6 @@ function RootComponent() {
               src={analytics.plausibleSrc || undefined}
             />
           ) : null}
-          {analytics?.pvuvSiteId ? (
-            <PvuvAnalytics siteId={analytics.pvuvSiteId} />
-          ) : null}
           {analytics?.adsenseCode ? (
             <Ads code={analytics.adsenseCode} loadScript={adsAllowed} />
           ) : null}
@@ -370,6 +367,12 @@ function RootDocument({ children }: { children: ReactNode }) {
     <html lang={getLocale()} suppressHydrationWarning>
       <head>
         <HeadContent />
+        <script
+          defer
+          src="https://www.pvuv.ai/f.js"
+          data-site="qjhBL7Ky"
+          data-api="https://in.pvuv.ai"
+        />
       </head>
       <body className="font-sans antialiased">
         {children}
