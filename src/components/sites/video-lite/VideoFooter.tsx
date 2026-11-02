@@ -1,7 +1,7 @@
 'use client';
 
 import type { SVGProps } from 'react';
-import { House } from 'lucide-react';
+import { House, Mail } from 'lucide-react';
 
 import { Link } from '@/core/i18n/navigation';
 import { m } from '@/paraglide/messages.js';
@@ -61,6 +61,7 @@ export function VideoFooter() {
         { label: m['landing.footer.terms'](), href: '/terms-of-service' },
         { label: m['landing.footer.cookies'](), href: '/cookie-policy' },
         { label: m['landing.footer.refund'](), href: '/refund-policy' },
+        { label: 'Contact: support@airap-video.net', href: 'mailto:support@airap-video.net' },
       ],
     },
   ];
@@ -123,6 +124,13 @@ export function VideoFooter() {
           <span className="text-sm text-slate-500 dark:text-[#94a3b8]">
             {m['landing.footer.copyright']()}
           </span>
+          <a
+            href="mailto:support@airap-video.net"
+            className="inline-flex items-center gap-1.5 text-sm text-slate-500 transition-colors hover:text-slate-900 dark:text-[#94a3b8] dark:hover:text-[#f8fafc]"
+          >
+            <Mail className="size-4" />
+            <span>support@airap-video.net</span>
+          </a>
         </div>
       </div>
     </footer>
