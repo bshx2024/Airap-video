@@ -118,6 +118,38 @@ export const envConfigs: Record<string, string> = {
   get paypal_environment() {
     return secretEnv('PAYPAL_ENVIRONMENT') || 'production';
   },
+  get default_payment_provider() {
+    return secretEnv('DEFAULT_PAYMENT_PROVIDER') || 'waffo';
+  },
+
+  get waffo_enabled() {
+    return secretEnv('WAFFO_ENABLED') || 'true';
+  },
+  get waffo_environment() {
+    return secretEnv('WAFFO_ENVIRONMENT') || 'prod';
+  },
+  get waffo_merchant_id() {
+    return secretEnv('WAFFO_MERCHANT_ID') || 'MER_6rnE47Namr6Wg54cKSFZsr';
+  },
+  get waffo_private_key() {
+    return (
+      secretEnv('WAFFO_PRIVATE_KEY') ||
+      'MIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCle8/v6rAw5n5aJQRmiqPn0FTUvlt1LWZceDtZ+YI4Yun6Kz94py4TocpKTji2vTl2JWigdGTcpPZC84P4imrxRk8FxFwcDERyM6DbXIMMnAyDtgB3QQy9zTv3JF/P0cZVNjhcZdOe8F2pM0gP1zV6dKGqW7g4bTEaDl2Oj2PPIoHBk1xbdIhr96ki71lJjQhYxxVApaIXcbybSFeFmd8rh7yj9fb/3/FkTmXKuiNfiS7DKTwoyM6JklNN4G9aJmJTF5kbqe66TYgrN5EHKGuHIpiuJLHowO2j+/Bag81Pp11mumPq2DHWpFO33kF/kSGYcz5x8tvSE3maDFVfjvolAgMBAAECggEAJb+D88jXrxfs65g1FET81YTGzQ6tIyIbju1YMJKDW2Ro1gmmfVm5X34Q/HkyY7DvWh13a96RIWm5yRTuXjQI6AevP/QGRNmhhWF0iIVmWWqBSkwqeAmNJACcdKhF+Mxzzv1CxwTtTHytCMsrXX2sc8YGGKu6bpit0jFDsyDPVjC883Ff7E7ki0Ak69DWwBhI+lK8g1CVBw5UL4D8fb5p1/EZg2m1VoO9vYRuhRcGyxszxx2HgrmYtWc6x/mN+jbkoUtF4XaXl7uu3zoO643+BSv+VURpycGI94UeE0xWnY8OHvhOaeSkiqa1Gmyisc4V6/V6YiL4Duqziq38l2QLUQKBgQDlBmZWQGEuWEWtN16q6FP/GTCEDSV6wCl+yT9z6M2IeHb7g4685R0A+b/1tQgR3faJkPlvpiiI3txvGQVqK3Yf6EXK3xpE8k6yHHVpJZMXVMcK89QT0DqvF9pTeNuAYv15EqM8OpW/4dyrWCltA2FkqliMYU14NgzGeYu6y29MvQKBgQC4+YC4pAn+9uxVDY1vWtfn3wmepsV1X8UOd0xvolS7fLSMnVjWl1+w1niNZISdJxaHvJ1MVJOyCcBk4AZEvkUDMxt0Td2jSRl61FKoJiIqpEkVwBcUMwb9XNuxTb0xkfQFHwGdWKaL5Pytxjm/N7xb6Vhucpu15M8DG65usxudiQKBgBAEBY4MjH84Lw8w6w7all0lfs4NOUy/OWejXSuW4SClA/UMuyOchg22aWUeVsUhF4eBOuBC51zC8PlX75gAGA+dJ5xLQ8QEidpMwS0sMoAULqMmb/M+wYvTCDKEJh1xTrZzxjSFCEnV2p+k16jG7r2iZ/TRLSC17ujGQS474bmlAoGAFhalSmc8UlgGLLnrk8qTUbsOmQVtOvDuxSV12TbXS3Q+0zPO8gEtih5yUuAX/fQ2+oqJdh37bR1A/krKNNdLwnAN7TuHJgKKqmJEZJP5LIJlv9UqbF0TjpnSGkAgQZUeQKZNOQ7nBHmZut6a8ryjH46j4ryI35WtKr/Zepqkx5ECgYA+WUvTULkUj4ZjHhrf4Cpl/hOP7KaxKzWwL15TACEruhWCTXnXHHZdxmioV1hO17jWeVDAftgR50XI5auN0lSeeD2JCaybSptj/ucbcFAvNDKYKtjl7BRWb/3RSPJFQD/0JGAbESkrVUcaK+qNGrdTupoQyUxI/579JwAl+bf+tg=='
+    );
+  },
+  get waffo_product_ids_mapping() {
+    return (
+      secretEnv('WAFFO_PRODUCT_IDS_MAPPING') ||
+      JSON.stringify({
+        lite_monthly: 'PROD_4RIjkWT5VLfobsEyqyqvdb',
+        pro_monthly: 'PROD_4mKm3i2Y3y34bSZJeAPemS',
+        ultra_monthly: 'PROD_4FM1icBmPyO9kMeykQsRYT',
+        credits_lite: 'PROD_3OjWRUsUP7N24n4Tor4R1J',
+        credits_pro: 'PROD_3OjWRUsUP7N24n4Tor4R1J',
+        credits_ultra: 'PROD_3OjWRUsUP7N24n4Tor4R1J',
+      })
+    );
+  },
 
   get alipay_app_id() {
     return secretEnv('ALIPAY_APP_ID');
