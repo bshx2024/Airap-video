@@ -1068,6 +1068,17 @@ export function getSettings(): Setting[] {
       tab: 'analytics',
     },
 
+    // ─── Analytics / PVUV.ai ──────────────────────────────────────────
+    {
+      name: 'pvuv_site_id',
+      title: 'PVUV.ai Site ID',
+      type: 'text',
+      placeholder: 'YOUR_SITE_ID (e.g. s_xxxxxx)',
+      tip: 'Site ID from https://www.pvuv.ai/ tracking code (data-site="...")',
+      group: 'pvuv',
+      tab: 'analytics',
+    },
+
     // ─── Analytics / Plausible ───────────────────────────────────────
     {
       name: 'plausible_domain',

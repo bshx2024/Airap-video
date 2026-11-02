@@ -23,6 +23,7 @@ import { CookieConsent } from '@/blocks/cookie-consent';
 import { Ads } from '@/components/analytics/ads';
 import { GoogleAnalytics } from '@/components/analytics/google-analytics';
 import { Plausible } from '@/components/analytics/plausible';
+import { PvuvAnalytics } from '@/components/analytics/pvuv';
 import { CustomerService } from '@/components/customer-service';
 import { GoogleOneTap } from '@/components/google-one-tap';
 import { SandboxPreviewBridge } from '@/components/sandbox-preview-bridge';
@@ -137,6 +138,10 @@ const getAnalyticsConfigs = createServerFn()
           ? parseCookieConsent(getCookie('cookie_consent'))
           : null,
         gaId: configs.google_analytics_id?.trim() || '',
+        pvuvSiteId:
+          configs.pvuv_site_id?.trim() ||
+          process.env.PVUV_SITE_ID?.trim() ||
+          '',
         plausibleDomain: plausibleOff
           ? ''
           : configs.plausible_domain?.trim() || '',
@@ -338,6 +343,9 @@ function RootComponent() {
               domain={analytics.plausibleDomain}
               src={analytics.plausibleSrc || undefined}
             />
+          ) : null}
+          {analytics?.pvuvSiteId ? (
+            <PvuvAnalytics siteId={analytics.pvuvSiteId} />
           ) : null}
           {analytics?.adsenseCode ? (
             <Ads code={analytics.adsenseCode} loadScript={adsAllowed} />

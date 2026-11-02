@@ -34,6 +34,7 @@ const publicKeys = [
   'alipay_enabled',
   'wechat_enabled',
   'google_analytics_id',
+  'pvuv_site_id',
   'plausible_domain',
   'plausible_src',
   'mock',
