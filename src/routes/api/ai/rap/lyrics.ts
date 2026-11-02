@@ -1,5 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 
+import { scanPromptSafety } from '@/lib/content-safety';
 import { generateRapLyrics } from '@/modules/ai/rap-workflow';
 import { respData, respErr } from '@/lib/resp';
 
@@ -12,8 +13,21 @@ async function POST({ request }: { request: Request }) {
       return respErr('Topic is required');
     }
 
+    const trimmedTopic = topic.trim();
+    const safetyCheck = await scanPromptSafety(
+      trimmedTopic,
+      language === 'zh' ? 'zh' : 'en'
+    );
+    if (!safetyCheck.allowed) {
+      return respErr(
+        safetyCheck.reason ||
+          'Content safety check failed. Please adjust your topic.',
+        { status: 400 }
+      );
+    }
+
     const result = await generateRapLyrics({
-      topic: topic.trim(),
+      topic: trimmedTopic,
       styleId,
       language,
       model,

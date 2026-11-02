@@ -32,6 +32,7 @@ import {
 import { getAllConfigs, isMockMode } from '@/modules/config/service';
 import { consume, getBalance, revoke } from '@/modules/credits/service';
 import { createAIWebhookToken } from '@/lib/ai-webhook';
+import { scanPromptSafety } from '@/lib/content-safety';
 import { getUuid } from '@/lib/hash';
 import { respData, respErr } from '@/lib/resp';
 
@@ -146,6 +147,18 @@ async function POST({ request }: { request: Request }) {
 
     if (prompt.length > MAX_PROMPT_LENGTH) {
       return respErr('Prompt is too long for this model');
+    }
+
+    // Pre-screen prompt with Waffo Content Safety API before reserving slots or deducting credits
+    if (prompt.trim()) {
+      const safetyCheck = await scanPromptSafety(prompt);
+      if (!safetyCheck.allowed) {
+        return respErr(
+          safetyCheck.reason ||
+            'Content safety check failed. Please adjust your prompt.',
+          { status: 400 }
+        );
+      }
     }
 
     if (isVideo) {

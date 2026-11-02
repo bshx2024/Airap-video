@@ -92,6 +92,7 @@ export function Footer() {
       links: [
         { label: m['landing.footer.privacy'](), href: '/privacy-policy' },
         { label: m['landing.footer.terms'](), href: '/terms-of-service' },
+        { label: 'Acceptable Use Policy (AUP)', href: '/acceptable-use-policy' },
         ...(cookieConsentEnabled
           ? [
               {
@@ -102,6 +103,7 @@ export function Footer() {
           : []),
         { label: m['landing.footer.cookies'](), href: '/cookie-policy' },
         { label: m['landing.footer.refund'](), href: '/refund-policy' },
+        { label: 'Report Abuse: report@airap-video.net', href: 'mailto:report@airap-video.net' },
       ],
     },
   ];

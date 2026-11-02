@@ -59,9 +59,11 @@ export function VideoFooter() {
       links: [
         { label: m['landing.footer.privacy'](), href: '/privacy-policy' },
         { label: m['landing.footer.terms'](), href: '/terms-of-service' },
+        { label: 'Acceptable Use Policy (AUP)', href: '/acceptable-use-policy' },
         { label: m['landing.footer.cookies'](), href: '/cookie-policy' },
         { label: m['landing.footer.refund'](), href: '/refund-policy' },
-        { label: 'Contact: support@airap-video.net', href: 'mailto:support@airap-video.net' },
+        { label: 'Support: support@airap-video.net', href: 'mailto:support@airap-video.net' },
+        { label: 'Report Abuse: report@airap-video.net', href: 'mailto:report@airap-video.net' },
       ],
     },
   ];
@@ -124,13 +126,22 @@ export function VideoFooter() {
           <span className="text-sm text-slate-500 dark:text-[#94a3b8]">
             {m['landing.footer.copyright']()}
           </span>
-          <a
-            href="mailto:support@airap-video.net"
-            className="inline-flex items-center gap-1.5 text-sm text-slate-500 transition-colors hover:text-slate-900 dark:text-[#94a3b8] dark:hover:text-[#f8fafc]"
-          >
-            <Mail className="size-4" />
-            <span>support@airap-video.net</span>
-          </a>
+          <div className="flex flex-wrap items-center gap-4 text-sm text-slate-500 dark:text-[#94a3b8]">
+            <a
+              href="mailto:support@airap-video.net"
+              className="inline-flex items-center gap-1.5 transition-colors hover:text-slate-900 dark:hover:text-[#f8fafc]"
+            >
+              <Mail className="size-4" />
+              <span>support@airap-video.net</span>
+            </a>
+            <span className="hidden sm:inline opacity-40">|</span>
+            <a
+              href="mailto:report@airap-video.net"
+              className="inline-flex items-center gap-1.5 transition-colors hover:text-slate-900 dark:hover:text-[#f8fafc]"
+            >
+              <span>Abuse Reports: report@airap-video.net</span>
+            </a>
+          </div>
         </div>
       </div>
     </footer>

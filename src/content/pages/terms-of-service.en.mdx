@@ -1,7 +1,7 @@
 export const meta = {
   title: 'Terms of Service',
   description:
-    'The terms, conditions, and acceptable use guidelines governing your use of Airap Video.',
+    'The terms, conditions, product descriptions, unified credit rules, and acceptable use guidelines governing your use of Airap Video.',
   updated_at: '2026-11-02',
 };
 
@@ -9,19 +9,41 @@ export const meta = {
 
 Welcome to **Airap Video** ("Service", "we", "us", or "our"), available at [https://airap-video.net](https://airap-video.net). The Service is owned and operated by **Hua Peng**, an individual business operator operating under the laws of the People's Republic of China.
 
-These Terms of Service ("Terms") govern your access to and use of our AI video and audio generation platform. By creating an account, subscribing to a plan, purchasing credit packs, or otherwise using the Service, you confirm that:
+These Terms of Service ("Terms") govern your access to and use of our AI video, audio, and image generation platform. By creating an account, subscribing to a plan, purchasing credit packs, or otherwise using the Service, you confirm that:
 1. You are at least 18 years of age (or the legal age of majority in your jurisdiction);
-2. You have read, understood, and agree to be bound by these Terms and our [Privacy Policy](/privacy-policy);
+2. You have read, understood, and agree to be bound by these Terms, our [Privacy Policy](/privacy-policy), and our [Acceptable Use Policy](/acceptable-use-policy);
 3. You have the full legal capacity to enter into this binding agreement.
 
 If you do not agree to these Terms, you must immediately discontinue using the Service.
 
-## 2. Description & Nature of Service
+## 2. Description & Nature of Services
 
-Airap Video provides a cloud-based software-as-a-service (SaaS) platform powered by artificial intelligence models, enabling users to create AI rap battles, viral roast videos, hip-hop lyrics, and synchronized video animations from prompts, images, and audio references.
+Airap Video provides a cloud-based software-as-a-service (SaaS) creative suite powered by artificial intelligence models, delivering two primary integrated product lines under a single account:
 
-- **Digital Product Nature**: The Service is an intangible digital SaaS product delivered immediately upon payment confirmation. 
-- **AI Model Performance**: Output generation relies on probabilistic generative AI models and third-party compute infrastructure. While we strive for high quality, we do not warrant that generated outputs will be error-free or achieve particular subjective expectations.
+### 2.1 AI Rap Video & Audio Generation Product Line
+- **AI Rap Battles & Roast Videos**: Turn portrait photos, characters, or text scripts into dynamic, lip-synced rap battle performances and satirical roast clips.
+- **Hip-Hop Lyrics & Vocals**: Automated rhyme generation, flow structuring, and AI rap vocal synthesis across multiple styles (Boom Bap, Trap, Drill, Melodic Rap).
+- **Rhythm & Motion Synchronization**: Synchronization of generated facial expressions, mouth movements, and body motion with synthesized rap audio beats.
+
+### 2.2 AI Image Generation & Creative Suite Product Line
+We offer a comprehensive AI image generation suite powered by state-of-the-art diffusion architectures, accessible through our model catalog ([/models](/models)) and specialized creation studios:
+- **Core Image Models**:
+  1. **GPT Image 2**: Fast, balanced general-purpose diffusion model (12 credits / image).
+  2. **GPT Image 2.5 Flare**: Enhanced prompt adherence and lighting dynamics (16 credits / image).
+  3. **GPT Image 2.5 Sunburst**: High-vibrancy creative rendering and artistic illustration (16 credits / image).
+  4. **Nano Banana 2**: High-speed, lightweight diffusion engine for rapid iteration (16 credits / image).
+  5. **Qwen Image 3.0**: Photorealistic bilingual visual synthesis (12 credits / image).
+  6. **FLUX.2**: Industry-leading realism, complex text rendering, and anatomy accuracy (16 credits / image).
+  7. **Seedream 5.0 Pro**: Cinematic composition and ultra-fine micro-textures (30 credits / image).
+  8. **Nano Banana Pro**: Maximum-resolution studio-grade asset generation (36 credits / image).
+- **Creation Studio & Tools**:
+  - **Text-to-Image Studio** ([/text-to-image](/text-to-image)): Transform detailed text prompts into high-resolution visuals.
+  - **Image-to-Image Studio** ([/image-to-image](/image-to-image)): Upload source portraits or artwork to restyle, remodel, or transform while preserving key composition elements.
+  - **Style Transformation Tools** ([/tools/transform-style](/tools/transform-style), [/tools](/tools)): Apply curated artistic filters, cyberpunk aesthetic, vintage comic styling, and anime transformations.
+
+### 2.3 Nature of Digital SaaS Delivery
+- **Instant Digital Fulfillment**: The Service is an intangible digital SaaS product delivered immediately upon payment confirmation. Plan quotas and purchased credits are credited to your account balance in real-time.
+- **Probabilistic Generative Models**: Outputs are synthesized through probabilistic generative neural networks. While we continuously benchmark and optimize model fidelity, outputs may occasionally exhibit visual or musical artifacts, and we do not guarantee subjective satisfaction.
 
 ## 3. Account Registration & Security
 
@@ -29,13 +51,21 @@ Airap Video provides a cloud-based software-as-a-service (SaaS) platform powered
 - You are responsible for safeguarding your login credentials and for all activities conducted under your account.
 - Sharing login credentials or automated account farming is strictly prohibited. If you suspect unauthorized access, contact us immediately at **support@airap-video.net**.
 
-## 4. Plans, Credits & Billing (Hybrid Model)
+## 4. Plans, Billing & Unified Credit System
 
-We offer both recurring subscription plans and one-time credit packages. Current details and pricing are published on our [Pricing Page](/pricing).
+We operate a transparent hybrid billing model combining recurring subscription plans and on-demand credit packages. Current tier limits and pricing are published on our [Pricing Page](/pricing).
 
-- **Recurring Subscriptions**: Subscribing to a paid plan authorizes periodic recurring charges to your payment method at the beginning of each billing cycle (monthly or yearly) until canceled.
-- **One-Time Credit Packs**: Purchases of standalone credit packs are one-time charges authorized at checkout.
-- **Credit Metering**: Generation tasks deduct credits from your balance based on model complexity and resolution. Credits reserved for tasks that fail due to technical error are automatically refunded to your balance.
+### 4.1 Unified Credit Architecture
+All generation capabilities across our entire platform—including AI Rap Videos, rap vocals, lyrics generation, and the 8 AI image models—draw from one **single, unified account credit pool**. You do not need separate subscriptions or separate tokens for video versus image products.
+
+### 4.2 Transparent Task Metering
+- **AI Image Generation**: Consumes between 12 and 36 credits per image, clearly displayed next to each model in [/models](/models) and in the generation drawer before you click generate.
+- **AI Rap Video Synthesis**: Consumes between 30 and 60 credits depending on chosen video duration, resolution, and model pipeline complexity.
+- **Automatic Failure Refunds**: If an image or video generation task fails due to upstream GPU compute bottlenecks, provider timeouts, or backend errors, **100% of the credits reserved for that task are automatically and immediately refunded** back to your account balance.
+
+### 4.3 Recurring Subscriptions & One-Time Packs
+- **Recurring Subscriptions**: Subscribing authorizes periodic recurring charges to your payment method at the beginning of each billing cycle (monthly or yearly) until canceled.
+- **One-Time Credit Packs**: Purchases of standalone credit packs are one-time charges authorized at checkout. Standalone packs never expire as long as your account remains in good standing.
 - **Taxes**: Prices exclude applicable sales taxes, VAT, or GST unless explicitly specified.
 
 ## 5. Cancellation Policy
@@ -63,14 +93,53 @@ All payment card transactions are processed in compliance with PCI-DSS Level 1 s
 
 ## 8. Intellectual Property & Acceptable Use Policy (AUP)
 
+### 8.1 Rights & Commercial Usage
 - **Input Assets**: You retain ownership of your uploaded prompts, lyrics, images, and audio assets.
-- **Generated Media**: Subject to your adherence to these Terms, you hold commercial and non-commercial exploitation rights to the AI rap videos generated under your paid account.
-- **Prohibited Conduct**: You agree not to generate, distribute, or facilitate:
-  1. Child Sexual Abuse Material (CSAM / CSAE) — absolute zero tolerance, reported to NCMEC and law enforcement;
-  2. Non-consensual deepfakes, impersonation, or deceptive audio/video mimicking real individuals without express consent;
-  3. Pornography, explicit NSFW sexual acts, or non-consensual intimate imagery;
-  4. Extreme violence, gore, hate speech, harassment, self-harm incitement, or illegal activity;
-  5. Third-party copyright, trademark, or intellectual property infringement.
+- **Generated Media**: Subject to your adherence to these Terms, you hold commercial and non-commercial exploitation rights to the AI rap videos and images generated under your paid account.
+
+### 8.2 Prohibited Content Standards
+You strictly agree not to input, generate, publish, or distribute:
+1. **Child Sexual Abuse Material (CSAM / CSAE)** or any child-endangering content — absolute zero tolerance.
+2. **Non-Consensual Intimate Imagery (NCII)**, sexually explicit NSFW material, nudity, or involuntary sexualization.
+3. **Extreme Violence & Gore**, incitement of terrorism, torture, or self-harm encouragement.
+4. **Hate Speech & Harassment**, discrimination based on race, ethnicity, religion, disability, gender, or sexual orientation.
+5. **Malicious Deepfakes & Impersonation**, non-consensual simulation of living real persons without authorization, fraud, or political disinformation.
+6. **Intellectual Property Infringement**, unauthorized reproduction of copyrighted works, proprietary characters, trademarks, or trade secrets.
+7. **Platform Abuse & Cyberattacks**, prompt injection attacks, automated scraping, vulnerability probing, or attempting to circumvent rate limits and safety gateways.
+
+### 8.3 Enforcement Actions & Timelines (违规处置机制与时限)
+When an account or generation task violates these standards, we execute the following graduated enforcement actions:
+- **Level 1 (Severe / Unlawful Violations: CSAM, NCII, Terrorism, Malicious Deepfakes)**:
+  - Immediate permanent account termination (within 1 hour upon detection).
+  - Permanent blocking of associated device fingerprints, payment profiles, and IP addresses.
+  - Complete forfeiture and clearing of all remaining credits and subscription balances without refund.
+  - Immediate and irreversible deletion of all violating media assets from cloud storage.
+  - Mandatory preservation and reporting of illicit evidence to law enforcement agencies and relevant child safety authorities (e.g. NCMEC).
+- **Level 2 (Serious Policy Violations: Repeated Copyright Infringement, Unapproved NSFW, Harassment)**:
+  - Account suspension for 7 to 14 days, escalating to permanent termination upon repeated offenses.
+  - Immediate removal and deletion of the offending input/output assets.
+  - Forfeiture of all credits consumed during the generation of offending content; strictly no refunds.
+- **Level 3 (Automated Input Screening Block)**:
+  - Real-time rejection of the submitted prompt at the API gateway layer before any model computation.
+  - 0 credits deducted from the user's balance.
+  - In-app notification explaining the safety rejection and directing the creator to revise the prompt.
+- **Forfeiture & No-Refund Policy**: Under no circumstances will credits or subscription fees be refunded or compensated for accounts that have been suspended or terminated due to violations of our Terms of Service or Acceptable Use Policy.
+
+### 8.4 User Abuse Reporting Channel & SLA (用户举报渠道与时限)
+We maintain a dedicated, direct abuse reporting channel separate from general customer support:
+- **Dedicated Abuse Email**: **`report@airap-video.net`** (Content moderation, copyright takedown, NCII, and AUP violations).
+- **General Support Email**: **`support@airap-video.net`** (Billing, technical inquiries, and account assistance).
+- **How to Report**: Send an email with the subject line `[AUP Report]`, including the generation task ID, public link/URL, nature of violation, and supporting documentation.
+- **Committed Response Timelines (SLA)**:
+  - **Urgent / Level 1 Reports (CSAM, NCII, Immediate Harm)**: Acknowledged within **two (2) hours**; verified violating content removed from all distribution nodes within **twenty-four (24) hours**.
+  - **Standard / General Reports (Copyright, Harassment, Misrepresentation)**: Acknowledged within **twenty-four (24) hours**; comprehensive investigation completed and formal resolution communicated within **three (3) to five (5) business days**.
+
+### 8.5 Platform Content Moderation Architecture (平台内容审核机制说明)
+To prevent non-compliant content from entering our computational pipelines, we employ a multi-layered defense architecture:
+1. **Pre-Generation Prompt Screening (前置审核)**: Integrated with the **Waffo Prompt Screening API** and automated linguistic safety gateways. Every text prompt, lyric draft, and style modifier is scanned before inference begins. Prompts triggering safety filters are blocked synchronously at zero credit cost.
+2. **Post-Generation Output Verification (后置审核)**: Rendered video keyframes and synthesized images undergo automated computer vision inspection (perceptual hashing and NSFW/gore classifiers) prior to final asset storage and delivery.
+3. **Automated Anomaly Detection**: Real-time behavioral monitoring flags abnormal submission frequencies, adversarial prompt injection patterns, and automated scrapers.
+4. **Human Review & Appeals**: Flagged edge cases and user escalation reports submitted to `report@airap-video.net` are reviewed by our designated Trust & Safety compliance personnel.
 
 ## 9. Disclaimer of Warranties & Limitation of Liability
 
@@ -82,7 +151,7 @@ These Terms shall be governed by and construed in accordance with the laws of th
 
 ## 11. Contact Information
 
-If you have questions regarding these Terms, billing, refunds, or technical support, please contact:
 - **Operator**: Hua Peng
 - **Customer Support & Billing**: **support@airap-video.net**
+- **Content Abuse & AUP Reports**: **report@airap-video.net**
 - **Website**: [https://airap-video.net](https://airap-video.net)

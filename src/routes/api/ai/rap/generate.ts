@@ -1,6 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
 
 import { getAuth } from '@/core/auth';
+import { scanPromptSafety } from '@/lib/content-safety';
 import { startRapTask } from '@/modules/ai/rap-workflow';
 import { respData, respErr } from '@/lib/resp';
 
@@ -42,6 +43,21 @@ async function POST({ request }: { request: Request }) {
 
     if (!prompt && !customLyrics && !referenceVideoUrl) {
       return respErr('Theme prompt, lyrics, or reference video is required');
+    }
+
+    const textToScan = [prompt, customLyrics, videoPrompt]
+      .filter(Boolean)
+      .join(' ')
+      .trim();
+    if (textToScan) {
+      const safetyCheck = await scanPromptSafety(textToScan);
+      if (!safetyCheck.allowed) {
+        return respErr(
+          safetyCheck.reason ||
+            'Content safety check failed. Please adjust your prompt.',
+          { status: 400 }
+        );
+      }
     }
 
     const taskResult = await startRapTask({

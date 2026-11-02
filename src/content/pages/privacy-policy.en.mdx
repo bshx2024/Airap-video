@@ -32,7 +32,7 @@ To deliver our AI video generation services, we collect:
 | Billing and credit recharge processing | Contractual Necessity |
 | Customer support and ticketing | Contractual Necessity / Legitimate Interests |
 | Critical service, security, and billing notices | Legitimate Interests |
-| Security monitoring, fraud prevention & content moderation (preventing CSAM) | Legitimate Interests / Legal Obligations |
+| Security monitoring, fraud prevention & content moderation (pre-generation prompt screening via Waffo Prompt Screening API, post-generation media verification, preventing CSAM/NCII, and investigating reports via report@airap-video.net) | Legitimate Interests / Legal Obligations |
 | Infrastructure performance optimization and GPU latency tuning | Legitimate Interests |
 | Tax, accounting, and legal regulatory compliance | Legal Obligations |
 
@@ -44,6 +44,7 @@ We **do not sell, rent, or trade your personal information** to third parties, a
 
 We collaborate with trusted infrastructure partners to operate our platform:
 - **Payment Processing (Waffo Pancake)**: All payment card processing, checkout flows, and recurring renewals are handled exclusively by our authorized Merchant of Record partner, **Waffo Pancake** ([https://pancake.waffo.ai](https://pancake.waffo.ai)), in full compliance with **PCI-DSS Level 1** security standards. Sensitive card numbers and CVV codes are processed solely by Waffo Pancake and are never stored on our servers.
+- **Content Safety & Prompt Screening (Waffo Prompt Screening Gateway)**: Prompts and creative text inputs are scanned prior to generation dispatch via automated content safety APIs to detect and block CSAM, NCII, hate speech, and violent content in strict accordance with our [Acceptable Use Policy](/acceptable-use-policy).
 - **Cloud Computing & AI Storage**: Media storage and inference acceleration are hosted on secure, encrypted cloud data centers.
 
 ## 6. Data Security & Retention

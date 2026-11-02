@@ -88,7 +88,13 @@ export default {
     const isPublicPage =
       urlObj.pathname === '/' ||
       urlObj.pathname === '/terms' ||
+      urlObj.pathname === '/terms-of-service' ||
       urlObj.pathname === '/privacy' ||
+      urlObj.pathname === '/privacy-policy' ||
+      urlObj.pathname === '/acceptable-use-policy' ||
+      urlObj.pathname === '/aup' ||
+      urlObj.pathname === '/refund-policy' ||
+      urlObj.pathname === '/cookie-policy' ||
       urlObj.pathname.startsWith('/showcase');
     const cookieHeader = req.headers.get('cookie');
     const hasAuth = Boolean(
@@ -254,7 +260,13 @@ async function handleRequest(req: Request): Promise<Response> {
   const isPublicPage =
     urlObj.pathname === '/' ||
     urlObj.pathname === '/terms' ||
+    urlObj.pathname === '/terms-of-service' ||
     urlObj.pathname === '/privacy' ||
+    urlObj.pathname === '/privacy-policy' ||
+    urlObj.pathname === '/acceptable-use-policy' ||
+    urlObj.pathname === '/aup' ||
+    urlObj.pathname === '/refund-policy' ||
+    urlObj.pathname === '/cookie-policy' ||
     urlObj.pathname.startsWith('/showcase');
   const hasAuthSession = Boolean(
     cookieHeader?.includes('better-auth.session_token')

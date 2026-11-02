@@ -43,7 +43,7 @@ const TRUST_ITEMS = [
     desc: 'If an AI generation task fails due to server load, timeout, or backend errors, the credits consumed are automatically refunded back to your balance.',
     icon: RefreshCcw,
     linkText: 'Refund Policy',
-    href: '/terms',
+    href: '/refund-policy',
   },
   {
     id: 'support',
@@ -121,9 +121,15 @@ export function TrustSafetySection() {
                 Airap strictly prohibits unauthorized impersonation, non-consensual sexualized media, deceptive deepfakes, hate speech, or harassment. Always secure permission before animating photos of real individuals.
               </p>
             </div>
-            <div className="mt-5 pt-3 border-t border-white/5">
-              <span className="text-[11px] font-semibold text-amber-300">
-                Community Protection Standard
+            <div className="mt-5 flex items-center justify-between border-t border-white/5 pt-3">
+              <a
+                href="/acceptable-use-policy"
+                className="text-xs font-semibold text-amber-400 hover:text-amber-300 transition-colors"
+              >
+                Acceptable Use Policy (AUP) ➔
+              </a>
+              <span className="text-[11px] font-semibold text-amber-300/80">
+                Community Standard
               </span>
             </div>
           </div>
