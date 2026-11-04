@@ -1057,6 +1057,15 @@ export function getSettings(): Setting[] {
       defaultValue: '5',
       tip: '视频生成的单次片段时长（秒）。',
     },
+    {
+      name: 'lineart_transcoder_url',
+      title: 'Lineart Transcoder URL (线稿转码服务地址)',
+      type: 'text',
+      placeholder: 'https://transcoder.yourdomain.com',
+      group: 'alibaba',
+      tab: 'ai',
+      tip: '专用于动作模仿(Mimic)模式的轻量级FFmpeg转码服务地址。若未配置则使用原视频。',
+    },
 
     // ─── Analytics / Google Analytics ────────────────────────────────
     {

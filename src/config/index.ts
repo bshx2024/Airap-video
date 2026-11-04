@@ -262,6 +262,9 @@ export const envConfigs: Record<string, string> = {
   get rap_video_resolution() {
     return secretEnv('RAP_VIDEO_RESOLUTION') || '480p';
   },
+  get lineart_transcoder_url() {
+    return secretEnv('LINEART_TRANSCODER_URL');
+  },
 
   get locale() {
     return publicEnv('VITE_DEFAULT_LOCALE') ?? 'en';

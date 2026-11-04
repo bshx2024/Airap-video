@@ -1,3 +1,4 @@
+import { ensureLineartReferenceVideo } from '@/modules/ai/lineart-transcoder';
 import { and, eq, isNull } from 'drizzle-orm';
 
 import {
@@ -256,6 +257,7 @@ export async function startRapTask(params: {
   audioUrl?: string;
   duration?: number;
   aspectRatio?: '9:16' | '16:9';
+  videoModel?: string;
 }): Promise<{ taskId: string; costCredits: number }> {
   const {
     userId,
@@ -651,9 +653,15 @@ export async function syncRapWorkflowTask(
             publicAudioUrl = 'https://pixanyoss.16781678.xyz/test.mp3';
           }
 
-          const publicRefVideoUrl = taskInfo.referenceVideoUrl
+          const rawRefVideo = taskInfo.referenceVideoUrl
             ? await ensurePublicMediaUrl(taskInfo.referenceVideoUrl, 'video')
             : '';
+          const publicRefVideoUrl = rawRefVideo
+            ? await ensureLineartReferenceVideo({ videoUrl: rawRefVideo, taskId: existingTask.id })
+            : '';
+          if (publicRefVideoUrl && publicRefVideoUrl !== taskInfo.referenceVideoUrl) {
+            taskInfo.referenceVideoUrl = publicRefVideoUrl;
+          }
 
           const isDuo = taskInfo.studioMode === 'duo' && publicImages.length > 1;
           const isMotionMimic = Boolean(publicRefVideoUrl);
@@ -788,13 +796,15 @@ export async function syncRapWorkflowTask(
 
           const effectivePrompt = isMotionMimic
             ? isDuo
-              ? `Replace the left rapper in [Video 1] with the character from [Image 1], and replace the right rapper in [Video 1] with the character from [Image 2]. Both characters [Image 1] on the left and [Image 2] on the right perform high-energy rap cypher together, actively delivering energetic rap singing into the central hanging microphone with wide pronounced mouth articulation, while strictly replicating the exact body motions, head nods, arm gestures, and hanging microphone rap battle choreography from [Video 1]. Keep the orange studio setting, hanging microphone, and lighting: 9:16 vertical framing, cinematic vivid colors, 4K quality.`
-              : `Replace the rapper in [Video 1] with the character shown in [Image 1]. The new character [Image 1] actively delivers energetic rap singing into the central hanging microphone with wide pronounced mouth articulation, while strictly replicating the exact body motions, head nods, arm gestures, and hanging microphone rap battle choreography from [Video 1]. Keep the studio setting and lighting: 9:16 vertical framing, cinematic vivid colors, 4K quality.`
+              ? `Convert the black-and-white lineart reference video [Video 1] into a photorealistic, cinematic 4K hip-hop music video. [Video 1] serves strictly as a lineart motion and choreo reference: only extract body motions, hanging microphone interactions, head nods, hand gestures, and expressive wide mouth articulation for rap singing. The final output must feature realistic human skin texture, authentic clothing, and studio lighting, completely removing any sketch or wireframe lines. Replace the left rapper with the character from [Image 1], and replace the right rapper with the character from [Image 2]. Both characters strictly maintain their facial identities, hairstyles, and features from the images. Set ${finalScene}: 9:16 vertical TikTok framing, cinematic vivid colors, 4K quality.`
+              : `Convert the black-and-white lineart reference video [Video 1] into a photorealistic, cinematic 4K hip-hop music video. [Video 1] serves strictly as a lineart motion reference: only extract body motions, microphone interactions, head nods, hand gestures, and expressive wide mouth articulation for rap singing. The final output must feature realistic human skin texture, authentic clothing, and studio lighting, completely removing any sketch or wireframe lines. Replace the rapper with the character from [Image 1]. The character strictly maintains facial identity and features from [Image 1]. Set ${finalScene}: 9:16 vertical framing, cinematic vivid colors, 4K quality.`
             : isDuo
               ? `Two rappers perform a high-energy rap cypher battle ${finalScene}. [Image 1] is the rapper on the left and [Image 2] is the rapper on the right. ${action}, 9:16 vertical TikTok framing, cinematic vivid colors, 4K quality.`
               : `A high-energy hip-hop rapper shown in [Image 1] performs an intense rap delivery ${finalScene}. ${action}, 9:16 vertical framing, cinematic vivid colors, 4K quality.`;
 
-          const effectiveNegativePrompt = preset.negativePrompt;
+          const effectiveNegativePrompt = isMotionMimic
+            ? `${preset.negativePrompt}, sketch, lineart, drawing, cartoon, wireframe, monochrome, black and white outline, incomplete rendering`
+            : preset.negativePrompt;
 
           let dispatched = false;
 
