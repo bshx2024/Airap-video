@@ -165,7 +165,7 @@ export function MigosStudioSection() {
               {/* Result Video Preview Container */}
               <div className="group relative aspect-[9/16] w-full overflow-hidden rounded-2xl border border-amber-400/40 bg-black shadow-inner">
                 <video
-                  src="/videos/showcase/duo-generated-demo.mp4"
+                  src="/videos/showcase/duo-generated-demo.mp4?v=2"
                   autoPlay
                   loop
                   muted

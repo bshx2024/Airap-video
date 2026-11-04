@@ -77,7 +77,7 @@ const CASE_STUDIES: CaseStudyItem[] = [
       label: 'Input Photo 2',
       desc: 'Selfie portrait (Individual 2, natural daylight)',
     },
-    videoSrc: '/videos/hotellobby15.mp4',
+    videoSrc: '/videos/hotellobby15.mp4?v=2',
     videoCaption: 'Generated Video — Migos-Style Orange Studio',
     specs: {
       photoCount: '2 Photos (Separate Individual Selfies)',

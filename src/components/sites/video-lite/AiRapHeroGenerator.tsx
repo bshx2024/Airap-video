@@ -86,7 +86,7 @@ const OCCASION_CHIPS: OccasionChipItem[] = [
     title: 'Hotel Lobby · Migos Orange Studio Stage',
     desc: 'The viral Quavo & Takeoff "Hotel Lobby" aesthetic: 2 rappers trading punchy roast bars on a hanging mic, heavy 808 Trap beat, vertical video framing.',
     image: '/imgs/scenes/hotel-lobby-studio.jpg',
-    video: '/videos/showcase/duo-generated-demo.mp4',
+    video: '/videos/showcase/duo-generated-demo.mp4?v=2',
     prompt:
       'Two rappers in an iconic bright orange studio with a single hanging microphone, inspired by Quavo and Takeoff Hotel Lobby, trading punchy roast bars, heavy 808 trap beat, rhythmic head nods, hip-hop hand gestures, viral rap music video style',
     styleId: 'trap-808',
@@ -2173,7 +2173,7 @@ export function AiRapHeroGenerator() {
                       const activeMonitorVideo =
                         monitorMode === 'reference' && customVideoUrl
                           ? customVideoUrl
-                          : (currentChip.video || customVideoUrl || '/videos/showcase/duo-generated-demo.mp4');
+                          : (currentChip.video || customVideoUrl || '/videos/showcase/duo-generated-demo.mp4?v=2');
 
                       return activeMonitorVideo ? (
                         <video
