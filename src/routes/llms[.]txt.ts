@@ -13,7 +13,7 @@ const STATIC_PAGES: { path: string; title: string; description: string }[] = [
     path: '',
     title: 'AI Rap Video Studio',
     description:
-      'The #1 AI Rap Video Generator. Transform photos into viral Migos orange studio rap battles, TikTok meme raps, and synced music videos in 60 seconds.',
+      'The #1 AI Rap Video Generator. Transform photos into viral Orange Studio rap battles, two-person duets, TikTok meme raps, and synced music videos in 60 seconds.',
   },
   {
     path: '/pricing',
@@ -25,7 +25,7 @@ const STATIC_PAGES: { path: string; title: string; description: string }[] = [
     path: '/templates',
     title: 'Rap Video Templates',
     description:
-      'Iconic templates including Migos Orange Studio, Underground Cypher, Trap Duel, and TikTok Meme Battles.',
+      'Iconic templates including Orange Studio Cypher, Underground Cypher, Trap Duel, and TikTok Meme Battles.',
   },
   {
     path: '/models',

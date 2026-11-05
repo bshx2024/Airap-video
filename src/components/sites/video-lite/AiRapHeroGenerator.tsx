@@ -42,26 +42,27 @@ import {
 import { toast } from 'sonner';
 
 import { useSession } from '@/core/auth/client';
-import { apiGet, apiPost } from '@/lib/api-client';
-import { cn } from '@/lib/utils';
 import {
+  getRapCostCredits,
+  getRapEstimatedWaitTime,
+  getRapResolution,
   RAP_AVATAR_PRESETS,
   RAP_COST_CREDITS,
   RAP_DURATION_OPTIONS,
   RAP_MODEL_OPTIONS,
   RAP_STYLE_PRESETS,
-  getRapCostCredits,
-  getRapEstimatedWaitTime,
-  getRapResolution,
   type RapAvatarPreset,
   type RapModelId,
   type RapModelOption,
   type RapStylePreset,
 } from '@/config/rap-presets';
+import { apiGet, apiPost } from '@/lib/api-client';
+import { extractAudioFromVideoFile } from '@/lib/audio-extract';
+import { cn } from '@/lib/utils';
 import { QuickAuthModal } from '@/components/sites/root/QuickAuthModal';
+
 import { MobileQrUploadModal } from './MobileQrUploadModal';
 import { MobileVideoDownloadModal } from './MobileVideoDownloadModal';
-import { extractAudioFromVideoFile } from '@/lib/audio-extract';
 
 export type StudioMode = 'duo' | 'group' | 'solo' | 'mimic';
 
@@ -83,15 +84,15 @@ const OCCASION_CHIPS: OccasionChipItem[] = [
     id: 'hotel-lobby',
     label: '🔥 Hotel Lobby · Orange Studio',
     tag: 'Viral Duo Trend',
-    title: 'Hotel Lobby · Migos Orange Studio Stage',
-    desc: 'The viral Quavo & Takeoff "Hotel Lobby" aesthetic: 2 rappers trading punchy roast bars on a hanging mic, heavy 808 Trap beat, vertical video framing.',
+    title: 'Hotel Lobby · Orange Studio Stage',
+    desc: 'The viral orange studio rap aesthetic: 2 rappers trading punchy roast bars on a hanging mic, heavy 808 Trap beat, vertical video framing.',
     image: '/imgs/scenes/hotel-lobby-studio.jpg',
     video: '/videos/showcase/duo-generated-demo.mp4?v=2',
     prompt:
-      'Two rappers in an iconic bright orange studio with a single hanging microphone, inspired by Quavo and Takeoff Hotel Lobby, trading punchy roast bars, heavy 808 trap beat, rhythmic head nods, hip-hop hand gestures, viral rap music video style',
+      'Two rappers in an iconic bright orange studio with a single hanging microphone, inspired by viral orange studio trends, trading punchy roast bars, heavy 808 trap beat, rhythmic head nods, hip-hop hand gestures, viral rap music video style',
     styleId: 'trap-808',
     lyrics:
-      '[Intro]\nYeah, check the mic in the orange room!\nTakeoff and Quavo vibe, let us get it!\n[Verse 1]\nYou always talking big but you showed up late\nI drop the heavy 808 to seal your fate\nLook at your drip, man, it expired in 08\nWe run the lobby while you hesitate\n[Chorus]\nHotel Lobby with the hanging mic swing\nHeavy 808s make the whole booth ring\nWho is the real king running this thing!',
+      '[Intro]\nYeah, check the mic in the orange room!\nOrange studio vibe, let us get it!\n[Verse 1]\nYou always talking big but you showed up late\nI drop the heavy 808 to seal your fate\nLook at your drip, man, it expired in 08\nWe run the lobby while you hesitate\n[Chorus]\nHotel Lobby with the hanging mic swing\nHeavy 808s make the whole booth ring\nWho is the real king running this thing!',
   },
   {
     id: 'on-the-radar',
@@ -249,11 +250,20 @@ export function AiRapHeroGenerator() {
   const [monitorMode, setMonitorMode] = useState<'demo' | 'reference'>('demo');
   const [selectedDuration, setSelectedDuration] = useState<number>(15);
   const [aspectRatio, setAspectRatio] = useState<'9:16' | '16:9'>('9:16');
-  const [selectedModelId, setSelectedModelId] = useState<RapModelId>('kling-4-0');
+  const [selectedModelId, setSelectedModelId] =
+    useState<RapModelId>('kling-4-0');
 
   // Real-time dynamic cost, wait time, and resolution
-  const currentCost = getRapCostCredits(selectedDuration, studioMode, selectedModelId);
-  const currentWaitTime = getRapEstimatedWaitTime(selectedDuration, studioMode, selectedModelId);
+  const currentCost = getRapCostCredits(
+    selectedDuration,
+    studioMode,
+    selectedModelId
+  );
+  const currentWaitTime = getRapEstimatedWaitTime(
+    selectedDuration,
+    studioMode,
+    selectedModelId
+  );
   const currentResolution = getRapResolution(aspectRatio);
 
   // Portrait Photos (Duo mode supports two slots)
@@ -304,12 +314,13 @@ export function AiRapHeroGenerator() {
   const [customVideoUrl, setCustomVideoUrl] = useState<string | null>(
     '/videos/hotellobby15.mp4'
   );
-  const [customVideoName, setCustomVideoName] = useState<string>(
-    'hotellobby15.mp4'
-  );
+  const [customVideoName, setCustomVideoName] =
+    useState<string>('hotellobby15.mp4');
   const [customAudioUrl, setCustomAudioUrl] = useState<string | null>(null);
   const [isUploadingVideo, setIsUploadingVideo] = useState(false);
-  const [audioOption, setAudioOption] = useState<'original' | 'generate'>('original');
+  const [audioOption, setAudioOption] = useState<'original' | 'generate'>(
+    'original'
+  );
 
   // Mobile QR Beam Upload modal
   const [qrModalOpen, setQrModalOpen] = useState(false);
@@ -331,15 +342,20 @@ export function AiRapHeroGenerator() {
   }, [taskStatus]);
 
   const handleCopyViralTags = () => {
-    const tags = '#airapvideo #hotellobby #aihiphop #motionmimic #rapmv #duoflow #cyberdrill';
+    const tags =
+      '#airapvideo #hotellobby #aihiphop #motionmimic #rapmv #duoflow #cyberdrill';
     navigator.clipboard.writeText(tags);
     setCopiedTags(true);
-    toast.success('🔥 Viral hashtags copied to clipboard! Ready to paste on TikTok/Reels.');
+    toast.success(
+      '🔥 Viral hashtags copied to clipboard! Ready to paste on TikTok/Reels.'
+    );
     setTimeout(() => setCopiedTags(false), 2500);
   };
 
   const handleOpenQrModal = (slot: 1 | 2) => {
-    toast.info(`📱 Opening QR Code for ${slot === 1 ? 'Rapper 1' : 'Rapper 2'}...`);
+    toast.info(
+      `📱 Opening QR Code for ${slot === 1 ? 'Rapper 1' : 'Rapper 2'}...`
+    );
     setQrTargetSlot(slot);
     setQrModalOpen(true);
   };
@@ -381,9 +397,7 @@ export function AiRapHeroGenerator() {
             setTaskStage('completed');
             setTaskProgress(100);
             const vid =
-              info.videoUrl ||
-              res.videoUrl ||
-              res.taskResult?.videoUrl;
+              info.videoUrl || res.videoUrl || res.taskResult?.videoUrl;
             setResultVideoUrl(vid);
             setResultAudioUrl(info.audioUrl || res.audioUrl || null);
             creditsQuery.refetch();
@@ -391,7 +405,9 @@ export function AiRapHeroGenerator() {
             return;
           } else if (res.taskStatus === 'failed' || res.status === 'failed') {
             setTaskStatus('failed');
-            toast.error(info.error || 'Generation failed. Credits refunded automatically.');
+            toast.error(
+              info.error || 'Generation failed. Credits refunded automatically.'
+            );
             creditsQuery.refetch();
             return;
           }
@@ -416,9 +432,16 @@ export function AiRapHeroGenerator() {
     if (matched) {
       setSelectedStyle(matched);
     }
-    if (chip.id === 'hotel-lobby' || chip.id === 'friends-roast' || chip.id === 'birthday-hype') {
+    if (
+      chip.id === 'hotel-lobby' ||
+      chip.id === 'friends-roast' ||
+      chip.id === 'birthday-hype'
+    ) {
       setCustomVideoUrl(chip.video || '/videos/hotellobby15.mp4');
-      setCustomVideoName((chip.video ? chip.video.split('/').pop() : 'hotellobby15.mp4') || 'hotellobby15.mp4');
+      setCustomVideoName(
+        (chip.video ? chip.video.split('/').pop() : 'hotellobby15.mp4') ||
+          'hotellobby15.mp4'
+      );
       setStudioMode('duo');
       setAudioOption('original');
       setSelectedDuration(15);
@@ -491,12 +514,16 @@ export function AiRapHeroGenerator() {
     if (!file) return;
 
     if (file.size > 35 * 1024 * 1024) {
-      toast.error('Video file is too large. Please upload a short video under 35MB (5-15s recommended).');
+      toast.error(
+        'Video file is too large. Please upload a short video under 35MB (5-15s recommended).'
+      );
       return;
     }
 
     setIsUploadingVideo(true);
-    const toastId = toast.loading('Uploading master video and extracting lossless audio track...');
+    const toastId = toast.loading(
+      'Uploading master video and extracting lossless audio track...'
+    );
 
     try {
       const formData = new FormData();
@@ -511,7 +538,9 @@ export function AiRapHeroGenerator() {
       const extractAudioPromise = extractAudioFromVideoFile(file)
         .then(async (audioBlob) => {
           const audioFileName = `${file.name.replace(/\.[^/.]+$/, '')}_audio.wav`;
-          const audioFile = new File([audioBlob], audioFileName, { type: 'audio/wav' });
+          const audioFile = new File([audioBlob], audioFileName, {
+            type: 'audio/wav',
+          });
           const aFormData = new FormData();
           aFormData.append('file', audioFile);
           const aRes = await fetch('/api/storage/upload-media', {
@@ -525,7 +554,10 @@ export function AiRapHeroGenerator() {
           return null;
         });
 
-      const [videoJson, audioJson] = await Promise.all([uploadVideoPromise, extractAudioPromise]);
+      const [videoJson, audioJson] = await Promise.all([
+        uploadVideoPromise,
+        extractAudioPromise,
+      ]);
 
       const uploadedUrl =
         videoJson?.data?.url ||
@@ -560,7 +592,10 @@ export function AiRapHeroGenerator() {
       setCustomVideoUrl(localUrl);
       setCustomVideoName(file.name);
       setStudioMode('mimic');
-      toast.success(`🎬 Master video "${file.name}" loaded! Stage monitor synced.`, { id: toastId });
+      toast.success(
+        `🎬 Master video "${file.name}" loaded! Stage monitor synced.`,
+        { id: toastId }
+      );
     } finally {
       setIsUploadingVideo(false);
     }
@@ -587,9 +622,13 @@ export function AiRapHeroGenerator() {
         })
         .then(async (blob) => {
           if (!isMounted) return;
-          const file = new File([blob], 'master_video.mp4', { type: blob.type || 'video/mp4' });
+          const file = new File([blob], 'master_video.mp4', {
+            type: blob.type || 'video/mp4',
+          });
           const audioBlob = await extractAudioFromVideoFile(file);
-          const audioFile = new File([audioBlob], 'master_audio.wav', { type: 'audio/wav' });
+          const audioFile = new File([audioBlob], 'master_audio.wav', {
+            type: 'audio/wav',
+          });
           const formData = new FormData();
           formData.append('file', audioFile);
           const uploadRes = await fetch('/api/storage/upload-media', {
@@ -597,7 +636,10 @@ export function AiRapHeroGenerator() {
             body: formData,
           });
           const json = await uploadRes.json();
-          const extractedUrl = json.data?.url || json.data?.results?.[0]?.url || json.data?.urls?.[0];
+          const extractedUrl =
+            json.data?.url ||
+            json.data?.results?.[0]?.url ||
+            json.data?.urls?.[0];
           if (isMounted && extractedUrl) {
             setCustomAudioUrl(extractedUrl);
             toast.success('🎵 Master audio track extracted & synced!');
@@ -647,7 +689,11 @@ export function AiRapHeroGenerator() {
     // 先强制刷新一次最新的 credits 数据（防止后台刚充值或扣费但前端缓存未过期）
     const freshRes = await creditsQuery.refetch();
     const realBalance = freshRes.data?.balance ?? balance ?? 0;
-    const requiredCredits = getRapCostCredits(selectedDuration, studioMode, selectedModelId);
+    const requiredCredits = getRapCostCredits(
+      selectedDuration,
+      studioMode,
+      selectedModelId
+    );
     if (realBalance < requiredCredits) {
       toast.error(
         `Insufficient credits. This generation requires ${requiredCredits} credits (${selectedDuration}s · ${studioMode.toUpperCase()} · ${selectedModelId}). Current balance: ${realBalance}`
@@ -667,7 +713,9 @@ export function AiRapHeroGenerator() {
 
     setIsSubmitting(true);
     setTaskStatus('processing');
-    setTaskStage(customVideoUrl && audioOption === 'original' ? 'video' : 'lyrics');
+    setTaskStage(
+      customVideoUrl && audioOption === 'original' ? 'video' : 'lyrics'
+    );
     setTaskProgress(customVideoUrl && audioOption === 'original' ? 60 : 15);
     setStageMessage(
       customVideoUrl && audioOption === 'original'
@@ -682,7 +730,12 @@ export function AiRapHeroGenerator() {
         {
           imageUrl: currentPhotos[0],
           imageUrls: currentPhotos,
-          studioMode: studioMode === 'mimic' ? (currentPhotos.length > 1 ? 'duo' : 'solo') : studioMode,
+          studioMode:
+            studioMode === 'mimic'
+              ? currentPhotos.length > 1
+                ? 'duo'
+                : 'solo'
+              : studioMode,
           prompt: prompt.trim() || currentChip.prompt,
           videoPrompt: currentChip.prompt,
           scenarioId: currentChip.id || activeChipId || 'hotel-lobby',
@@ -691,7 +744,10 @@ export function AiRapHeroGenerator() {
           customLyrics: lyrics.trim(),
           referenceVideoUrl: customVideoUrl || undefined,
           audioOption,
-          audioUrl: audioOption === 'original' && customAudioUrl ? customAudioUrl : undefined,
+          audioUrl:
+            audioOption === 'original' && customAudioUrl
+              ? customAudioUrl
+              : undefined,
           duration: selectedDuration,
           aspectRatio,
         }
@@ -741,7 +797,9 @@ export function AiRapHeroGenerator() {
       <div className="mx-auto max-w-4xl text-center">
         <div className="inline-flex items-center gap-2 rounded-full border border-amber-500/30 bg-amber-500/10 px-4 py-1.5 text-xs font-semibold text-amber-300 shadow-[0_0_25px_rgba(245,158,11,0.2)] backdrop-blur-md">
           <Flame className="size-4 animate-pulse text-amber-400" />
-          <span>Iconic Orange Studio Preset · Two Rappers · One Hanging Microphone</span>
+          <span>
+            Iconic Orange Studio Preset · Two Rappers · One Hanging Microphone
+          </span>
         </div>
         <h1 className="mt-4 text-3xl font-extrabold tracking-tight text-white sm:text-5xl lg:text-6xl">
           Turn Two Photos into a{' '}
@@ -750,7 +808,10 @@ export function AiRapHeroGenerator() {
           </span>
         </h1>
         <p className="mx-auto mt-4 max-w-3xl text-sm leading-relaxed text-slate-300 sm:text-base lg:text-lg">
-          Create your own viral orange studio rap battle with just two photos. Airap turns selfies into animated rap performances with AI-generated lyrics, rap vocals, 808 beats, synchronized lip movements, and hip-hop gestures.
+          Create your own viral orange studio rap battle with just two photos.
+          Airap turns selfies into animated rap performances with AI-generated
+          lyrics, rap vocals, 808 beats, synchronized lip movements, and hip-hop
+          gestures.
         </p>
         <p className="mt-2 text-xs font-semibold tracking-wide text-amber-300/90 sm:text-sm">
           No filming. No recording. No editing skills required.
@@ -769,7 +830,7 @@ export function AiRapHeroGenerator() {
             className="flex cursor-pointer items-center gap-2 rounded-full bg-gradient-to-r from-amber-500 via-rose-500 to-purple-600 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-amber-500/25 transition-all hover:scale-105 hover:shadow-rose-500/35 active:scale-95"
           >
             <Mic className="size-4" />
-            <span>Create My AI Rap Video</span>
+            <span>Create My Rap Battle</span>
           </button>
           <button
             type="button"
@@ -779,7 +840,7 @@ export function AiRapHeroGenerator() {
                 el.scrollIntoView({ behavior: 'smooth' });
               }
             }}
-            className="flex cursor-pointer items-center gap-2 rounded-full border border-white/20 bg-white/10 px-6 py-3 text-sm font-semibold text-white backdrop-blur-md transition-all hover:bg-white/20 hover:scale-105 active:scale-95"
+            className="flex cursor-pointer items-center gap-2 rounded-full border border-white/20 bg-white/10 px-6 py-3 text-sm font-semibold text-white backdrop-blur-md transition-all hover:scale-105 hover:bg-white/20 active:scale-95"
           >
             <Play className="size-4 fill-current text-amber-400" />
             <span>Watch Real AI Rap Examples</span>
@@ -808,10 +869,13 @@ export function AiRapHeroGenerator() {
       </div>
 
       {/* Studio Workbench */}
-      <div id="studio-generator" className="mt-8 rounded-3xl border border-white/12 bg-[#0d1527]/95 p-3.5 shadow-[0_24px_80px_rgba(2,6,23,0.65)] backdrop-blur-2xl transition-all duration-200 hover:border-amber-400/20 sm:p-5">
+      <div
+        id="studio-generator"
+        className="mt-8 rounded-3xl border border-white/12 bg-[#0d1527]/95 p-3.5 shadow-[0_24px_80px_rgba(2,6,23,0.65)] backdrop-blur-2xl transition-all duration-200 hover:border-amber-400/20 sm:p-5"
+      >
         <div className="grid grid-cols-1 items-stretch gap-6 lg:grid-cols-[1fr_340px] xl:grid-cols-[1fr_390px] 2xl:grid-cols-[1fr_420px]">
           {/* Left Column: Directing & Inputs */}
-          <div className="flex flex-col justify-between min-w-0">
+          <div className="flex min-w-0 flex-col justify-between">
             {/* STEP 1: Video Mode Selector */}
             <div className="mb-2.5 flex flex-wrap items-center justify-between gap-2 border-b border-white/10 pb-3">
               <div className="flex items-center gap-2">
@@ -822,7 +886,7 @@ export function AiRapHeroGenerator() {
                   Select Rap Mode:
                 </span>
                 <span className="hidden text-[11px] font-medium text-amber-300/80 sm:inline-block">
-                  (Default: Duo Cypher for 2-Photo Battles)
+                  (P0 Core: 2-Photo Rap Battle · P1: Solo/Pet · P2: MV Studio)
                 </span>
               </div>
               <div className="inline-flex rounded-xl border border-white/10 bg-white/[0.06] p-1">
@@ -832,15 +896,15 @@ export function AiRapHeroGenerator() {
                   className={cn(
                     'relative flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all',
                     studioMode === 'duo'
-                      ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/25 ring-1 ring-amber-300 font-bold'
+                      ? 'bg-amber-500 font-bold text-slate-950 shadow-md ring-1 shadow-amber-500/25 ring-amber-300'
                       : 'text-white/70 hover:bg-white/10 hover:text-white'
                   )}
                 >
                   <Mic className="size-3.5" />
-                  <span>Duo Cypher (2 Photos)</span>
+                  <span>Duo Rap Battle (2 Photos)</span>
                   <span
                     className={cn(
-                      'rounded-full px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider',
+                      'rounded-full px-1.5 py-0.5 text-[9px] font-black tracking-wider uppercase',
                       studioMode === 'duo'
                         ? 'bg-slate-950 text-amber-300'
                         : 'bg-amber-400/20 text-amber-300'
@@ -856,7 +920,7 @@ export function AiRapHeroGenerator() {
                   className={cn(
                     'flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all',
                     studioMode === 'group'
-                      ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20 font-bold'
+                      ? 'bg-amber-500 font-bold text-slate-950 shadow-md shadow-amber-500/20'
                       : 'text-white/70 hover:bg-white/10 hover:text-white'
                   )}
                 >
@@ -870,7 +934,7 @@ export function AiRapHeroGenerator() {
                   className={cn(
                     'flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all',
                     studioMode === 'solo'
-                      ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20 font-bold'
+                      ? 'bg-amber-500 font-bold text-slate-950 shadow-md shadow-amber-500/20'
                       : 'text-white/70 hover:bg-white/10 hover:text-white'
                   )}
                 >
@@ -889,7 +953,7 @@ export function AiRapHeroGenerator() {
                   className={cn(
                     'flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all',
                     studioMode === 'mimic'
-                      ? 'bg-gradient-to-r from-amber-400 via-rose-500 to-purple-600 text-white shadow-md shadow-rose-500/25 font-bold'
+                      ? 'bg-gradient-to-r from-amber-400 via-rose-500 to-purple-600 font-bold text-white shadow-md shadow-rose-500/25'
                       : 'text-white/70 hover:bg-white/10 hover:text-white'
                   )}
                 >
@@ -912,26 +976,42 @@ export function AiRapHeroGenerator() {
             {/* Mode Guide Pill Banner */}
             <div className="mb-3.5 flex items-center justify-between rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-xs">
               <div className="flex items-center gap-2">
-                <span className="flex size-2 rounded-full bg-amber-400 animate-pulse" />
+                <span className="flex size-2 animate-pulse rounded-full bg-amber-400" />
                 <span className="text-white/80">
                   {studioMode === 'duo' && (
                     <>
-                      <strong className="font-bold text-amber-300">Default Mode: Duo Cypher (2 Photos Rap Battle)</strong> — Directs two people into split-screen bars, turn-based punchlines, and 808 beat drops.
+                      <strong className="font-bold text-amber-300">
+                        Default Mode: Duo Cypher (2 Photos Rap Battle)
+                      </strong>{' '}
+                      — Directs two people into split-screen bars, turn-based
+                      punchlines, and 808 beat drops.
                     </>
                   )}
                   {studioMode === 'group' && (
                     <>
-                      <strong className="font-bold text-amber-300">Group Rap Mode (3-4 Avatars)</strong> — Synchronized crew cypher with multi-vocal hype and stage camera movement.
+                      <strong className="font-bold text-amber-300">
+                        Group Rap Mode (3-4 Avatars)
+                      </strong>{' '}
+                      — Synchronized crew cypher with multi-vocal hype and stage
+                      camera movement.
                     </>
                   )}
                   {studioMode === 'solo' && (
                     <>
-                      <strong className="font-bold text-amber-300">Solo / Pet MC Mode</strong> — Single portrait or cute pet spitting hypersonic chopper flow to bouncy trap drums.
+                      <strong className="font-bold text-amber-300">
+                        Solo / Pet MC Mode
+                      </strong>{' '}
+                      — Single portrait or cute pet spitting hypersonic chopper
+                      flow to bouncy trap drums.
                     </>
                   )}
                   {studioMode === 'mimic' && (
                     <>
-                      <strong className="font-bold text-amber-300">Upload Master Video Mode</strong> — Upload your own reference rap video and replace avatars with custom photos.
+                      <strong className="font-bold text-amber-300">
+                        Upload Master Video Mode
+                      </strong>{' '}
+                      — Upload your own reference rap video and replace avatars
+                      with custom photos.
                     </>
                   )}
                 </span>
@@ -952,7 +1032,9 @@ export function AiRapHeroGenerator() {
                     <div>
                       <div className="flex items-center gap-2">
                         <span className="text-xs font-bold text-white">
-                          {customVideoName ? customVideoName : 'Custom Reference Master Video'}
+                          {customVideoName
+                            ? customVideoName
+                            : 'Custom Reference Master Video'}
                         </span>
                         {customVideoUrl && (
                           <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-semibold text-emerald-300">
@@ -981,7 +1063,9 @@ export function AiRapHeroGenerator() {
                       ) : (
                         <Upload className="size-3.5" />
                       )}
-                      <span>{customVideoUrl ? 'Change Video' : 'Upload Video File'}</span>
+                      <span>
+                        {customVideoUrl ? 'Change Video' : 'Upload Video File'}
+                      </span>
                     </button>
 
                     {customVideoUrl && (
@@ -1000,7 +1084,9 @@ export function AiRapHeroGenerator() {
                 {/* Audio Flow Option Selector */}
                 {customVideoUrl && (
                   <div className="mt-3 flex flex-wrap items-center gap-3 border-t border-white/10 pt-2.5 text-xs">
-                    <span className="text-[11px] font-semibold text-amber-300">Audio Track:</span>
+                    <span className="text-[11px] font-semibold text-amber-300">
+                      Audio Track:
+                    </span>
                     <label className="flex cursor-pointer items-center gap-1.5 text-white/90 hover:text-white">
                       <input
                         type="radio"
@@ -1009,7 +1095,10 @@ export function AiRapHeroGenerator() {
                         onChange={() => setAudioOption('original')}
                         className="accent-amber-400"
                       />
-                      <span className="font-medium">🎵 Keep Master Original Audio & Beat (Instant & True Flow)</span>
+                      <span className="font-medium">
+                        🎵 Keep Master Original Audio & Beat (Instant & True
+                        Flow)
+                      </span>
                       {customAudioUrl && (
                         <span className="rounded-full bg-emerald-500/20 px-1.5 py-0.5 text-[9px] font-bold text-emerald-300">
                           Master Audio Synced
@@ -1110,7 +1199,9 @@ export function AiRapHeroGenerator() {
                             <Upload className="size-3" />
                             <span>PC Upload</span>
                           </div>
-                          <span className="text-[9px] text-white/40">Local file</span>
+                          <span className="text-[9px] text-white/40">
+                            Local file
+                          </span>
                         </button>
 
                         <button
@@ -1126,7 +1217,9 @@ export function AiRapHeroGenerator() {
                             <Smartphone className="size-3.5 text-amber-400" />
                             <span>From Phone</span>
                           </div>
-                          <span className="text-[9px] text-amber-200/70">Scan QR Code</span>
+                          <span className="text-[9px] text-amber-200/70">
+                            Scan QR Code
+                          </span>
                         </button>
                       </div>
                     )}
@@ -1140,7 +1233,7 @@ export function AiRapHeroGenerator() {
                       title="Swap Lead & Hype roles"
                       className="group flex size-9 cursor-pointer items-center justify-center rounded-full border border-white/20 bg-white/10 text-white shadow-lg transition hover:scale-110 hover:border-amber-400 hover:bg-amber-500 hover:text-slate-950"
                     >
-                      <ArrowLeftRight className="size-4 duration-300 transition group-hover:rotate-180" />
+                      <ArrowLeftRight className="size-4 transition duration-300 group-hover:rotate-180" />
                     </button>
                   </div>
 
@@ -1218,7 +1311,9 @@ export function AiRapHeroGenerator() {
                             <Upload className="size-3" />
                             <span>PC Upload</span>
                           </div>
-                          <span className="text-[9px] text-white/40">Local file</span>
+                          <span className="text-[9px] text-white/40">
+                            Local file
+                          </span>
                         </button>
 
                         <button
@@ -1234,7 +1329,9 @@ export function AiRapHeroGenerator() {
                             <Smartphone className="size-3.5 text-fuchsia-400" />
                             <span>From Phone</span>
                           </div>
-                          <span className="text-[9px] text-fuchsia-200/70">Scan QR Code</span>
+                          <span className="text-[9px] text-fuchsia-200/70">
+                            Scan QR Code
+                          </span>
                         </button>
                       </div>
                     )}
@@ -1426,7 +1523,7 @@ export function AiRapHeroGenerator() {
                         <span className="truncate text-xs font-bold text-white">
                           {style.name}
                         </span>
-                        <span className="rounded bg-black/40 px-1 py-0.2 text-[9px] font-semibold text-amber-300">
+                        <span className="py-0.2 rounded bg-black/40 px-1 text-[9px] font-semibold text-amber-300">
                           {style.bpm} BPM
                         </span>
                       </div>
@@ -1458,7 +1555,9 @@ export function AiRapHeroGenerator() {
                     )}
                   />
                   <span>
-                    {isGeneratingLyrics ? 'Composing Double Rhymes...' : '✨ AI Lyrics Studio'}
+                    {isGeneratingLyrics
+                      ? 'Composing Double Rhymes...'
+                      : '✨ AI Lyrics Studio'}
                   </span>
                 </button>
               </div>
@@ -1472,7 +1571,7 @@ export function AiRapHeroGenerator() {
                   setActiveChipId('');
                 }}
                 placeholder="Direct your rap scene, roast jokes between friends, inside stories, visual props..."
-                className="max-h-24 min-h-16 w-full resize-none rounded-xl border border-white/10 bg-slate-950/70 p-2.5 text-xs text-white placeholder-white/35 focus:border-amber-400/50 focus:outline-none focus:ring-1 focus:ring-amber-400/50"
+                className="max-h-24 min-h-16 w-full resize-none rounded-xl border border-white/10 bg-slate-950/70 p-2.5 text-xs text-white placeholder-white/35 focus:border-amber-400/50 focus:ring-1 focus:ring-amber-400/50 focus:outline-none"
               />
             </div>
 
@@ -1488,7 +1587,9 @@ export function AiRapHeroGenerator() {
                   <span>Rhymes & Flow Structure (Fully Editable)</span>
                 </div>
                 <div className="flex items-center gap-1 text-[11px] text-amber-400">
-                  <span>{isLyricsExpanded ? 'Collapse' : 'Expand & Fine-tune'}</span>
+                  <span>
+                    {isLyricsExpanded ? 'Collapse' : 'Expand & Fine-tune'}
+                  </span>
                   {isLyricsExpanded ? (
                     <ChevronUp className="size-3.5" />
                   ) : (
@@ -1520,7 +1621,9 @@ export function AiRapHeroGenerator() {
                     <span>Aspect Ratio</span>
                   </span>
                   <span className="text-[10px] font-semibold text-amber-300">
-                    {aspectRatio === '9:16' ? 'TikTok / Shorts' : 'YouTube / PC'}
+                    {aspectRatio === '9:16'
+                      ? 'TikTok / Shorts'
+                      : 'YouTube / PC'}
                   </span>
                 </div>
                 <div className="grid grid-cols-2 gap-1.5">
@@ -1528,7 +1631,7 @@ export function AiRapHeroGenerator() {
                     type="button"
                     onClick={() => setAspectRatio('9:16')}
                     className={cn(
-                      'flex cursor-pointer items-center justify-center gap-1.5 rounded-lg border py-2 px-2 text-center transition-all active:scale-95',
+                      'flex cursor-pointer items-center justify-center gap-1.5 rounded-lg border px-2 py-2 text-center transition-all active:scale-95',
                       aspectRatio === '9:16'
                         ? 'border-amber-400 bg-amber-400/20 text-white shadow-[0_0_15px_rgba(251,191,36,0.25)] ring-1 ring-amber-400'
                         : 'border-white/10 bg-white/5 text-white/70 hover:border-white/25 hover:bg-white/10 hover:text-white'
@@ -1541,7 +1644,7 @@ export function AiRapHeroGenerator() {
                     type="button"
                     onClick={() => setAspectRatio('16:9')}
                     className={cn(
-                      'flex cursor-pointer items-center justify-center gap-1.5 rounded-lg border py-2 px-2 text-center transition-all active:scale-95',
+                      'flex cursor-pointer items-center justify-center gap-1.5 rounded-lg border px-2 py-2 text-center transition-all active:scale-95',
                       aspectRatio === '16:9'
                         ? 'border-amber-400 bg-amber-400/20 text-white shadow-[0_0_15px_rgba(251,191,36,0.25)] ring-1 ring-amber-400'
                         : 'border-white/10 bg-white/5 text-white/70 hover:border-white/25 hover:bg-white/10 hover:text-white'
@@ -1567,21 +1670,34 @@ export function AiRapHeroGenerator() {
                 <div className="grid grid-cols-3 gap-1.5">
                   {RAP_DURATION_OPTIONS.map((opt) => {
                     const isSelected = selectedDuration === opt.duration;
-                    const optCost = getRapCostCredits(opt.duration, studioMode, selectedModelId);
+                    const optCost = getRapCostCredits(
+                      opt.duration,
+                      studioMode,
+                      selectedModelId
+                    );
                     return (
                       <button
                         key={opt.duration}
                         type="button"
                         onClick={() => setSelectedDuration(opt.duration)}
                         className={cn(
-                          'flex cursor-pointer flex-col items-center justify-center rounded-lg border py-1.5 px-1 text-center transition-all active:scale-95',
+                          'flex cursor-pointer flex-col items-center justify-center rounded-lg border px-1 py-1.5 text-center transition-all active:scale-95',
                           isSelected
                             ? 'border-amber-400 bg-amber-400/20 text-white shadow-[0_0_15px_rgba(251,191,36,0.25)] ring-1 ring-amber-400'
                             : 'border-white/10 bg-white/5 text-white/70 hover:border-white/25 hover:bg-white/10 hover:text-white'
                         )}
                       >
-                        <span className="text-xs font-bold">{opt.duration}s</span>
-                        <span className={cn('text-[9px]', isSelected ? 'text-amber-300 font-semibold' : 'text-white/50')}>
+                        <span className="text-xs font-bold">
+                          {opt.duration}s
+                        </span>
+                        <span
+                          className={cn(
+                            'text-[9px]',
+                            isSelected
+                              ? 'font-semibold text-amber-300'
+                              : 'text-white/50'
+                          )}
+                        >
                           {optCost} C
                         </span>
                       </button>
@@ -1598,7 +1714,9 @@ export function AiRapHeroGenerator() {
                     <span>AI Video Model</span>
                   </span>
                   <span className="text-[10px] font-semibold text-amber-300">
-                    {RAP_MODEL_OPTIONS.find((m) => m.id === selectedModelId)?.name.split(' ')[0] || 'Kling 4.0'}
+                    {RAP_MODEL_OPTIONS.find(
+                      (m) => m.id === selectedModelId
+                    )?.name.split(' ')[0] || 'Kling 4.0'}
                   </span>
                 </div>
                 <div className="grid grid-cols-3 gap-1.5">
@@ -1610,15 +1728,24 @@ export function AiRapHeroGenerator() {
                         type="button"
                         onClick={() => setSelectedModelId(model.id)}
                         className={cn(
-                          'flex cursor-pointer flex-col items-center justify-center rounded-lg border py-1.5 px-1 text-center transition-all active:scale-95',
+                          'flex cursor-pointer flex-col items-center justify-center rounded-lg border px-1 py-1.5 text-center transition-all active:scale-95',
                           isSelected
                             ? 'border-amber-400 bg-amber-400/20 text-white shadow-[0_0_15px_rgba(251,191,36,0.25)] ring-1 ring-amber-400'
                             : 'border-white/10 bg-white/5 text-white/70 hover:border-white/25 hover:bg-white/10 hover:text-white'
                         )}
-                        title={model.desc}
+                        title={model.description}
                       >
-                        <span className="text-xs font-bold truncate max-w-full">{model.name.split(' ')[0]}</span>
-                        <span className={cn('text-[9px]', isSelected ? 'text-amber-300 font-semibold' : 'text-white/50')}>
+                        <span className="max-w-full truncate text-xs font-bold">
+                          {model.name.split(' ')[0]}
+                        </span>
+                        <span
+                          className={cn(
+                            'text-[9px]',
+                            isSelected
+                              ? 'font-semibold text-amber-300'
+                              : 'text-white/50'
+                          )}
+                        >
                           {model.badge}
                         </span>
                       </button>
@@ -1633,7 +1760,7 @@ export function AiRapHeroGenerator() {
               {/* Live Spec Matrix Bar: Mode, Resolution, Wait Time & Actual Cost */}
               <div className="mb-3 grid grid-cols-2 gap-2 rounded-xl border border-white/10 bg-white/[0.04] p-2.5 sm:grid-cols-4">
                 <div className="flex flex-col">
-                  <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                  <span className="text-[10px] font-semibold tracking-wider text-slate-400 uppercase">
                     Active Mode
                   </span>
                   <span
@@ -1642,24 +1769,24 @@ export function AiRapHeroGenerator() {
                       studioMode === 'duo'
                         ? 'Duo Cypher (2 Photos Rap Battle · Default)'
                         : studioMode === 'group'
-                        ? 'Group Rap (Crew Cypher)'
-                        : studioMode === 'solo'
-                        ? 'Solo / Pet MC'
-                        : 'Master Video Mimic'
+                          ? 'Group Rap (Crew Cypher)'
+                          : studioMode === 'solo'
+                            ? 'Solo / Pet MC'
+                            : 'Master Video Mimic'
                     }
                   >
                     {studioMode === 'duo'
                       ? '🎤 Duo Cypher (Default)'
                       : studioMode === 'group'
-                      ? '👥 Group Rap'
-                      : studioMode === 'solo'
-                      ? '👤 Solo MC'
-                      : '🎬 Video Mimic'}
+                        ? '👥 Group Rap'
+                        : studioMode === 'solo'
+                          ? '👤 Solo MC'
+                          : '🎬 Video Mimic'}
                   </span>
                 </div>
 
                 <div className="flex flex-col border-l border-white/10 pl-2">
-                  <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                  <span className="text-[10px] font-semibold tracking-wider text-slate-400 uppercase">
                     Resolution
                   </span>
                   <span className="mt-0.5 text-xs font-bold text-white">
@@ -1668,7 +1795,7 @@ export function AiRapHeroGenerator() {
                 </div>
 
                 <div className="flex flex-col border-l border-white/10 pl-2">
-                  <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                  <span className="text-[10px] font-semibold tracking-wider text-slate-400 uppercase">
                     Est. Wait Time
                   </span>
                   <span className="mt-0.5 text-xs font-bold text-cyan-300">
@@ -1677,7 +1804,7 @@ export function AiRapHeroGenerator() {
                 </div>
 
                 <div className="flex flex-col border-l border-white/10 pl-2">
-                  <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                  <span className="text-[10px] font-semibold tracking-wider text-slate-400 uppercase">
                     Estimated Cost
                   </span>
                   <span className="mt-0.5 text-xs font-extrabold text-amber-400">
@@ -1690,7 +1817,10 @@ export function AiRapHeroGenerator() {
               <button
                 type="button"
                 onClick={handleStartGeneration}
-                disabled={isSubmitting || (taskStatus === 'processing' && taskProgress < 100)}
+                disabled={
+                  isSubmitting ||
+                  (taskStatus === 'processing' && taskProgress < 100)
+                }
                 className="group relative flex h-13 w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 via-rose-500 to-purple-600 px-6 text-sm font-bold text-white shadow-[0_0_30px_rgba(245,158,11,0.35)] transition-all hover:opacity-95 hover:shadow-[0_0_40px_rgba(245,158,11,0.5)] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {taskStatus === 'processing' && taskProgress < 100 ? (
@@ -1703,8 +1833,8 @@ export function AiRapHeroGenerator() {
                     <Wand2 className="size-4 animate-pulse" />
                     <span>
                       {session?.user
-                        ? `Generate My Rap Video · ${currentCost} Credits (${selectedDuration}s · 1080P · ${currentWaitTime})`
-                        : `Generate My Rap Video (Get Free Signup Credits)`}
+                        ? `Create My Rap Battle · ${currentCost} Credits (${selectedDuration}s · 1080P · ${currentWaitTime})`
+                        : `Create My Rap Battle (120 Free Credits)`}
                     </span>
                   </>
                 )}
@@ -1715,7 +1845,12 @@ export function AiRapHeroGenerator() {
                 <span className="flex items-center gap-1.5">
                   <span className="size-1.5 rounded-full bg-emerald-400" />
                   <span>
-                    Model: <strong className="text-white/80">{RAP_MODEL_OPTIONS.find(m => m.id === selectedModelId)?.name || 'Kling 4.0'}</strong> · {currentResolution} · Est. {currentWaitTime}
+                    Model:{' '}
+                    <strong className="text-white/80">
+                      {RAP_MODEL_OPTIONS.find((m) => m.id === selectedModelId)
+                        ?.name || 'Kling 4.0'}
+                    </strong>{' '}
+                    · {currentResolution} · Est. {currentWaitTime}
                   </span>
                 </span>
                 <span>
@@ -1726,16 +1861,20 @@ export function AiRapHeroGenerator() {
                 </span>
               </div>
             </div>
+            <p className="mt-2 text-center text-[11px] text-white/50">
+              🔒 Photos auto-purged within 24h. Please confirm you have obtained
+              consent for uploaded portraits.
+            </p>
           </div>
           {/* End of Left Column */}
 
           {/* Right Column: 9:16 Studio Stage Monitor */}
-          <div className="flex flex-col min-w-0">
+          <div className="flex min-w-0 flex-col">
             <div className="relative flex h-full flex-col overflow-hidden rounded-2xl border border-white/12 bg-[#060a14] p-3 shadow-2xl">
               {/* Monitor Top Status Bar */}
               <div className="mb-2 flex items-center justify-between gap-2 px-1">
                 <div className="flex items-center gap-1.5">
-                  <span className="flex size-2 rounded-full bg-rose-500 animate-pulse" />
+                  <span className="flex size-2 animate-pulse rounded-full bg-rose-500" />
                   <span className="text-[10px] font-bold tracking-widest text-white/90 uppercase">
                     Studio Stage Monitor
                   </span>
@@ -1788,14 +1927,14 @@ export function AiRapHeroGenerator() {
                     {previewMuted ? (
                       <VolumeX className="size-3.5" />
                     ) : (
-                      <Volume2 className="size-3.5 text-amber-400 animate-pulse" />
+                      <Volume2 className="size-3.5 animate-pulse text-amber-400" />
                     )}
                   </button>
                 </div>
               </div>
 
               {/* 9:16 Vertical Screen Area */}
-              <div className="group/stage relative flex min-h-[380px] flex-1 w-full flex-col justify-between overflow-hidden rounded-xl border border-white/10 bg-black shadow-inner">
+              <div className="group/stage relative flex min-h-[380px] w-full flex-1 flex-col justify-between overflow-hidden rounded-xl border border-white/10 bg-black shadow-inner">
                 {/* State 1: Generation Complete (Play Finished MV) */}
                 {taskStatus === 'success' && resultVideoUrl ? (
                   <div className="relative flex size-full flex-col justify-between overflow-hidden bg-black">
@@ -1817,12 +1956,29 @@ export function AiRapHeroGenerator() {
                       {/* Clean Mode Floating Indicator */}
                       <button
                         type="button"
-                        onClick={() => setCleanWatermarkMode(!cleanWatermarkMode)}
+                        onClick={() =>
+                          setCleanWatermarkMode(!cleanWatermarkMode)
+                        }
                         className="absolute top-2.5 right-2.5 z-20 flex cursor-pointer items-center gap-1 rounded-full border border-white/20 bg-black/70 px-2 py-0.5 text-[10px] font-semibold text-white/90 backdrop-blur-md transition hover:bg-black/90 hover:text-amber-300"
-                        title={cleanWatermarkMode ? 'Switch to Full Frame (with badges)' : 'Toggle Clean Edge Mode (remove corner watermarks)'}
+                        title={
+                          cleanWatermarkMode
+                            ? 'Switch to Full Frame (with badges)'
+                            : 'Toggle Clean Edge Mode (remove corner watermarks)'
+                        }
                       >
-                        <span className={cn('size-1.5 rounded-full', cleanWatermarkMode ? 'bg-emerald-400' : 'bg-slate-400')} />
-                        <span>{cleanWatermarkMode ? '✨ Clean No-Watermark' : 'Original Frame'}</span>
+                        <span
+                          className={cn(
+                            'size-1.5 rounded-full',
+                            cleanWatermarkMode
+                              ? 'bg-emerald-400'
+                              : 'bg-slate-400'
+                          )}
+                        />
+                        <span>
+                          {cleanWatermarkMode
+                            ? '✨ Clean No-Watermark'
+                            : 'Original Frame'}
+                        </span>
                       </button>
                     </div>
 
@@ -1833,7 +1989,10 @@ export function AiRapHeroGenerator() {
                             🎉 Rap MV Directed Successfully!
                           </p>
                           <p className="text-[10px] text-amber-300">
-                            {selectedStyle.name} ({selectedStyle.bpm} BPM) · {cleanWatermarkMode ? 'Clean No-Watermark HD' : 'Original Frame'}
+                            {selectedStyle.name} ({selectedStyle.bpm} BPM) ·{' '}
+                            {cleanWatermarkMode
+                              ? 'Clean No-Watermark HD'
+                              : 'Original Frame'}
                           </p>
                         </div>
                         <div className="flex items-center gap-2">
@@ -1847,7 +2006,10 @@ export function AiRapHeroGenerator() {
                             <span>Scan QR Code</span>
                           </button>
                           <a
-                            href={resultVideoUrl || '/videos/showcase/duo-generated-demo.mp4'}
+                            href={
+                              resultVideoUrl ||
+                              '/videos/showcase/duo-generated-demo.mp4'
+                            }
                             download="ai-rap-video.mp4"
                             target="_blank"
                             rel="noreferrer"
@@ -1882,10 +2044,11 @@ export function AiRapHeroGenerator() {
                           type="button"
                           onClick={() => {
                             setTaskStatus('idle');
-                            const el = document.getElementById('studio-generator');
+                            const el =
+                              document.getElementById('studio-generator');
                             if (el) el.scrollIntoView({ behavior: 'smooth' });
                           }}
-                          className="flex cursor-pointer items-center gap-1 font-semibold text-amber-300 hover:text-amber-200 transition active:scale-95"
+                          className="flex cursor-pointer items-center gap-1 font-semibold text-amber-300 transition hover:text-amber-200 active:scale-95"
                         >
                           <Sparkles className="size-3 text-amber-400" />
                           <span>Remix / New Round</span>
@@ -1894,9 +2057,11 @@ export function AiRapHeroGenerator() {
                           href="#showcase-evidence"
                           onClick={(e) => {
                             e.preventDefault();
-                            document.getElementById('showcase-evidence')?.scrollIntoView({ behavior: 'smooth' });
+                            document
+                              .getElementById('showcase-evidence')
+                              ?.scrollIntoView({ behavior: 'smooth' });
                           }}
-                          className="flex items-center gap-1 text-slate-300 hover:text-white transition"
+                          className="flex items-center gap-1 text-slate-300 transition hover:text-white"
                         >
                           <Flame className="size-3 text-rose-400" />
                           <span>More Battles</span>
@@ -1904,21 +2069,23 @@ export function AiRapHeroGenerator() {
                         <button
                           type="button"
                           onClick={handleCopyViralTags}
-                          className="flex cursor-pointer items-center gap-1 text-slate-300 hover:text-emerald-300 transition active:scale-95"
+                          className="flex cursor-pointer items-center gap-1 text-slate-300 transition hover:text-emerald-300 active:scale-95"
                         >
                           {copiedTags ? (
                             <Check className="size-3 text-emerald-400" />
                           ) : (
                             <Share2 className="size-3 text-purple-400" />
                           )}
-                          <span>{copiedTags ? 'Tags Copied!' : 'Copy Tags'}</span>
+                          <span>
+                            {copiedTags ? 'Tags Copied!' : 'Copy Tags'}
+                          </span>
                         </button>
                       </div>
                     </div>
                   </div>
                 ) : taskStatus === 'processing' ? (
                   /* State 2: Processing Live Stepper & Cyber Engagement Hub */
-                  <div className="flex size-full flex-col justify-between overflow-y-auto bg-slate-950/95 p-3.5 text-left custom-scrollbar">
+                  <div className="custom-scrollbar flex size-full flex-col justify-between overflow-y-auto bg-slate-950/95 p-3.5 text-left">
                     <div>
                       <div className="flex items-center justify-between border-b border-white/10 pb-2">
                         <span className="flex items-center gap-1.5 text-xs font-bold text-amber-400">
@@ -1939,7 +2106,8 @@ export function AiRapHeroGenerator() {
                       </div>
 
                       <p className="mt-1.5 text-[11px] font-medium text-amber-200">
-                        {stageMessage || 'Orchestrating multi-model pipeline...'}
+                        {stageMessage ||
+                          'Orchestrating multi-model pipeline...'}
                       </p>
 
                       {/* 4 Steps */}
@@ -1955,7 +2123,9 @@ export function AiRapHeroGenerator() {
                         >
                           <CheckCircle2 className="size-3 shrink-0 text-emerald-400" />
                           <div className="min-w-0">
-                            <p className="font-bold text-[11px]">Step 1: Visual Context & Rhyme Writing</p>
+                            <p className="text-[11px] font-bold">
+                              Step 1: Visual Context & Rhyme Writing
+                            </p>
                             <p className="truncate text-[9px] opacity-75">
                               DeepSeek writes cadence & double rhymes
                             </p>
@@ -1981,13 +2151,15 @@ export function AiRapHeroGenerator() {
                             )}
                           />
                           <div className="min-w-0">
-                            <p className="font-bold text-[11px]">
-                              {studioMode === 'mimic' && audioOption === 'original'
+                            <p className="text-[11px] font-bold">
+                              {studioMode === 'mimic' &&
+                              audioOption === 'original'
                                 ? 'Step 2: Master Audio Track Extraction & Beat Sync'
                                 : 'Step 2: Suno 808 Beat & Vocals'}
                             </p>
                             <p className="truncate text-[9px] opacity-75">
-                              {studioMode === 'mimic' && audioOption === 'original'
+                              {studioMode === 'mimic' &&
+                              audioOption === 'original'
                                 ? 'Extracting original master track & frequency stems'
                                 : '808 bass, hi-hat rolls & rap vocals'}
                             </p>
@@ -2013,7 +2185,9 @@ export function AiRapHeroGenerator() {
                             )}
                           />
                           <div className="min-w-0">
-                            <p className="font-bold text-[11px]">Step 3: Lip-Sync & Motion Directing</p>
+                            <p className="text-[11px] font-bold">
+                              Step 3: Lip-Sync & Motion Directing
+                            </p>
                             <p className="truncate text-[9px] opacity-75">
                               Audio features drive facial micro-delivery
                             </p>
@@ -2031,7 +2205,9 @@ export function AiRapHeroGenerator() {
                         >
                           <Sparkles className="size-3 shrink-0" />
                           <div className="min-w-0">
-                            <p className="font-bold text-[11px]">Step 4: Stream Mastering & Final MV</p>
+                            <p className="text-[11px] font-bold">
+                              Step 4: Stream Mastering & Final MV
+                            </p>
                             <p className="truncate text-[9px] opacity-75">
                               High-bitrate render & audio multiplexing
                             </p>
@@ -2045,63 +2221,77 @@ export function AiRapHeroGenerator() {
                           <div className="flex items-center gap-1.5 text-[11px] font-bold text-emerald-400">
                             <Activity className="size-3.5 animate-pulse text-emerald-400" />
                             <span>CYBER MOTION & WAVEFORM HUD</span>
-                            <span className="flex items-center gap-1 rounded bg-emerald-500/20 px-1 py-0.5 text-[8px] font-mono font-medium text-emerald-300">
-                              <span className="size-1.5 rounded-full bg-emerald-400 animate-ping" />
+                            <span className="flex items-center gap-1 rounded bg-emerald-500/20 px-1 py-0.5 font-mono text-[8px] font-medium text-emerald-300">
+                              <span className="size-1.5 animate-ping rounded-full bg-emerald-400" />
                               LIVE
                             </span>
                           </div>
 
                           {/* Equalizer Waveform Bars */}
-                          <div className="flex items-end gap-0.5 h-3">
-                            {[40, 75, 100, 60, 90, 45, 80, 65, 95, 50].map((h, i) => (
-                              <span
-                                key={i}
-                                className="w-0.5 rounded-full bg-gradient-to-t from-emerald-500 to-amber-300 animate-pulse"
-                                style={{
-                                  height: `${h}%`,
-                                  animationDelay: `${i * 100}ms`,
-                                  animationDuration: '650ms',
-                                }}
-                              />
-                            ))}
+                          <div className="flex h-3 items-end gap-0.5">
+                            {[40, 75, 100, 60, 90, 45, 80, 65, 95, 50].map(
+                              (h, i) => (
+                                <span
+                                  key={i}
+                                  className="w-0.5 animate-pulse rounded-full bg-gradient-to-t from-emerald-500 to-amber-300"
+                                  style={{
+                                    height: `${h}%`,
+                                    animationDelay: `${i * 100}ms`,
+                                    animationDuration: '650ms',
+                                  }}
+                                />
+                              )
+                            )}
                           </div>
                         </div>
 
                         {/* Real-time Tracking Matrix */}
                         <div className="mt-2 grid grid-cols-2 gap-1.5 font-mono text-[9px]">
-                          <div className="flex items-center justify-between rounded bg-white/[0.03] px-2 py-1 text-slate-300 border border-white/5">
+                          <div className="flex items-center justify-between rounded border border-white/5 bg-white/[0.03] px-2 py-1 text-slate-300">
                             <span className="text-white/50">FACE MESH:</span>
-                            <span className="font-bold text-emerald-400">468 PTS [LOCKED]</span>
+                            <span className="font-bold text-emerald-400">
+                              468 PTS [LOCKED]
+                            </span>
                           </div>
-                          <div className="flex items-center justify-between rounded bg-white/[0.03] px-2 py-1 text-slate-300 border border-white/5">
+                          <div className="flex items-center justify-between rounded border border-white/5 bg-white/[0.03] px-2 py-1 text-slate-300">
                             <span className="text-white/50">AUDIO BEAT:</span>
-                            <span className="font-bold text-amber-400">132 BPM [SYNC]</span>
+                            <span className="font-bold text-amber-400">
+                              132 BPM [SYNC]
+                            </span>
                           </div>
-                          <div className="flex items-center justify-between rounded bg-white/[0.03] px-2 py-1 text-slate-300 border border-white/5">
+                          <div className="flex items-center justify-between rounded border border-white/5 bg-white/[0.03] px-2 py-1 text-slate-300">
                             <span className="text-white/50">LIP ALIGN:</span>
-                            <span className="font-bold text-rose-400">PHONEME-ACCURATE</span>
+                            <span className="font-bold text-rose-400">
+                              PHONEME-ACCURATE
+                            </span>
                           </div>
-                          <div className="flex items-center justify-between rounded bg-white/[0.03] px-2 py-1 text-slate-300 border border-white/5">
+                          <div className="flex items-center justify-between rounded border border-white/5 bg-white/[0.03] px-2 py-1 text-slate-300">
                             <span className="text-white/50">MOTION VIBE:</span>
-                            <span className="font-bold text-purple-400">99.4% SWAGGER</span>
+                            <span className="font-bold text-purple-400">
+                              99.4% SWAGGER
+                            </span>
                           </div>
                         </div>
 
                         {/* Dynamic Live Ticker */}
-                        <div className="mt-2 flex items-center gap-1.5 rounded-md bg-black/40 px-2 py-1.5 text-[9px] text-emerald-300/90 font-mono border border-emerald-500/10">
-                          <Radio className="size-3 shrink-0 text-emerald-400 animate-pulse" />
-                          <span className="truncate">{HUD_TICKER_MESSAGES[hudTickerIndex]}</span>
+                        <div className="mt-2 flex items-center gap-1.5 rounded-md border border-emerald-500/10 bg-black/40 px-2 py-1.5 font-mono text-[9px] text-emerald-300/90">
+                          <Radio className="size-3 shrink-0 animate-pulse text-emerald-400" />
+                          <span className="truncate">
+                            {HUD_TICKER_MESSAGES[hudTickerIndex]}
+                          </span>
                         </div>
                       </div>
 
                       {/* Module 2: Community Viral Inspiration Reel */}
                       <div className="mt-2.5 rounded-xl border border-white/10 bg-white/[0.02] p-2.5">
-                        <div className="flex items-center justify-between mb-2">
+                        <div className="mb-2 flex items-center justify-between">
                           <div className="flex items-center gap-1.5 text-[11px] font-bold text-amber-300">
                             <Flame className="size-3.5 text-amber-400" />
                             <span>Community Viral Hits</span>
                           </div>
-                          <span className="text-[9px] text-white/40">🔥 10M+ Community Views</span>
+                          <span className="text-[9px] text-white/40">
+                            🔥 10M+ Community Views
+                          </span>
                         </div>
 
                         <div className="grid grid-cols-3 gap-1.5">
@@ -2117,14 +2307,16 @@ export function AiRapHeroGenerator() {
                                   className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-                                <span className="absolute bottom-0.5 left-0.5 rounded bg-black/60 px-1 py-0.2 text-[7px] font-bold text-amber-300 backdrop-blur-sm">
+                                <span className="py-0.2 absolute bottom-0.5 left-0.5 rounded bg-black/60 px-1 text-[7px] font-bold text-amber-300 backdrop-blur-sm">
                                   {item.plays}
                                 </span>
                               </div>
                               <p className="mt-1 truncate text-[9px] font-bold text-white group-hover:text-amber-300">
                                 {item.title}
                               </p>
-                              <p className="truncate text-[7px] text-white/50">{item.tag}</p>
+                              <p className="truncate text-[7px] text-white/50">
+                                {item.tag}
+                              </p>
                             </div>
                           ))}
                         </div>
@@ -2133,18 +2325,19 @@ export function AiRapHeroGenerator() {
                       {/* Module 3: Viral Hashtags Copy Tool */}
                       <div className="mt-2.5 flex items-center justify-between rounded-lg border border-white/10 bg-gradient-to-r from-purple-500/10 via-rose-500/10 to-amber-500/10 px-2.5 py-1.5">
                         <div className="min-w-0 pr-2">
-                          <p className="text-[9px] font-bold text-white/80 flex items-center gap-1">
+                          <p className="flex items-center gap-1 text-[9px] font-bold text-white/80">
                             <Share2 className="size-2.5 text-purple-400" />
                             <span>Trending Social Hashtags</span>
                           </p>
                           <p className="truncate font-mono text-[8px] text-white/50">
-                            #airapvideo #hotellobby #aihiphop #motionmimic #rapmv
+                            #airapvideo #hotellobby #aihiphop #motionmimic
+                            #rapmv
                           </p>
                         </div>
                         <button
                           type="button"
                           onClick={handleCopyViralTags}
-                          className="shrink-0 flex items-center gap-1 rounded bg-white/10 px-2 py-1 text-[8px] font-bold text-white hover:bg-white/20 transition active:scale-95"
+                          className="flex shrink-0 items-center gap-1 rounded bg-white/10 px-2 py-1 text-[8px] font-bold text-white transition hover:bg-white/20 active:scale-95"
                         >
                           {copiedTags ? (
                             <>
@@ -2163,7 +2356,9 @@ export function AiRapHeroGenerator() {
 
                     <div className="mt-2.5 flex items-center justify-center gap-1.5 text-[10px] text-amber-300/80">
                       <RefreshCw className="size-2.5 animate-spin" />
-                      <span>Cloud rendering in progress... You may keep page open</span>
+                      <span>
+                        Cloud rendering in progress... You may keep page open
+                      </span>
                     </div>
                   </div>
                 ) : (
@@ -2173,7 +2368,9 @@ export function AiRapHeroGenerator() {
                       const activeMonitorVideo =
                         monitorMode === 'reference' && customVideoUrl
                           ? customVideoUrl
-                          : (currentChip.video || customVideoUrl || '/videos/showcase/duo-generated-demo.mp4?v=2');
+                          : currentChip.video ||
+                            customVideoUrl ||
+                            '/videos/showcase/duo-generated-demo.mp4?v=2';
 
                       return activeMonitorVideo ? (
                         <video
@@ -2206,29 +2403,37 @@ export function AiRapHeroGenerator() {
 
                     {/* Animated Equalizer / Beat Wave overlay */}
                     <div className="pointer-events-none absolute bottom-28 left-4 flex items-end gap-1">
-                      <span className="h-6 w-1 rounded-full bg-amber-400 animate-pulse" />
-                      <span className="h-9 w-1 rounded-full bg-amber-400 animate-pulse delay-75" />
-                      <span className="h-5 w-1 rounded-full bg-amber-300 animate-pulse delay-150" />
-                      <span className="h-8 w-1 rounded-full bg-amber-400 animate-pulse delay-200" />
-                      <span className="h-4 w-1 rounded-full bg-amber-200 animate-pulse delay-100" />
+                      <span className="h-6 w-1 animate-pulse rounded-full bg-amber-400" />
+                      <span className="h-9 w-1 animate-pulse rounded-full bg-amber-400 delay-75" />
+                      <span className="h-5 w-1 animate-pulse rounded-full bg-amber-300 delay-150" />
+                      <span className="h-8 w-1 animate-pulse rounded-full bg-amber-400 delay-200" />
+                      <span className="h-4 w-1 animate-pulse rounded-full bg-amber-200 delay-100" />
                     </div>
 
                     {/* Top Floating Badge */}
-                    <div className="pointer-events-none absolute top-3 left-3 flex items-center gap-1.5 rounded-full border border-white/20 bg-black/60 px-2.5 py-1 text-[10px] font-semibold text-amber-300 backdrop-blur-md shadow-md">
+                    <div className="pointer-events-none absolute top-3 left-3 flex items-center gap-1.5 rounded-full border border-white/20 bg-black/60 px-2.5 py-1 text-[10px] font-semibold text-amber-300 shadow-md backdrop-blur-md">
                       <Sparkles className="size-3 text-amber-400" />
-                      <span>{monitorMode === 'reference' ? 'Master Reference (15s)' : 'Demo Showcase (Generated)'}</span>
+                      <span>
+                        {monitorMode === 'reference'
+                          ? 'Master Reference (15s)'
+                          : 'Demo Showcase (Generated)'}
+                      </span>
                     </div>
 
                     {/* Bottom HUD Information */}
-                    <div className="pointer-events-none absolute inset-x-3 bottom-3 rounded-xl border border-white/15 bg-black/85 p-2.5 backdrop-blur-md shadow-lg">
+                    <div className="pointer-events-none absolute inset-x-3 bottom-3 rounded-xl border border-white/15 bg-black/85 p-2.5 shadow-lg backdrop-blur-md">
                       <div className="flex items-center justify-between">
                         <p className="truncate text-xs font-bold text-white">
                           {monitorMode === 'reference' && customVideoUrl
-                            ? (customVideoName ? `Master: ${customVideoName}` : 'Hotel Lobby 15s Master')
+                            ? customVideoName
+                              ? `Master: ${customVideoName}`
+                              : 'Hotel Lobby 15s Master'
                             : `${currentChip.title} · Generated Showcase`}
                         </p>
                         <span className="rounded border border-amber-500/30 bg-amber-500/20 px-1.5 py-0.5 text-[9px] font-semibold text-amber-300">
-                          {monitorMode === 'reference' ? 'REFERENCE MASTER' : 'DEMO SHOWCASE'}
+                          {monitorMode === 'reference'
+                            ? 'REFERENCE MASTER'
+                            : 'DEMO SHOWCASE'}
                         </span>
                       </div>
                       <p className="mt-0.5 line-clamp-2 text-[10px] leading-relaxed text-white/70">
@@ -2238,7 +2443,9 @@ export function AiRapHeroGenerator() {
                       </p>
                       <div className="mt-1.5 flex items-center justify-between border-t border-white/10 pt-1.5 text-[9px] text-amber-300/80">
                         <span>Photos in → Viral Rap Video out</span>
-                        <span className="font-mono text-white/40">1080P · 9:16</span>
+                        <span className="font-mono text-white/40">
+                          1080P · 9:16
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -2247,7 +2454,8 @@ export function AiRapHeroGenerator() {
 
               {/* Monitor Footer Hint */}
               <p className="mt-2 text-center text-[10px] text-white/45">
-                Click any scenario chip on the left to switch studio stage & beat
+                Click any scenario chip on the left to switch studio stage &
+                beat
               </p>
             </div>
           </div>
@@ -2259,22 +2467,30 @@ export function AiRapHeroGenerator() {
       <div className="mt-4 grid grid-cols-2 gap-2 px-1 text-xs sm:grid-cols-4 sm:gap-3">
         <div className="flex items-center gap-2 rounded-xl border border-white/5 bg-white/[0.02] px-3 py-2 text-white/70">
           <Gift className="size-3.5 shrink-0 text-amber-400" />
-          <span className="truncate text-[11px] font-medium">100 Free Credits on Signup</span>
+          <span className="truncate text-[11px] font-medium">
+            120 Free Credits (1 Free Battle Video)
+          </span>
         </div>
 
         <div className="flex items-center gap-2 rounded-xl border border-white/5 bg-white/[0.02] px-3 py-2 text-white/70">
           <ShieldCheck className="size-3.5 shrink-0 text-emerald-400" />
-          <span className="truncate text-[11px] font-medium">100% Refund on Error</span>
+          <span className="truncate text-[11px] font-medium">
+            100% Refund on Error
+          </span>
         </div>
 
         <div className="flex items-center gap-2 rounded-xl border border-white/5 bg-white/[0.02] px-3 py-2 text-white/70">
           <Clock className="size-3.5 shrink-0 text-blue-400" />
-          <span className="truncate text-[11px] font-medium">~60s Fast Cloud Pipeline</span>
+          <span className="truncate text-[11px] font-medium">
+            ~60s Fast Cloud Pipeline
+          </span>
         </div>
 
         <div className="flex items-center gap-2 rounded-xl border border-white/5 bg-white/[0.02] px-3 py-2 text-white/70">
           <Sparkles className="size-3.5 shrink-0 text-purple-400" />
-          <span className="truncate text-[11px] font-medium">100% Encrypted & Private</span>
+          <span className="truncate text-[11px] font-medium">
+            100% Encrypted & Private
+          </span>
         </div>
       </div>
 
@@ -2295,10 +2511,7 @@ export function AiRapHeroGenerator() {
       )}
 
       {showAuthModal && (
-        <QuickAuthModal
-          open={showAuthModal}
-          onOpenChange={setShowAuthModal}
-        />
+        <QuickAuthModal open={showAuthModal} onOpenChange={setShowAuthModal} />
       )}
 
       {downloadQrOpen && (

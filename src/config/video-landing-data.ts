@@ -70,7 +70,7 @@ export const SHOWCASE_ITEMS: ShowcaseItem[] = [
     video: '/videos/showcase/generated/web-acrobat.mp4',
     aspectRatio: '9 / 16',
     model: 'Kling 4.0 Studio',
-    badge: 'Migos Studio',
+    badge: 'Orange Studio',
   },
   {
     id: 'choreo-dance',

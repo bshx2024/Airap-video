@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Volume2, VolumeX, Sparkles, Play } from 'lucide-react';
+import { Play, Sparkles, Volume2, VolumeX } from 'lucide-react';
 
 export interface MarqueeClip {
   id: string;
@@ -15,7 +15,7 @@ export interface MarqueeClip {
 export const MARQUEE_CLIPS: MarqueeClip[] = [
   {
     id: 'orange-studio',
-    title: 'Migos Orange Studio',
+    title: 'Orange Studio Cypher',
     tag: 'Hotel Lobby Duo',
     video: '/videos/showcase/generated/web-acrobat.mp4',
     badge: '🔥 Viral Trend',
@@ -27,7 +27,8 @@ export const MARQUEE_CLIPS: MarqueeClip[] = [
     tag: 'Underground Battle',
     video: '/videos/showcase/generated/monster-commuter.mp4',
     badge: '🥊 Roast Cypher',
-    description: 'Two best friends roasting each other with rapid-fire delivery.',
+    description:
+      'Two best friends roasting each other with rapid-fire delivery.',
   },
   {
     id: 'birthday-bday',
@@ -35,7 +36,8 @@ export const MARQUEE_CLIPS: MarqueeClip[] = [
     tag: 'Party Hype',
     video: '/videos/showcase/generated/glacier-titan.mp4',
     badge: '🎂 Birthday',
-    description: 'Custom birthday lyrics that turn the party into a hip-hop concert.',
+    description:
+      'Custom birthday lyrics that turn the party into a hip-hop concert.',
   },
   {
     id: 'pet-rap',
@@ -43,7 +45,8 @@ export const MARQUEE_CLIPS: MarqueeClip[] = [
     tag: 'Meme Rap Chopper',
     video: '/videos/showcase/generated/monster-bakery.mp4',
     badge: '🐶 Meme Rap',
-    description: 'Fast chopper flow and head-bobbing swagger for pets and characters.',
+    description:
+      'Fast chopper flow and head-bobbing swagger for pets and characters.',
   },
   {
     id: 'choreo-drill',
@@ -51,7 +54,8 @@ export const MARQUEE_CLIPS: MarqueeClip[] = [
     tag: 'Brooklyn Drill / 808',
     video: '/videos/drill15_vertical.mp4',
     badge: '⚡ Drill Glide',
-    description: 'Iconic Pop Smoke Woo Walk glide, synced swagger, and sliding 808 sub-bass.',
+    description:
+      'Iconic Pop Smoke Woo Walk glide, synced swagger, and sliding 808 sub-bass.',
   },
   {
     id: 'night-neon',
@@ -59,7 +63,8 @@ export const MARQUEE_CLIPS: MarqueeClip[] = [
     tag: 'Cyberpunk Lo-Fi',
     video: '/videos/neonfreestyle15_vertical.mp4',
     badge: '🌃 Night Cypher',
-    description: 'Late-night street cypher vibes with neon reflections, gold chain, and deep rhythm.',
+    description:
+      'Late-night street cypher vibes with neon reflections, gold chain, and deep rhythm.',
   },
 ];
 
@@ -74,11 +79,14 @@ export function VideoMarquee({
   const displayClips = [...MARQUEE_CLIPS, ...MARQUEE_CLIPS];
 
   return (
-    <section id="showcase" className="relative overflow-hidden border-y border-white/10 bg-[#060a13] py-14 text-white sm:py-20">
+    <section
+      id="showcase"
+      className="relative overflow-hidden border-y border-white/10 bg-[#060a13] py-14 text-white sm:py-20"
+    >
       {/* Background Glow */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-80 w-[48rem] rounded-full bg-amber-500/10 blur-[130px]"
+        className="pointer-events-none absolute top-1/2 left-1/2 h-80 w-[48rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-amber-500/10 blur-[130px]"
       />
 
       <div className="relative mx-auto max-w-7xl px-4 text-center sm:px-6">
@@ -91,13 +99,14 @@ export function VideoMarquee({
           Every Stage, In Motion
         </h2>
         <p className="mx-auto mt-2 max-w-xl text-sm leading-relaxed text-white/70 sm:text-base">
-          All clips started with one or two ordinary selfies. No filming, no recording — photos in, viral rap video out.
+          All clips started with one or two ordinary selfies. No filming, no
+          recording — photos in, viral rap video out.
         </p>
       </div>
 
       {/* Marquee Track */}
       <div className="relative mt-8 w-full overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)] sm:mt-12">
-        <div className="flex w-max animate-marquee-slow gap-5 px-4 hover:[animation-play-state:paused]">
+        <div className="animate-marquee-slow flex w-max gap-5 px-4 hover:[animation-play-state:paused]">
           {displayClips.map((clip, idx) => {
             const isUnmuted = activeAudioId === `${clip.id}-${idx}`;
 
@@ -138,7 +147,7 @@ export function VideoMarquee({
                       e.stopPropagation();
                       setActiveAudioId(isUnmuted ? null : `${clip.id}-${idx}`);
                     }}
-                    className="absolute top-3 right-3 flex size-8 items-center justify-center rounded-full border border-white/20 bg-black/60 text-white transition hover:bg-black/90 hover:scale-110"
+                    className="absolute top-3 right-3 flex size-8 items-center justify-center rounded-full border border-white/20 bg-black/60 text-white transition hover:scale-110 hover:bg-black/90"
                   >
                     {isUnmuted ? (
                       <Volume2 className="size-4 text-amber-300" />
@@ -157,8 +166,8 @@ export function VideoMarquee({
                         {clip.tag}
                       </p>
                     </div>
-                    <span className="flex size-6 shrink-0 items-center justify-center rounded-lg bg-amber-400 text-black text-xs font-bold transition group-hover:scale-110">
-                      <Play className="size-3 fill-current ml-0.5" />
+                    <span className="flex size-6 shrink-0 items-center justify-center rounded-lg bg-amber-400 text-xs font-bold text-black transition group-hover:scale-110">
+                      <Play className="ml-0.5 size-3 fill-current" />
                     </span>
                   </div>
                 </div>
@@ -176,7 +185,9 @@ export function VideoMarquee({
 
       <div className="mt-6 flex items-center justify-center gap-2 text-xs text-white/50">
         <span className="flex size-1.5 rounded-full bg-amber-400" />
-        <span>Tap any video to copy style or preview beat · Works with any selfie</span>
+        <span>
+          Tap any video to copy style or preview beat · Works with any selfie
+        </span>
       </div>
     </section>
   );

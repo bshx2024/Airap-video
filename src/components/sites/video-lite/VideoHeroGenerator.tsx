@@ -42,8 +42,8 @@ export function VideoHeroGenerator({
             <span className="flex size-2 rounded-full bg-amber-400 animate-pulse" />
             <span>
               {m['landing.hero.today_free_credits']({
-                remaining: hero.userBalance != null ? Math.min(hero.userBalance, 100) : 100,
-                total: 100,
+                remaining: hero.userBalance != null ? Math.min(hero.userBalance, 120) : 120,
+                total: 120,
               })}
             </span>
             {!hero.session?.user && (

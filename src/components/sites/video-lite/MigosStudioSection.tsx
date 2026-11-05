@@ -1,7 +1,15 @@
 'use client';
 
 import React from 'react';
-import { ArrowRight, CheckCircle2, Flame, Mic, Play, Sparkles, Video } from 'lucide-react';
+import {
+  ArrowRight,
+  CheckCircle2,
+  Flame,
+  Mic,
+  Play,
+  Sparkles,
+  Video,
+} from 'lucide-react';
 
 export function MigosStudioSection() {
   const handleScrollToStudio = () => {
@@ -19,11 +27,11 @@ export function MigosStudioSection() {
       {/* Background ambient lighting */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute top-1/2 left-1/4 -translate-y-1/2 h-96 w-96 rounded-full bg-amber-500/10 blur-[130px]"
+        className="pointer-events-none absolute top-1/2 left-1/4 h-96 w-96 -translate-y-1/2 rounded-full bg-amber-500/10 blur-[130px]"
       />
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute bottom-0 right-1/4 h-80 w-80 rounded-full bg-rose-500/10 blur-[120px]"
+        className="pointer-events-none absolute right-1/4 bottom-0 h-80 w-80 rounded-full bg-rose-500/10 blur-[120px]"
       />
 
       <div className="relative mx-auto max-w-7xl">
@@ -36,12 +44,14 @@ export function MigosStudioSection() {
           <h2 className="mt-4 text-3xl font-extrabold tracking-tight text-white sm:text-5xl lg:text-6xl">
             Make Your Own{' '}
             <span className="bg-gradient-to-r from-amber-400 via-rose-500 to-purple-400 bg-clip-text text-transparent">
-              Migos-Style Orange Studio
+              Orange Studio Rap Battle
             </span>{' '}
             Rap Video
           </h2>
           <p className="mt-4 text-base leading-relaxed text-slate-300 sm:text-lg">
-            You've seen the iconic orange studio rap trend take over TikTok and Instagram. Now create your own version using photos of yourself and your friends.
+            You've seen the iconic orange studio rap trend take over TikTok and
+            Instagram. Now create your own version using photos of yourself and
+            your friends.
           </p>
         </div>
 
@@ -58,8 +68,10 @@ export function MigosStudioSection() {
                   <h3 className="text-base font-bold text-white">
                     Upload two separate portrait photos
                   </h3>
-                  <p className="mt-1 text-sm text-slate-300 leading-normal">
-                    No joint photoshoot or video shoot required. Upload two individual selfies taken at completely different times and places.
+                  <p className="mt-1 text-sm leading-normal text-slate-300">
+                    No joint photoshoot or video shoot required. Upload two
+                    individual selfies taken at completely different times and
+                    places.
                   </p>
                 </div>
               </div>
@@ -72,8 +84,10 @@ export function MigosStudioSection() {
                   <h3 className="text-base font-bold text-white">
                     Place both people in an orange studio with a hanging mic
                   </h3>
-                  <p className="mt-1 text-sm text-slate-300 leading-normal">
-                    Airap automatically generates the signature monochrome vibrant orange aesthetic, complete with the iconic hanging studio condenser microphone.
+                  <p className="mt-1 text-sm leading-normal text-slate-300">
+                    Airap automatically generates the signature monochrome
+                    vibrant orange aesthetic, complete with the iconic hanging
+                    studio condenser microphone.
                   </p>
                 </div>
               </div>
@@ -86,8 +100,10 @@ export function MigosStudioSection() {
                   <h3 className="text-base font-bold text-white">
                     Generate original rap lyrics and 808 trap beats
                   </h3>
-                  <p className="mt-1 text-sm text-slate-300 leading-normal">
-                    Type a roast joke or celebration topic. AI automatically crafts rhyming verses, syncs heavy 808 sub-bass, and composes authentic trap cadences.
+                  <p className="mt-1 text-sm leading-normal text-slate-300">
+                    Type a roast joke or celebration topic. AI automatically
+                    crafts rhyming verses, syncs heavy 808 sub-bass, and
+                    composes authentic trap cadences.
                   </p>
                 </div>
               </div>
@@ -100,8 +116,10 @@ export function MigosStudioSection() {
                   <h3 className="text-base font-bold text-white">
                     Alternating rap verses and battle-style performances
                   </h3>
-                  <p className="mt-1 text-sm text-slate-300 leading-normal">
-                    Watch Rapper 1 and Rapper 2 pass the mic with rhythmic head nods, shoulder rolls, and natural lip synchronization aligned to the beat.
+                  <p className="mt-1 text-sm leading-normal text-slate-300">
+                    Watch Rapper 1 and Rapper 2 pass the mic with rhythmic head
+                    nods, shoulder rolls, and natural lip synchronization
+                    aligned to the beat.
                   </p>
                 </div>
               </div>
@@ -129,7 +147,9 @@ export function MigosStudioSection() {
             <div className="relative mx-auto max-w-[320px] rounded-3xl border border-amber-400/30 bg-[#0a1020] p-4 shadow-[0_20px_60px_rgba(245,158,11,0.18)]">
               {/* Step indicator pills */}
               <div className="mb-3 flex items-center justify-between text-xs text-slate-400">
-                <span className="font-semibold text-amber-300">2 Input Photos</span>
+                <span className="font-semibold text-amber-300">
+                  2 Input Photos
+                </span>
                 <span>➔</span>
                 <span className="font-semibold text-white">1 Viral Video</span>
               </div>
@@ -142,7 +162,7 @@ export function MigosStudioSection() {
                     alt="Rapper 1 Selfie"
                     width={140}
                     height={140}
-                    className="size-full aspect-square object-cover"
+                    className="aspect-square size-full object-cover"
                   />
                   <div className="bg-amber-500/20 py-1 text-center text-[10px] font-bold text-amber-300">
                     Selfie 1
@@ -154,7 +174,7 @@ export function MigosStudioSection() {
                     alt="Rapper 2 Selfie"
                     width={140}
                     height={140}
-                    className="size-full aspect-square object-cover"
+                    className="aspect-square size-full object-cover"
                   />
                   <div className="bg-rose-500/20 py-1 text-center text-[10px] font-bold text-rose-300">
                     Selfie 2
@@ -175,9 +195,9 @@ export function MigosStudioSection() {
                 <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30" />
                 <div className="absolute top-3 left-3 flex items-center gap-1 rounded-full border border-amber-400/40 bg-black/60 px-2.5 py-0.5 text-[10px] font-bold text-amber-300 backdrop-blur-md">
                   <Flame className="size-3 text-amber-400" />
-                  <span>Migos Orange Studio</span>
+                  <span>Orange Studio Cypher</span>
                 </div>
-                <div className="absolute bottom-3 inset-x-3 text-center">
+                <div className="absolute inset-x-3 bottom-3 text-center">
                   <p className="text-xs font-bold text-white drop-shadow">
                     Two Photos In · One Cypher Out
                   </p>
@@ -193,7 +213,11 @@ export function MigosStudioSection() {
         {/* Legal Disclaimer */}
         <div className="mx-auto mt-12 max-w-3xl rounded-xl border border-white/10 bg-white/[0.02] p-4 text-center text-xs text-slate-400">
           <p>
-            <strong className="text-slate-300">Disclaimer:</strong> Airap Video is an independent AI creation tool and is not affiliated with Migos, Quavo, Takeoff, or their record labels. The experience creates original AI-generated content inspired by a visual trend.
+            <strong className="text-slate-300">Disclaimer:</strong> Airap Video
+            is an independent AI creation platform. All presets are artistic
+            stylistic references inspired by viral pop-culture rap trends and
+            are not affiliated with, sponsored by, or endorsed by any recording
+            artist or record label.
           </p>
         </div>
       </div>

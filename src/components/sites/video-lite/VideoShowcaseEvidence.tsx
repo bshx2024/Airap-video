@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   ArrowDown,
   CheckCircle2,
@@ -11,8 +11,8 @@ import {
   Layers,
   Mic,
   Music,
-  Play,
   Pause,
+  Play,
   RotateCcw,
   ShieldCheck,
   Smartphone,
@@ -23,6 +23,7 @@ import {
   VolumeX,
   Wand2,
 } from 'lucide-react';
+
 import { cn } from '@/lib/utils';
 
 interface CaseStudyItem {
@@ -42,9 +43,12 @@ interface CaseStudyItem {
     label: string;
     desc: string;
   };
+  userInputPrompt: {
+    topic: string;
+    lyricsPrompt: string;
+  };
   videoSrc: string;
   videoCaption: string;
-  // Exact required 7 metrics from user specification
   specs: {
     photoCount: string;
     mode: string;
@@ -60,13 +64,13 @@ interface CaseStudyItem {
 
 const CASE_STUDIES: CaseStudyItem[] = [
   {
-    id: 'migos-orange-studio',
-    tag: 'Flagship Duo Cypher',
-    tabTitle: '🎤 Case 1: Migos Orange Studio (Duo Battle)',
+    id: 'orange-studio-battle',
+    tag: 'P0 Flagship Duo Battle',
+    tabTitle: '🎤 Case 1: Orange Studio (Duo Battle)',
     badge: 'Real Production Generation · 2 Selfies to Rap Battle',
-    headline: 'Real Example: Two Selfies to One Rap Battle',
+    headline: 'Real Example: Two Selfies to Orange Studio Rap Battle',
     description:
-      'Two separate individual selfies taken at different times and locations with casual lighting, transformed into an alternating Migos-style orange studio rap cypher with swinging condenser microphone and 808 trap sub-bass.',
+      'Two separate individual selfies taken at different times and locations with casual lighting, transformed into an alternating orange studio rap cypher with swinging condenser microphone and 808 trap sub-bass.',
     inputPhoto1: {
       url: '/imgs/showcase/selfie-input-1.jpg',
       label: 'Input Photo 1',
@@ -77,16 +81,22 @@ const CASE_STUDIES: CaseStudyItem[] = [
       label: 'Input Photo 2',
       desc: 'Selfie portrait (Individual 2, natural daylight)',
     },
+    userInputPrompt: {
+      topic: 'Orange Studio Duo Rap Battle · 808 Trap Roasts',
+      lyricsPrompt:
+        'Two rappers in an orange booth trading witty roast bars on a hanging condenser mic, heavy 808 sub-bass, rhythmic head nods, 9:16 vertical TikTok battle flow',
+    },
     videoSrc: '/videos/hotellobby15.mp4?v=2',
-    videoCaption: 'Generated Video — Migos-Style Orange Studio',
+    videoCaption: 'Generated Video — Iconic Orange Studio Rap Cypher',
     specs: {
       photoCount: '2 Photos (Separate Individual Selfies)',
-      mode: 'Duo Cypher (2 Photos Rap Battle · Default Mode)',
-      musicStyle: 'Migos Trap 808 (140 BPM, Triplet Flow, Heavy Sub-Bass)',
+      mode: 'Duo Cypher (2 Photos Rap Battle · P0 Core)',
+      musicStyle: '808 Trap Rap (140 BPM, Triplet Flow, Heavy Sub-Bass)',
       duration: '15 seconds (Full Verse & Chorus)',
       resolution: '1080P Full HD (1080×1920 Vertical 9:16)',
       credits: '360 Credits (Transparent Pricing · Zero Hidden Cost)',
-      audioFeatures: 'Dual-Vocal AI Alternating Rhymes with 44.1kHz Stereo Master',
+      audioFeatures:
+        'Dual-Vocal AI Alternating Rhymes with 44.1kHz Stereo Master',
       videoModel: 'Kling 4.0 Studio (Cinema Multi-Character Lip-Sync)',
       waitTime: '~45–65 seconds (Instant Cloud Rendering)',
     },
@@ -109,11 +119,16 @@ const CASE_STUDIES: CaseStudyItem[] = [
       label: 'Input Photo 2',
       desc: 'Candid friend selfie (Urban casual)',
     },
+    userInputPrompt: {
+      topic: 'Friends Roast Cypher · 90s Boom Bap Flow',
+      lyricsPrompt:
+        'Two best friends roasting each other about always being late and ordering too much takeout, fast witty punchlines, underground cypher lighting, hyping crowd',
+    },
     videoSrc: '/videos/friendsroast15_vertical.mp4',
     videoCaption: 'Generated Video — Underground Cypher Roast Battle',
     specs: {
       photoCount: '2 Photos (Camera Roll Candid Selfies)',
-      mode: 'Duo Cypher (Underground Roast Battle)',
+      mode: 'Duo Cypher (Underground Roast Battle · P0 Core)',
       musicStyle: '90s Boom Bap (92 BPM, Vinyl Scratches, Snappy Snares)',
       duration: '15 seconds (Turn-based Roast Bars)',
       resolution: '1080P Full HD (1080×1920 Vertical 9:16)',
@@ -136,11 +151,16 @@ const CASE_STUDIES: CaseStudyItem[] = [
       label: 'Input Photo 1',
       desc: 'Living room domestic pet photo (Natural room light)',
     },
+    userInputPrompt: {
+      topic: 'Pet MC Gold Chain Meme Rap · Chopper Flow',
+      lyricsPrompt:
+        'Cute domestic cat wearing heavy gold chain and sunglasses, spitting fast chopper flow to upbeat trap drums, energetic head-bobbing, viral social media aesthetics',
+    },
     videoSrc: '/videos/cutepet15_vertical.mp4',
     videoCaption: 'Generated Video — Pet MC Gold Chain Chopper Rap',
     specs: {
       photoCount: '1 Photo (Single Pet / Solo Avatar)',
-      mode: 'Solo / Pet MC Mode (1 Photo Discounted)',
+      mode: 'Solo / Pet MC Mode (P1 Extension)',
       musicStyle: 'Chopper Flow Trap (155 BPM, Fast Double-Time Drums)',
       duration: '10 seconds (High-Energy Viral Clip)',
       resolution: '1080P Full HD (1080×1920 Vertical 9:16)',
@@ -153,11 +173,11 @@ const CASE_STUDIES: CaseStudyItem[] = [
   {
     id: 'drill-choreo-stage',
     tag: 'Brooklyn Drill',
-    tabTitle: '⚡ Case 4: Pop Smoke Woo Walk Drill',
+    tabTitle: '⚡ Case 4: Brooklyn Drill Stage (Duo)',
     badge: 'Heavy 808 Glides · Stage Dynamics',
-    headline: 'Real Example: Two Photos into Pop Smoke Style Drill Stage',
+    headline: 'Real Example: Two Photos into Brooklyn Drill Stage Cypher',
     description:
-      'Two portrait photos placed in an On-The-Radar style studio booth, executing effortless Pop Smoke "Woo Walk" footwork glides and energetic stage movement over sliding 808 sub-bass.',
+      'Two portrait photos placed in an On-The-Radar style dark studio booth, executing effortless drill footwork glides and energetic stage movement over sliding 808 sub-bass.',
     inputPhoto1: {
       url: '/imgs/showcase/selfie-input-1.jpg',
       label: 'Input Photo 1',
@@ -168,12 +188,18 @@ const CASE_STUDIES: CaseStudyItem[] = [
       label: 'Input Photo 2',
       desc: 'Front-facing portrait selfie',
     },
+    userInputPrompt: {
+      topic: 'Dark Studio Drill Stage · Sliding 808 Bass Drops',
+      lyricsPrompt:
+        'Two rappers inside dark studio with neon green fluorescent tube lights, intense aggressive drill freestyle, sliding 808 bass, rapid rhythmic hand gestures and head nods',
+    },
     videoSrc: '/videos/drill15_vertical.mp4',
-    videoCaption: 'Generated Video — Pop Smoke Woo Walk Drill Stage',
+    videoCaption: 'Generated Video — Brooklyn Drill Stage Cypher',
     specs: {
       photoCount: '2 Photos (Full-Body / Portrait Selfies)',
-      mode: 'Duo Cypher (Choreography & Drill Battle)',
-      musicStyle: 'Brooklyn Drill (142 BPM, Sliding 808 Sub-Bass, Hi-Hat Rolls)',
+      mode: 'Duo Cypher (Choreography & Drill Battle · P0 Core)',
+      musicStyle:
+        'Brooklyn Drill (142 BPM, Sliding 808 Sub-Bass, Hi-Hat Rolls)',
       duration: '15 seconds (Choreographed Dance & Rap Flow)',
       resolution: '1080P Full HD (1080×1920 Vertical 9:16)',
       credits: '360 Credits (15s Duo Performance)',
@@ -185,95 +211,102 @@ const CASE_STUDIES: CaseStudyItem[] = [
 ];
 
 export function VideoShowcaseEvidence() {
-  const [selectedCaseId, setSelectedCaseId] = useState<string>(CASE_STUDIES[0].id);
+  const [selectedCaseId, setSelectedCaseId] = useState<string>(
+    CASE_STUDIES[0].id
+  );
   const [isPlaying, setIsPlaying] = useState<boolean>(true);
   const [isMuted, setIsMuted] = useState<boolean>(true);
   const [progress, setProgress] = useState<number>(0);
   const [currentTime, setCurrentTime] = useState<number>(0);
   const [duration, setDuration] = useState<number>(15);
 
-  const activeCase = CASE_STUDIES.find((c) => c.id === selectedCaseId) || CASE_STUDIES[0];
+  const activeCase =
+    CASE_STUDIES.find((c) => c.id === selectedCaseId) || CASE_STUDIES[0];
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
   // Switch video when case changes
   useEffect(() => {
     if (videoRef.current) {
-      videoRef.current.currentTime = 0;
-      videoRef.current.play().catch(() => {});
-      setIsPlaying(true);
+      videoRef.current.load();
+      videoRef.current
+        .play()
+        .then(() => setIsPlaying(true))
+        .catch(() => setIsPlaying(false));
     }
   }, [selectedCaseId]);
 
-  const handleTogglePlay = () => {
-    if (!videoRef.current) return;
-    if (videoRef.current.paused) {
-      videoRef.current.play();
-      setIsPlaying(true);
-    } else {
-      videoRef.current.pause();
-      setIsPlaying(false);
+  // Video time update handler
+  const handleTimeUpdate = () => {
+    if (videoRef.current) {
+      const cur = videoRef.current.currentTime;
+      const dur = videoRef.current.duration || 15;
+      setCurrentTime(cur);
+      setDuration(dur);
+      setProgress((cur / dur) * 100);
     }
   };
 
+  // Play / Pause toggle
+  const handleTogglePlay = () => {
+    if (videoRef.current) {
+      if (isPlaying) {
+        videoRef.current.pause();
+        setIsPlaying(false);
+      } else {
+        videoRef.current.play();
+        setIsPlaying(true);
+      }
+    }
+  };
+
+  // Mute / Unmute toggle
   const handleToggleMute = () => {
-    if (!videoRef.current) return;
-    const next = !videoRef.current.muted;
-    videoRef.current.muted = next;
-    setIsMuted(next);
+    if (videoRef.current) {
+      videoRef.current.muted = !isMuted;
+      setIsMuted(!isMuted);
+    }
   };
 
-  const handleTimeUpdate = () => {
-    if (!videoRef.current) return;
-    const cur = videoRef.current.currentTime;
-    const dur = videoRef.current.duration || 15;
-    setCurrentTime(cur);
-    setDuration(dur);
-    setProgress((cur / dur) * 100);
-  };
-
+  // Seek bar click
   const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!videoRef.current) return;
     const rect = e.currentTarget.getBoundingClientRect();
-    const clickRatio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-    const newTime = clickRatio * (videoRef.current.duration || 15);
+    const clickX = e.clientX - rect.left;
+    const width = rect.width;
+    const pct = clickX / width;
+    const newTime = pct * duration;
     videoRef.current.currentTime = newTime;
     setCurrentTime(newTime);
-  };
-
-  const handleScrollToGenerator = () => {
-    const el = document.getElementById('studio-generator');
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' });
-    }
+    setProgress(pct * 100);
   };
 
   return (
     <section
       id="showcase-evidence"
-      className="relative overflow-hidden bg-[#060a15] px-4 py-20 text-white transition-colors sm:px-6 sm:py-28"
+      className="relative overflow-hidden bg-[#040815] px-4 py-20 text-white sm:px-6 sm:py-28"
     >
-      {/* Background Ambient Glow */}
+      {/* Background ambient lighting */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute top-1/4 left-1/2 -translate-x-1/2 h-96 w-96 rounded-full bg-amber-500/10 blur-[140px]"
-      />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute bottom-1/4 right-1/4 h-80 w-80 rounded-full bg-rose-500/10 blur-[130px]"
+        className="pointer-events-none absolute top-1/4 left-1/2 h-[500px] w-[800px] -translate-x-1/2 rounded-full bg-amber-500/10 blur-[140px]"
       />
 
       <div className="relative mx-auto max-w-7xl">
         {/* Section Header */}
         <div className="mx-auto max-w-3xl text-center">
           <div className="inline-flex items-center gap-2 rounded-full border border-amber-500/30 bg-amber-500/10 px-4 py-1.5 text-xs font-semibold text-amber-300 backdrop-blur-md">
-            <Sparkles className="size-3.5 text-amber-400" />
-            <span>Product Evidence · Real Input-to-Output Demonstration</span>
+            <Flame className="size-3.5 text-amber-400" />
+            <span>
+              Standardized 6-Element Production Showcases (经过核实的生成实证)
+            </span>
           </div>
           <h2 className="mt-4 text-3xl font-extrabold tracking-tight text-white sm:text-5xl lg:text-6xl">
-            See Exactly What Two Photos Create
+            Real Production Examples & Verified Specs
           </h2>
           <p className="mt-4 text-base leading-relaxed text-slate-300 sm:text-lg">
-            Verifiable real generation case studies demonstrating the complete relationship between uploaded selfie photos and final rap battle videos — with full specs, credit consumption, and playable video.
+            See the exact pipeline: raw input photos, verified prompt text, full
+            1080P playable video with audio, turnaround time, credit cost, and
+            models used.
           </p>
         </div>
 
@@ -287,7 +320,7 @@ export function VideoShowcaseEvidence() {
               className={cn(
                 'cursor-pointer rounded-full px-4 py-2 text-xs font-bold transition-all sm:text-sm',
                 selectedCaseId === c.id
-                  ? 'bg-gradient-to-r from-amber-500 via-rose-500 to-purple-600 text-white shadow-lg shadow-amber-500/25 ring-2 ring-amber-400/40'
+                  ? 'bg-gradient-to-r from-amber-500 via-rose-500 to-purple-600 text-white shadow-lg ring-2 shadow-amber-500/25 ring-amber-400/40'
                   : 'border border-white/10 bg-white/5 text-slate-300 hover:border-white/25 hover:bg-white/10 hover:text-white'
               )}
             >
@@ -296,13 +329,13 @@ export function VideoShowcaseEvidence() {
           ))}
         </div>
 
-        {/* Main Showcase Container (Exact Screenshot Layout) */}
+        {/* Main Showcase Container */}
         <div className="mt-12 overflow-hidden rounded-3xl border border-white/12 bg-[#090e1c]/95 p-5 shadow-[0_24px_80px_rgba(2,6,23,0.7)] backdrop-blur-xl sm:p-8 lg:p-10">
           <div className="grid grid-cols-1 gap-10 lg:grid-cols-12 lg:gap-12">
-            {/* Left Column: Visual Pipeline (Input Photos -> Down Arrow -> Generated Video) */}
-            <div className="lg:col-span-7 flex flex-col items-center">
+            {/* Left Column: Visual Pipeline (Input Photos -> User Prompt -> Generated Video) */}
+            <div className="flex flex-col items-center lg:col-span-7">
               {/* Headline */}
-              <div className="w-full text-left mb-6">
+              <div className="mb-6 w-full text-left">
                 <div className="inline-flex items-center gap-2 rounded-md bg-amber-500/15 px-2.5 py-1 text-xs font-bold text-amber-300">
                   <CheckCircle2 className="size-3.5 text-amber-400" />
                   <span>{activeCase.badge}</span>
@@ -310,16 +343,16 @@ export function VideoShowcaseEvidence() {
                 <h3 className="mt-2 text-2xl font-black text-white sm:text-3xl">
                   {activeCase.headline}
                 </h3>
-                <p className="mt-1.5 text-xs text-slate-300 sm:text-sm leading-relaxed">
+                <p className="mt-1.5 text-xs leading-relaxed text-slate-300 sm:text-sm">
                   {activeCase.description}
                 </p>
               </div>
 
-              {/* 1. Input Photos Row (Matching Screenshot) */}
+              {/* 1. Input Photos Row (Element 1) */}
               <div className="w-full">
                 <div className="mb-2 flex items-center justify-between text-xs text-slate-400">
-                  <span className="font-bold uppercase tracking-wider text-amber-300">
-                    Step 1: Raw Input Photo(s)
+                  <span className="font-bold tracking-wider text-amber-300 uppercase">
+                    Step 1: Raw Input Photo(s) (原始上传照片)
                   </span>
                   <span className="text-[11px] text-slate-400">
                     {activeCase.specs.photoCount}
@@ -329,7 +362,9 @@ export function VideoShowcaseEvidence() {
                 <div
                   className={cn(
                     'grid gap-3 sm:gap-4',
-                    activeCase.inputPhoto2 ? 'grid-cols-2' : 'grid-cols-1 max-w-[280px] mx-auto'
+                    activeCase.inputPhoto2
+                      ? 'grid-cols-2'
+                      : 'mx-auto max-w-[280px] grid-cols-1'
                   )}
                 >
                   {/* Photo 1 Card */}
@@ -347,10 +382,10 @@ export function VideoShowcaseEvidence() {
                       </span>
                     </div>
                     <div className="mt-2 px-1 text-center">
-                      <span className="text-xs font-bold text-white block">
+                      <span className="block text-xs font-bold text-white">
                         {activeCase.inputPhoto1.label}
                       </span>
-                      <span className="text-[10px] text-slate-400 line-clamp-1">
+                      <span className="line-clamp-1 text-[10px] text-slate-400">
                         {activeCase.inputPhoto1.desc}
                       </span>
                     </div>
@@ -372,10 +407,10 @@ export function VideoShowcaseEvidence() {
                         </span>
                       </div>
                       <div className="mt-2 px-1 text-center">
-                        <span className="text-xs font-bold text-white block">
+                        <span className="block text-xs font-bold text-white">
                           {activeCase.inputPhoto2.label}
                         </span>
-                        <span className="text-[10px] text-slate-400 line-clamp-1">
+                        <span className="line-clamp-1 text-[10px] text-slate-400">
                           {activeCase.inputPhoto2.desc}
                         </span>
                       </div>
@@ -384,28 +419,49 @@ export function VideoShowcaseEvidence() {
                 </div>
               </div>
 
-              {/* Down Arrow Transition (Matching Screenshot) */}
+              {/* 2. User Input Prompt & Topic (Element 2) */}
+              <div className="mt-4 w-full rounded-2xl border border-amber-400/25 bg-amber-400/[0.04] p-3.5 shadow-md">
+                <div className="mb-1.5 flex items-center justify-between text-xs">
+                  <span className="flex items-center gap-1.5 font-bold tracking-wider text-amber-300 uppercase">
+                    <Wand2 className="size-3.5 text-amber-400" />
+                    <span>
+                      Step 2: User Input Prompt & Topic (用户输入提示词)
+                    </span>
+                  </span>
+                  <span className="rounded border border-amber-400/20 bg-amber-400/15 px-2 py-0.5 font-mono text-[10px] font-bold text-amber-300">
+                    Verified User Input
+                  </span>
+                </div>
+                <p className="text-xs font-bold text-white">
+                  {activeCase.userInputPrompt.topic}
+                </p>
+                <p className="mt-1 rounded-lg border border-white/5 bg-black/45 p-2.5 font-mono text-[11px] leading-relaxed text-slate-300 italic">
+                  &ldquo;{activeCase.userInputPrompt.lyricsPrompt}&rdquo;
+                </p>
+              </div>
+
+              {/* Down Arrow Transition */}
               <div className="my-4 flex flex-col items-center">
-                <div className="flex size-9 items-center justify-center rounded-full border border-amber-400/30 bg-amber-500/10 text-amber-400 shadow-md animate-bounce">
+                <div className="flex size-9 animate-bounce items-center justify-center rounded-full border border-amber-400/30 bg-amber-500/10 text-amber-400 shadow-md">
                   <ArrowDown className="size-4.5" />
                 </div>
-                <span className="mt-1 text-[11px] font-bold text-amber-300 uppercase tracking-widest">
+                <span className="mt-1 text-[11px] font-bold tracking-widest text-amber-300 uppercase">
                   AI Rap Performance Synthesis
                 </span>
               </div>
 
-              {/* 2. Embedded Real Generated Video (Matching Screenshot) */}
+              {/* 3. Embedded Real Generated Video (Element 3) */}
               <div className="w-full">
                 <div className="mb-2 flex items-center justify-between text-xs">
                   <span className="font-bold text-white">
-                    {activeCase.videoCaption}
+                    Step 3: {activeCase.videoCaption}
                   </span>
                   <span className="rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-bold text-emerald-300">
-                    Real Generated Video · Embedded
+                    Playable 1080P Video with Sound
                   </span>
                 </div>
 
-                <div className="relative mx-auto aspect-[9/16] max-w-[340px] sm:max-w-[360px] overflow-hidden rounded-2xl border-2 border-amber-500/40 bg-black shadow-2xl">
+                <div className="relative mx-auto aspect-[9/16] max-w-[340px] overflow-hidden rounded-2xl border-2 border-amber-500/40 bg-black shadow-2xl sm:max-w-[360px]">
                   {/* Real HTML5 Video */}
                   <video
                     ref={videoRef}
@@ -423,7 +479,7 @@ export function VideoShowcaseEvidence() {
                   <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-black/30" />
 
                   {/* Top Bar: Scene Badge + Sound Toggle */}
-                  <div className="absolute top-3 inset-x-3 flex items-center justify-between">
+                  <div className="absolute inset-x-3 top-3 flex items-center justify-between">
                     <span className="rounded-full border border-white/20 bg-black/60 px-2.5 py-1 text-[11px] font-bold text-amber-300 backdrop-blur-md">
                       {activeCase.specs.mode.split('(')[0]}
                     </span>
@@ -432,13 +488,15 @@ export function VideoShowcaseEvidence() {
                       type="button"
                       onClick={handleToggleMute}
                       className="flex size-9 cursor-pointer items-center justify-center rounded-full border border-white/25 bg-black/70 text-white backdrop-blur-md transition hover:scale-110 hover:border-amber-400 active:scale-95"
-                      aria-label={isMuted ? 'Unmute Rap Audio' : 'Mute Rap Audio'}
+                      aria-label={
+                        isMuted ? 'Unmute Rap Audio' : 'Mute Rap Audio'
+                      }
                       title={isMuted ? 'Click to Unmute Audio' : 'Mute Audio'}
                     >
                       {isMuted ? (
                         <VolumeX className="size-4 text-white/70" />
                       ) : (
-                        <Volume2 className="size-4 text-amber-400 animate-pulse" />
+                        <Volume2 className="size-4 animate-pulse text-amber-400" />
                       )}
                     </button>
                   </div>
@@ -447,18 +505,18 @@ export function VideoShowcaseEvidence() {
                   <button
                     type="button"
                     onClick={handleTogglePlay}
-                    className="absolute inset-0 flex items-center justify-center cursor-pointer group"
+                    className="group absolute inset-0 flex cursor-pointer items-center justify-center"
                     aria-label={isPlaying ? 'Pause Video' : 'Play Video'}
                   >
                     {!isPlaying && (
                       <div className="flex size-14 items-center justify-center rounded-full bg-amber-500/90 text-slate-950 shadow-2xl transition-transform group-hover:scale-110">
-                        <Play className="size-7 fill-current ml-1" />
+                        <Play className="ml-1 size-7 fill-current" />
                       </div>
                     )}
                   </button>
 
                   {/* Bottom Interactive Control Bar */}
-                  <div className="absolute bottom-3 inset-x-3 rounded-xl border border-white/10 bg-black/75 p-2.5 backdrop-blur-md">
+                  <div className="absolute inset-x-3 bottom-3 rounded-xl border border-white/10 bg-black/75 p-2.5 backdrop-blur-md">
                     {/* Scrub Progress Bar */}
                     <div
                       onClick={handleSeek}
@@ -488,33 +546,36 @@ export function VideoShowcaseEvidence() {
                         </span>
                       </div>
 
-                      <span className="text-[10px] text-amber-300 font-bold">
-                        {isMuted ? '🔇 Click unmute for 808 audio' : '🔊 Studio 808 Audio ON'}
+                      <span className="text-[10px] font-bold text-amber-300">
+                        {isMuted
+                          ? '🔇 Click unmute for audio'
+                          : '🔊 44.1kHz Audio Track ON'}
                       </span>
                     </div>
                   </div>
                 </div>
 
                 <p className="mt-2 text-center text-xs text-slate-400">
-                  真实渲染生成视频，支持完整播放、声音切换与实时对口型检查。
+                  真实生产生成视频：支持完整播放、声音切换与双人交替对嘴检查。
                 </p>
               </div>
             </div>
 
-            {/* Right Column: Complete Verified Technical Specifications (All 7 Metrics Required) */}
-            <div className="lg:col-span-5 flex flex-col justify-between">
+            {/* Right Column: Complete Verified Technical Specifications (Elements 4, 5, 6) */}
+            <div className="flex flex-col justify-between lg:col-span-5">
               <div>
                 <div className="flex items-center gap-2 border-b border-white/10 pb-3">
                   <ShieldCheck className="size-5 text-amber-400" />
-                  <h4 className="text-base font-bold text-white uppercase tracking-wider">
-                    Verified Generation Specifications (技术参数清单)
+                  <h4 className="text-base font-bold tracking-wider text-white uppercase">
+                    Verified Generation Specifications (核准参数规格)
                   </h4>
                 </div>
                 <p className="mt-2 text-xs text-slate-400">
-                  Each case is bound to verifiable system parameters, credit consumption, and output standards:
+                  Each case is bound to verifiable system parameters, credit
+                  consumption, and output standards:
                 </p>
 
-                {/* The 7 Detailed Spec Rows Required by User */}
+                {/* The 7 Detailed Spec Rows */}
                 <div className="mt-5 divide-y divide-white/10 rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-xs">
                   {/* 1. 输入照片数量 */}
                   <div className="flex items-start justify-between py-2.5">
@@ -522,7 +583,7 @@ export function VideoShowcaseEvidence() {
                       <Users className="size-3.5 text-amber-400" />
                       <span>输入照片数量 (Input Photos):</span>
                     </span>
-                    <strong className="text-right font-bold text-white max-w-[55%]">
+                    <strong className="max-w-[55%] text-right font-bold text-white">
                       {activeCase.specs.photoCount}
                     </strong>
                   </div>
@@ -533,7 +594,7 @@ export function VideoShowcaseEvidence() {
                       <Mic className="size-3.5 text-amber-400" />
                       <span>生成模式 (Mode):</span>
                     </span>
-                    <strong className="text-right font-bold text-amber-300 max-w-[55%]">
+                    <strong className="max-w-[55%] text-right font-bold text-amber-300">
                       {activeCase.specs.mode}
                     </strong>
                   </div>
@@ -544,7 +605,7 @@ export function VideoShowcaseEvidence() {
                       <Music className="size-3.5 text-amber-400" />
                       <span>音乐风格 (Music Beat):</span>
                     </span>
-                    <strong className="text-right font-bold text-white max-w-[55%]">
+                    <strong className="max-w-[55%] text-right font-bold text-white">
                       {activeCase.specs.musicStyle}
                     </strong>
                   </div>
@@ -553,9 +614,9 @@ export function VideoShowcaseEvidence() {
                   <div className="flex items-start justify-between py-2.5">
                     <span className="flex items-center gap-1.5 font-semibold text-slate-400">
                       <Clock className="size-3.5 text-amber-400" />
-                      <span>实际生成时长 (Duration):</span>
+                      <span>视频成品时长 (Duration):</span>
                     </span>
-                    <strong className="text-right font-bold text-white max-w-[55%]">
+                    <strong className="max-w-[55%] text-right font-bold text-white">
                       {activeCase.specs.duration}
                     </strong>
                   </div>
@@ -566,7 +627,7 @@ export function VideoShowcaseEvidence() {
                       <Video className="size-3.5 text-amber-400" />
                       <span>输出分辨率 (Resolution):</span>
                     </span>
-                    <strong className="text-right font-bold text-cyan-300 max-w-[55%]">
+                    <strong className="max-w-[55%] text-right font-bold text-cyan-300">
                       {activeCase.specs.resolution}
                     </strong>
                   </div>
@@ -577,7 +638,7 @@ export function VideoShowcaseEvidence() {
                       <Coins className="size-3.5 text-amber-400" />
                       <span>消耗积分 (Credits Used):</span>
                     </span>
-                    <strong className="text-right font-black text-amber-400 text-sm max-w-[55%]">
+                    <strong className="max-w-[55%] text-right text-sm font-black text-amber-400">
                       ⚡ {activeCase.specs.credits}
                     </strong>
                   </div>
@@ -586,9 +647,9 @@ export function VideoShowcaseEvidence() {
                   <div className="flex items-start justify-between py-2.5">
                     <span className="flex items-center gap-1.5 font-semibold text-slate-400">
                       <Layers className="size-3.5 text-amber-400" />
-                      <span>完整视频播放 (Playback):</span>
+                      <span>人声与音画表现 (Vocal Features):</span>
                     </span>
-                    <strong className="text-right font-bold text-emerald-300 max-w-[55%]">
+                    <strong className="max-w-[55%] text-right font-bold text-emerald-300">
                       {activeCase.specs.audioFeatures}
                     </strong>
                   </div>
@@ -597,33 +658,47 @@ export function VideoShowcaseEvidence() {
                   <div className="flex items-start justify-between py-2.5">
                     <span className="flex items-center gap-1.5 font-semibold text-slate-400">
                       <Cpu className="size-3.5 text-amber-400" />
-                      <span>AI 模型与耗时:</span>
+                      <span>AI 模型与生成耗时:</span>
                     </span>
-                    <strong className="text-right font-bold text-white max-w-[55%]">
-                      {activeCase.specs.videoModel} ({activeCase.specs.waitTime})
-                    </strong>
+                    <div className="max-w-[55%] text-right">
+                      <strong className="block font-bold text-cyan-300">
+                        {activeCase.specs.videoModel}
+                      </strong>
+                      <span className="font-mono text-[11px] text-amber-300/90">
+                        ⏱️ {activeCase.specs.waitTime}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              {/* Call to Action: Recreate this case */}
-              <div className="mt-8 rounded-2xl border border-amber-500/25 bg-gradient-to-br from-amber-500/10 via-purple-500/10 to-transparent p-5">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-bold text-amber-300">
-                    Ready to create your own battle?
-                  </span>
-                  <span className="text-[10px] font-semibold text-white/60">
-                    Free signup bonus included
-                  </span>
+              {/* Call to Action direct to generator */}
+              <div className="mt-6 rounded-2xl border border-amber-500/30 bg-gradient-to-r from-amber-500/10 via-rose-500/10 to-purple-500/10 p-5 backdrop-blur-md">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <h5 className="text-sm font-bold text-white">
+                      Ready to Make Your Own Rap Battle?
+                    </h5>
+                    <p className="mt-1 text-xs text-slate-300">
+                      Upload two photos and hear your custom rap flow in ~50
+                      seconds.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const el =
+                        document.getElementById('studio-generator') ||
+                        document.getElementById('generator');
+                      if (el) {
+                        el.scrollIntoView({ behavior: 'smooth' });
+                      }
+                    }}
+                    className="shrink-0 cursor-pointer rounded-xl bg-gradient-to-r from-amber-500 via-rose-500 to-purple-600 px-4 py-2.5 text-xs font-bold text-white shadow-lg transition-transform hover:scale-105 active:scale-95"
+                  >
+                    Create My Rap Battle ➔
+                  </button>
                 </div>
-                <button
-                  type="button"
-                  onClick={handleScrollToGenerator}
-                  className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 via-rose-500 to-purple-600 py-3 px-4 text-xs font-bold text-white shadow-lg shadow-amber-500/25 transition-all hover:opacity-95 hover:shadow-xl active:scale-98 sm:text-sm"
-                >
-                  <Wand2 className="size-4" />
-                  <span>Replicate This Battle in Studio Generator</span>
-                </button>
               </div>
             </div>
           </div>

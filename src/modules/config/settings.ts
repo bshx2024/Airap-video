@@ -332,7 +332,7 @@ export function getSettings(): Setting[] {
       name: 'initial_credits_amount',
       title: 'Credits amount',
       type: 'number',
-      placeholder: '100',
+      placeholder: '120',
       group: 'credit',
       tab: 'general',
     },

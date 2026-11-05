@@ -291,13 +291,17 @@ const pricingCatalogRaw: Record<string, PricingProduct> = {
     copyKey: 'lite',
     buttonKey: 'subscribe',
     creditsKey: 'month',
-    plan: { name: 'Starter', interval: PaymentInterval.MONTH, intervalCount: 1 },
+    plan: {
+      name: 'Starter',
+      interval: PaymentInterval.MONTH,
+      intervalCount: 1,
+    },
   },
   pro_monthly: {
     productId: 'pro_monthly',
     productName: 'Creator Pro',
     planName: 'Creator Pro',
-    description: 'Creator Pro Monthly - Migos Orange Studio & Kling 4.0 Cinema',
+    description: 'Creator Pro Monthly - Orange Studio & Kling 4.0 Cinema',
     featured: true,
     badgeKey: 'popular',
     type: PaymentType.SUBSCRIPTION,
@@ -310,7 +314,11 @@ const pricingCatalogRaw: Record<string, PricingProduct> = {
     copyKey: 'pro',
     buttonKey: 'subscribe',
     creditsKey: 'month',
-    plan: { name: 'Creator Pro', interval: PaymentInterval.MONTH, intervalCount: 1 },
+    plan: {
+      name: 'Creator Pro',
+      interval: PaymentInterval.MONTH,
+      intervalCount: 1,
+    },
   },
   ultra_monthly: {
     productId: 'ultra_monthly',
@@ -327,13 +335,18 @@ const pricingCatalogRaw: Record<string, PricingProduct> = {
     copyKey: 'ultra',
     buttonKey: 'subscribe',
     creditsKey: 'month',
-    plan: { name: 'Studio Master', interval: PaymentInterval.MONTH, intervalCount: 1 },
+    plan: {
+      name: 'Studio Master',
+      interval: PaymentInterval.MONTH,
+      intervalCount: 1,
+    },
   },
   lite_yearly: {
     productId: 'lite_yearly',
     productName: 'Starter',
     planName: 'Starter',
-    description: 'Starter Yearly - 22,000 credits, casual roasts and TikTok trends',
+    description:
+      'Starter Yearly - 22,000 credits, casual roasts and TikTok trends',
     badgeKey: 'save_10',
     type: PaymentType.SUBSCRIPTION,
     priceInCents: 10680,
@@ -352,7 +365,8 @@ const pricingCatalogRaw: Record<string, PricingProduct> = {
     productId: 'pro_yearly',
     productName: 'Creator Pro',
     planName: 'Creator Pro',
-    description: 'Creator Pro Yearly - 50,000 credits, Migos Orange Studio & Kling 4.0 Cinema',
+    description:
+      'Creator Pro Yearly - 50,000 credits, Orange Studio & Kling 4.0 Cinema',
     featured: true,
     badgeKey: 'save_15',
     type: PaymentType.SUBSCRIPTION,
@@ -366,13 +380,18 @@ const pricingCatalogRaw: Record<string, PricingProduct> = {
     copyKey: 'pro',
     buttonKey: 'subscribe',
     creditsKey: 'year',
-    plan: { name: 'Creator Pro', interval: PaymentInterval.YEAR, intervalCount: 1 },
+    plan: {
+      name: 'Creator Pro',
+      interval: PaymentInterval.YEAR,
+      intervalCount: 1,
+    },
   },
   ultra_yearly: {
     productId: 'ultra_yearly',
     productName: 'Studio Master',
     planName: 'Studio Master',
-    description: 'Studio Master Yearly - 135,000 credits, unlimited volume & priority queue',
+    description:
+      'Studio Master Yearly - 135,000 credits, unlimited volume & priority queue',
     badgeKey: 'save_18',
     type: PaymentType.SUBSCRIPTION,
     priceInCents: 47880,
@@ -385,7 +404,11 @@ const pricingCatalogRaw: Record<string, PricingProduct> = {
     copyKey: 'ultra',
     buttonKey: 'subscribe',
     creditsKey: 'year',
-    plan: { name: 'Studio Master', interval: PaymentInterval.YEAR, intervalCount: 1 },
+    plan: {
+      name: 'Studio Master',
+      interval: PaymentInterval.YEAR,
+      intervalCount: 1,
+    },
   },
   credits_lite: {
     productId: 'credits_lite',

@@ -319,7 +319,7 @@ export async function grantForNewUser(params: {
 
   if (configs.initial_credits_enabled !== 'true') return;
 
-  const credits = parseInt(configs.initial_credits_amount) || 0;
+  const credits = parseInt(configs.initial_credits_amount) || 120;
   if (credits <= 0) return;
 
   const validDays = parseInt(configs.initial_credits_valid_days) || 0;

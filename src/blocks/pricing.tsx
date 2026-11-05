@@ -109,14 +109,14 @@ function getPlanFeatures(
     return isZh
       ? [
           credits,
-          '约可生成 15-18 条 Wan 2.6 极速或 6-7 条 Kling 4.0 视频',
+          '约可制作 5 条 15秒 Kling 4.0 旗舰视频 或 15 条 5秒极速视频',
           '支持 720P / 1080P 高清 9:16 竖屏短视频导出',
           'AI 押韵填词、808 Trap 伴奏与自动卡点',
           '标准生成队列，100% 免版税伴奏商用授权',
         ]
       : [
           credits,
-          '~15-18 Wan 2.6 Flash or 6-7 Kling 4.0 videos',
+          '~5 full 15s Kling 4.0 battle videos or ~15 fast 5s duo videos',
           '720P / 1080P vertical 9:16 TikTok & Shorts export',
           'AI rhyme engine, 808 Trap beats & beat-sync',
           'Standard queue, 100% royalty-free commercial clearance',
@@ -127,17 +127,17 @@ function getPlanFeatures(
     return isZh
       ? [
           credits,
-          '约可生成 35-40 条 Wan 2.6 或 14-16 条 Kling 4.0 视频',
+          '约可制作 11 条 15秒 Kling 4.0 旗舰视频 或 33 条 5秒极速视频',
           '全权限解锁 Kling 4.0 电影级录音棚 & Seedance 2.5',
-          '经典 Migos 橙色录音棚双人互怼专属模板',
+          '经典橙色录音棚双人互怼专属模板',
           'VIP 极速优先队列，无水印 1080P 超清渲染',
           '完整商业变现许可与免版税原声音轨',
         ]
       : [
           credits,
-          '~35-40 Wan 2.6 Flash or 14-16 Kling 4.0 videos',
+          '~11 full 15s Kling 4.0 cinema videos or ~33 fast 5s duo videos',
           'Full access to Kling 4.0 Cinema & Seedance 2.5',
-          'Iconic Migos Orange Studio & Duo Battle presets',
+          'Iconic Orange Studio & Duo Battle presets',
           'VIP priority fast queue, watermark-free 1080P',
           'Full commercial monetization rights & clean audio',
         ];
@@ -147,7 +147,7 @@ function getPlanFeatures(
     return isZh
       ? [
           credits,
-          '约可生成 100+ 条 Wan 2.6 或 40+ 条 Kling 4.0 录音室视频',
+          '约可制作 30+ 条 15秒 Kling 4.0 录音室视频 或 90+ 条极速视频',
           '独占最高优先级 GPU 算力通道，秒级排队响应',
           '支持多轨对骂、双人同框与自制伴奏上传',
           '支持多任务并发生成与团队批量生产',
@@ -155,7 +155,7 @@ function getPlanFeatures(
         ]
       : [
           credits,
-          '~100+ Wan 2.6 Flash or 40+ Kling 4.0 studio videos',
+          '~30+ full 15s Kling 4.0 studio videos or ~90+ fast duo videos',
           'Top priority GPU rendering cluster with zero wait',
           'Multi-track rap vocals & custom audio track upload',
           'Concurrent multi-task generation for studio teams',
@@ -184,13 +184,13 @@ function getPlanFeatures(
       ? [
           credits,
           '1 年超长有效期，随时按需调用',
-          '可制作 12-15 条 Wan 2.6 或 5-6 条 Kling 4.0 视频',
+          '约可制作 4 条 15秒 Kling 4.0 旗舰视频 或 12 条 5秒极速视频',
           '解锁全部录音棚预设与 1080P 导出',
         ]
       : [
           credits,
           'Valid for 1 full year, use whenever needed',
-          'Make 12-15 Wan 2.6 or 5-6 Kling 4.0 videos',
+          'Make ~4 full 15s Kling 4.0 videos or ~12 fast 5s duo videos',
           'Unlocks all studio presets & 1080P export',
         ];
   }
@@ -835,7 +835,7 @@ export function Pricing({
       id={id}
       className={
         isSection
-          ? `border-border scroll-mt-28 sm:scroll-mt-32 px-[clamp(1rem,2.5vw,3rem)] py-20 transition-colors sm:py-28 ${className || ''}`
+          ? `border-border scroll-mt-28 px-[clamp(1rem,2.5vw,3rem)] py-20 transition-colors sm:scroll-mt-32 sm:py-28 ${className || ''}`
           : `bg-background text-foreground w-full py-12 md:py-20 ${className || ''}`
       }
     >

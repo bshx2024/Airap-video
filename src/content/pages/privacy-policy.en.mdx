@@ -1,60 +1,76 @@
 export const meta = {
   title: 'Privacy Policy',
   description:
-    'How Airap Video collects, uses, stores, and protects your personal data in accordance with GDPR and international standards.',
-  updated_at: '2026-11-02',
+    'How Airap Video collects, manages, tier-stores, and protects your personal data and portrait privacy.',
+  updated_at: '2026-11-05',
 };
 
 ## 1. Data Controller
 
-Welcome to **Airap Video** ([https://airap-video.net](https://airap-video.net)). We value your trust and are committed to safeguarding your personal privacy and creative assets.
+Welcome to **Airap Video** ([https://airap-video.net](https://airap-video.net)). We take your personal privacy, creative ownership, and portrait likeness safety seriously.
 
-The Data Controller responsible for your personal data under this Privacy Policy is:
-- **Operator Name**: Hua Peng, an individual business operator operating under the laws of the People's Republic of China
-- **Privacy & Support Email**: **support@airap-video.net**
+The **Data Controller** responsible for your personal data under this Privacy Policy is:
+
+- **Operating Entity**: Hua Peng (operating as an individual proprietor under the laws of the People's Republic of China)
+- **Privacy & Official Support Email**: **support@airap-video.net**
 - **Data Protection Officer (DPO)**: Not applicable (for rights or inquiries, reach out directly to the support email above)
 - **Website**: [https://airap-video.net](https://airap-video.net)
 
-## 2. Personal Information We Collect
+## 2. Personal Information We Collect & Consent Requirements
 
 To deliver our AI video generation services, we collect:
+
 1. **Account Credentials**: Name, email address, password (securely hashed), and profile images, including OAuth identifiers when signing in through Google or GitHub.
 2. **Prompts & Creative Assets**: Prompts, lyrics, reference portraits, audio tracks, and output videos generated through our AI pipeline.
 3. **Billing and Transaction Records**: Transaction amounts, currency, subscription status, and purchase dates. We do **not** collect or store sensitive payment card numbers on our servers (see Section 5).
 4. **Technical & Telemetry Data**: IP addresses, browser types, operating systems, session duration, and feature interactions used for fraud prevention and performance monitoring.
 5. **Cookies & Local Storage**: Session tokens and UI preferences necessary to maintain authenticated sessions and language selection.
+6. **Third-Party Portrait Consent Warranty (Important)**: When you upload photos containing third parties (such as friends, colleagues, or other real individuals) for dual rap battles or animation, **you warrant and represent that you have obtained express, informed legal consent from the portrayed individuals**. Using another person's likeness without authorization for defamation, non-consensual deepfakes, or harassment is strictly prohibited.
 
 ## 3. How We Use Your Information
 
-| Purpose | Legal Basis |
-|---|---|
-| Delivering and maintaining AI video generation services | Contractual Necessity |
-| Billing and credit recharge processing | Contractual Necessity |
-| Customer support and ticketing | Contractual Necessity / Legitimate Interests |
-| Critical service, security, and billing notices | Legitimate Interests |
-| Security monitoring, fraud prevention & content moderation (pre-generation prompt screening via Waffo Prompt Screening API, post-generation media verification, preventing CSAM/NCII, and investigating reports via report@airap-video.net) | Legitimate Interests / Legal Obligations |
-| Infrastructure performance optimization and GPU latency tuning | Legitimate Interests |
-| Tax, accounting, and legal regulatory compliance | Legal Obligations |
+| Purpose                                                                                                                                                                                                                                     | Legal Basis                                  |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------- |
+| Delivering and maintaining AI video generation services                                                                                                                                                                                     | Contractual Necessity                        |
+| Billing and credit recharge processing                                                                                                                                                                                                      | Contractual Necessity                        |
+| Customer support and ticketing                                                                                                                                                                                                              | Contractual Necessity / Legitimate Interests |
+| Critical service, security, and billing notices                                                                                                                                                                                             | Legitimate Interests                         |
+| Security monitoring, fraud prevention & content moderation (pre-generation prompt screening via Waffo Prompt Screening API, post-generation media verification, preventing CSAM/NCII, and investigating reports via report@airap-video.net) | Legitimate Interests / Legal Obligations     |
+| Infrastructure performance optimization and GPU latency tuning                                                                                                                                                                              | Legitimate Interests                         |
+| Tax, accounting, and legal regulatory compliance                                                                                                                                                                                            | Legal Obligations                            |
 
 ## 4. We Do Not Sell Your Data
 
 We **do not sell, rent, or trade your personal information** to third parties, as defined under GDPR, CCPA, and relevant data protection laws. User-submitted generation prompts and private outputs are not used to train public machine learning models without your explicit consent.
 
-## 5. Third-Party Service Providers & Payment Processing
+## 5. Third-Party Service Providers & Model Inference Pipelines
 
 We collaborate with trusted infrastructure partners to operate our platform:
+
 - **Payment Processing (Waffo Pancake)**: All payment card processing, checkout flows, and recurring renewals are handled exclusively by our authorized Merchant of Record partner, **Waffo Pancake** ([https://pancake.waffo.ai](https://pancake.waffo.ai)), in full compliance with **PCI-DSS Level 1** security standards. Sensitive card numbers and CVV codes are processed solely by Waffo Pancake and are never stored on our servers.
 - **Content Safety & Prompt Screening (Waffo Prompt Screening Gateway)**: Prompts and creative text inputs are scanned prior to generation dispatch via automated content safety APIs to detect and block CSAM, NCII, hate speech, and violent content in strict accordance with our [Acceptable Use Policy](/acceptable-use-policy).
-- **Cloud Computing & AI Storage**: Media storage and inference acceleration are hosted on secure, encrypted cloud data centers.
+- **AI Compute & Model Inference (Kling / Wan / Suno APIs)**: Video diffusion and audio generation run on dedicated, access-isolated cloud GPU infrastructure. All upstream API transmissions operate under strict **Zero-Data Retention agreements**; third-party model providers process tasks ephemerally and do not persist facial biometrics or use your assets to train foundation models.
 
-## 6. Data Security & Retention
+## 6. Tiered Data Lifecycle & Retention Matrix
 
-- **Security Safeguards**: We enforce TLS/HTTPS encryption in transit, strict database access controls, and role-based permissions. In the unlikely event of a security incident impacting your rights, we will notify you and relevant supervisory authorities **within 72 hours** of discovery as required by law.
-- **Retention Period**: We retain your personal data for as long as your account is active. Upon voluntary account deletion, personal identifiable records are safely purged or anonymized within **ninety (90) days**, except where longer retention is required by tax and legal obligations.
+We enforce strict data minimization and ephemeral processing standards across distinct categories of user data:
+
+| Data Category                                        | Storage Location & Processing Purpose   | Retention & Automatic Purge Schedule                                                                                                                                                                                         | Third-Party Sharing & AI Training Policy                                            |
+| ---------------------------------------------------- | --------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| **Original Uploaded Portraits**                      | Ephemeral, isolated GPU compute cache   | **Permanently purged within 24 hours of generation completion**; used solely for single-task inference                                                                                                                       | **Never retained**; never used to train public foundation models                    |
+| **Generated RAP Videos & Audio**                     | Private user creator media gallery      | Retained for **30 days** by default (for downloading and cross-device export); **users can permanently delete items anytime via one-click gallery action**                                                                   | Accessible solely by the creator; private outputs are never used for model training |
+| **Account Profile & Auth Credentials**               | Encrypted database storage              | Retained for the duration of active account membership. Upon voluntary account deletion, personal identifiable records are safely purged or anonymized within **thirty (30) days** (except mandatory tax/accounting records) | Never sold or shared with commercial ad networks                                    |
+| **Upstream AI Model Providers (Kling / Wan / Suno)** | Encrypted dedicated inference endpoints | Instant transmission of task vectors during generation; zero persistent storage under **Zero Data Retention SLAs**                                                                                                           | Upstream providers do not retain biometric embeddings or photos                     |
+
+### 6.1 Security Safeguards
+
+- We enforce end-to-end TLS/HTTPS encryption in transit, strict database access controls, irreversible password hashing, and role-based permissions.
+- In the unlikely event of a security incident impacting your rights, we will notify you and relevant supervisory authorities **within 72 hours** of discovery as required by law.
 
 ## 7. Your Data Protection Rights
 
 Under applicable privacy legislation (including GDPR and CCPA), you are entitled to:
+
 - **Access & Portability**: Request a copy of your personal data;
 - **Correction**: Update inaccurate or outdated profile details;
 - **Deletion (Right to be Forgotten)**: Request the erasure of your personal data;
@@ -74,6 +90,7 @@ Our servers and AI compute clusters may be located in regions such as Hong Kong 
 ## 10. Contact Us
 
 For any privacy-related inquiries, requests, or questions, please contact:
+
 - **Data Controller**: Hua Peng
 - **Privacy & Support Email**: **support@airap-video.net**
 - **Website**: [https://airap-video.net](https://airap-video.net)

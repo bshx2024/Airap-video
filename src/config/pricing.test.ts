@@ -193,9 +193,9 @@ describe('planChangeTimingFor', () => {
 
 describe('upgradeCreditsDelta', () => {
   it('grants only the gap, never negative', () => {
-    expect(upgradeCreditsDelta('pro_monthly', 'ultra_monthly')).toBe(3600);
+    expect(upgradeCreditsDelta('pro_monthly', 'ultra_monthly')).toBe(7000);
     expect(upgradeCreditsDelta('ultra_monthly', 'pro_monthly')).toBe(0);
-    expect(upgradeCreditsDelta(null, 'pro_monthly')).toBe(3600);
+    expect(upgradeCreditsDelta(null, 'pro_monthly')).toBe(4000);
   });
 });
 

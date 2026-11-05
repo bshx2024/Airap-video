@@ -51,22 +51,22 @@ export function WhatIsVideoGenerator() {
                 <span>{m['landing.what_is.prompt_hint']()}</span>
                 <ArrowRight className="size-3.5 text-amber-500" />
               </span>
-              <span className="rounded-full bg-amber-400/15 px-2.5 py-0.5 text-[11px] font-semibold text-amber-400 border border-amber-400/30">
+              <span className="rounded-full border border-amber-400/30 bg-amber-400/15 px-2.5 py-0.5 text-[11px] font-semibold text-amber-400">
                 9:16 TikTok / Shorts Ready
               </span>
             </div>
           </div>
 
-          {/* Right: Real 9:16 Vertical Migos Orange Studio Stage Preview */}
-          <div className="relative flex min-h-[440px] items-center justify-center bg-[#050811] p-6 sm:p-8 lg:p-10 overflow-hidden">
+          {/* Right: Real 9:16 Vertical Orange Studio Stage Preview */}
+          <div className="relative flex min-h-[440px] items-center justify-center overflow-hidden bg-[#050811] p-6 sm:p-8 lg:p-10">
             {/* Ambient orange-amber glow */}
             <div
               aria-hidden="true"
-              className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-72 w-72 rounded-full bg-amber-500/15 blur-[100px]"
+              className="pointer-events-none absolute top-1/2 left-1/2 h-72 w-72 -translate-x-1/2 -translate-y-1/2 rounded-full bg-amber-500/15 blur-[100px]"
             />
 
             {/* 9:16 Vertical Stage Card */}
-            <figure className="group relative aspect-[9/16] w-full max-w-[240px] sm:max-w-[280px] overflow-hidden rounded-[22px] border border-amber-400/30 bg-black shadow-[0_20px_60px_rgba(0,0,0,0.85),0_0_35px_rgba(245,158,11,0.18)] ring-1 ring-white/10 transition-transform duration-300 hover:scale-[1.02]">
+            <figure className="group relative aspect-[9/16] w-full max-w-[240px] overflow-hidden rounded-[22px] border border-amber-400/30 bg-black shadow-[0_20px_60px_rgba(0,0,0,0.85),0_0_35px_rgba(245,158,11,0.18)] ring-1 ring-white/10 transition-transform duration-300 hover:scale-[1.02] sm:max-w-[280px]">
               <video
                 ref={videoRef}
                 src="/videos/showcase/generated/web-acrobat.mp4"
@@ -92,7 +92,7 @@ export function WhatIsVideoGenerator() {
                 type="button"
                 onClick={toggleSound}
                 aria-label={isMuted ? 'Unmute audio' : 'Mute audio'}
-                className="absolute top-3 right-3 flex size-8 cursor-pointer items-center justify-center rounded-full border border-white/20 bg-black/60 text-white backdrop-blur-md transition hover:bg-black/90 hover:scale-110"
+                className="absolute top-3 right-3 flex size-8 cursor-pointer items-center justify-center rounded-full border border-white/20 bg-black/60 text-white backdrop-blur-md transition hover:scale-110 hover:bg-black/90"
               >
                 {isMuted ? (
                   <VolumeX className="size-4 text-white/75" />
@@ -105,13 +105,13 @@ export function WhatIsVideoGenerator() {
               <figcaption className="absolute inset-x-3 bottom-3 flex items-center justify-between gap-2 rounded-xl border border-white/15 bg-black/75 p-2 backdrop-blur-md">
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-xs font-semibold text-white">
-                    Migos Orange Studio
+                    Orange Studio Rap Battle
                   </p>
                   <p className="truncate text-[10px] text-amber-300/80">
                     Auto Rap Lyrics & 808 Beat-Sync
                   </p>
                 </div>
-                <span className="flex size-6 shrink-0 items-center justify-center rounded-lg bg-amber-400 text-black text-[10px] font-black">
+                <span className="flex size-6 shrink-0 items-center justify-center rounded-lg bg-amber-400 text-[10px] font-black text-black">
                   9:16
                 </span>
               </figcaption>

@@ -7,7 +7,7 @@ const HOW_TO_STEPS = [
   {
     step: '01',
     title: 'Step 1: Choose Your Rap Video Style',
-    desc: 'Select the Migos Orange Studio, Duo Rap Battle, Solo Rap, or Pet Rap preset.',
+    desc: 'Select the Orange Studio, Duo Rap Battle, Solo Rap, or Pet Rap preset.',
     icon: Sparkles,
   },
   {
@@ -46,7 +46,8 @@ export function VideoHowItWorks() {
             How to Make an AI Rap Video from Photos
           </h2>
           <p className="mx-auto mt-4 text-base leading-relaxed text-slate-300 sm:text-lg">
-            No filming, singing, or professional editing required. Turn selfies into viral TikTok rap battles in four simple steps.
+            No filming, singing, or professional editing required. Turn selfies
+            into viral TikTok rap battles in four simple steps.
           </p>
         </header>
 
