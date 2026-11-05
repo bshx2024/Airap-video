@@ -81,7 +81,7 @@ export function VideoUseCases() {
                 />
 
                 {/* 9:16 Vertical Mobile Stage Frame */}
-                <figure className="group relative aspect-[9/16] w-full max-w-[260px] sm:max-w-[290px] overflow-hidden rounded-[24px] border border-slate-200/80 bg-black shadow-[0_22px_60px_rgba(2,6,23,0.2)] ring-1 ring-slate-900/5 transition-transform duration-300 hover:scale-[1.02] dark:border-white/15 dark:shadow-[0_22px_60px_rgba(2,6,23,0.6)] dark:ring-white/10">
+                <figure className="group relative aspect-[9/16] w-full max-w-[260px] overflow-hidden rounded-[24px] border border-slate-200/80 bg-black shadow-[0_22px_60px_rgba(2,6,23,0.2)] ring-1 ring-slate-900/5 transition-transform duration-300 hover:scale-[1.02] sm:max-w-[290px] dark:border-white/15 dark:shadow-[0_22px_60px_rgba(2,6,23,0.6)] dark:ring-white/10">
                   <video
                     aria-hidden="true"
                     className="size-full object-cover"

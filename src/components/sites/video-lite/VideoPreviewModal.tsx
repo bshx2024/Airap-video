@@ -12,6 +12,7 @@ import {
 import { tDynamic } from '@/core/i18n/dynamic';
 import { type ShowcaseItem } from '@/config/video-landing-data';
 import { m } from '@/paraglide/messages.js';
+
 import { MobileVideoDownloadModal } from './MobileVideoDownloadModal';
 
 export function VideoPreviewModal({

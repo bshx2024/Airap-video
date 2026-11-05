@@ -1,8 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router';
 
 import { getAuth } from '@/core/auth';
-import { scanPromptSafety } from '@/lib/content-safety';
 import { startRapTask } from '@/modules/ai/rap-workflow';
+import { scanPromptSafety } from '@/lib/content-safety';
 import { respData, respErr } from '@/lib/resp';
 
 async function POST({ request }: { request: Request }) {
@@ -66,7 +66,11 @@ async function POST({ request }: { request: Request }) {
       imageUrl: validImageUrls[0],
       imageUrls: validImageUrls,
       studioMode,
-      prompt: prompt || (referenceVideoUrl ? 'Master Video Motion Mimic Rap' : 'AI Rap Freestyle'),
+      prompt:
+        prompt ||
+        (referenceVideoUrl
+          ? 'Master Video Motion Mimic Rap'
+          : 'AI Rap Freestyle'),
       videoPrompt,
       scenarioId,
       styleId,

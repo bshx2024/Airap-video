@@ -24,10 +24,10 @@ import { Ads } from '@/components/analytics/ads';
 import { GoogleAnalytics } from '@/components/analytics/google-analytics';
 import { Plausible } from '@/components/analytics/plausible';
 import { PvuvAnalytics } from '@/components/analytics/pvuv';
+import { AttributionTracker } from '@/components/attribution-tracker';
 import { CustomerService } from '@/components/customer-service';
 import { GoogleOneTap } from '@/components/google-one-tap';
 import { SandboxPreviewBridge } from '@/components/sandbox-preview-bridge';
-import { AttributionTracker } from '@/components/attribution-tracker';
 import { TopBanner } from '@/components/top-banner';
 import { Toaster } from '@/components/ui/sonner';
 
@@ -264,15 +264,18 @@ export const Route = createRootRoute({
         },
         {
           name: 'robots',
-          content: 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1',
+          content:
+            'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1',
         },
         {
           name: 'googlebot',
-          content: 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1',
+          content:
+            'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1',
         },
         {
           name: 'bingbot',
-          content: 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1',
+          content:
+            'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1',
         },
         { property: 'og:site_name', content: appName },
         { property: 'og:type', content: 'website' },

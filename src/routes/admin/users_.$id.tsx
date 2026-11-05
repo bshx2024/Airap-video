@@ -328,7 +328,10 @@ function UserDetailPage() {
               </Field>
               <Field label="First Landing">
                 {user.firstLanding ? (
-                  <span className="font-mono text-xs text-muted-foreground block truncate max-w-[280px]" title={user.firstLanding}>
+                  <span
+                    className="text-muted-foreground block max-w-[280px] truncate font-mono text-xs"
+                    title={user.firstLanding}
+                  >
                     {user.firstLanding}
                   </span>
                 ) : (
@@ -337,8 +340,9 @@ function UserDetailPage() {
               </Field>
               <Field label="Last Touch">
                 {user.lastSource ? (
-                  <span className="bg-primary/10 text-primary border border-primary/20 inline-flex rounded-md px-2 py-0.5 text-xs font-medium">
-                    {user.lastSource} {user.lastMedium ? `(${user.lastMedium})` : ''}
+                  <span className="bg-primary/10 text-primary border-primary/20 inline-flex rounded-md border px-2 py-0.5 text-xs font-medium">
+                    {user.lastSource}{' '}
+                    {user.lastMedium ? `(${user.lastMedium})` : ''}
                   </span>
                 ) : (
                   <Empty />
@@ -347,7 +351,9 @@ function UserDetailPage() {
               <Field label="Device / OS / Browser">
                 {user.device || user.os || user.browser ? (
                   <span className="font-mono text-xs">
-                    {[user.device, user.os, user.browser].filter(Boolean).join(' · ')}
+                    {[user.device, user.os, user.browser]
+                      .filter(Boolean)
+                      .join(' · ')}
                   </span>
                 ) : (
                   <Empty />

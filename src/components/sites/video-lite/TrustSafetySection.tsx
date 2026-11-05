@@ -16,7 +16,7 @@ const TRUST_ITEMS = [
   {
     id: 'pricing',
     title: 'Transparent Pricing',
-    desc: 'See the exact credit cost before generating your video. No surprise deductions, hidden subscription traps, or unannounced charges.',
+    desc: 'Exact credit costs shown upfront. No hidden fees or forced subscriptions.',
     icon: Coins,
     linkText: 'View Pricing Table',
     href: '#pricing',
@@ -24,15 +24,15 @@ const TRUST_ITEMS = [
   {
     id: 'rights',
     title: 'Clear Usage Rights',
-    desc: 'Commercial-use permissions for self-media monetization on TikTok, Instagram Reels, and YouTube Shorts. All generated music is copyright-safe.',
+    desc: 'Commercial clearance for TikTok, Reels, and Shorts. 100% royalty-free tracks.',
     icon: FileCheck,
     linkText: 'Terms of Service',
     href: '/terms',
   },
   {
     id: 'privacy',
-    title: 'Photo Privacy & Data Security',
-    desc: 'Your uploaded photos are strictly used for your video synthesis tasks and automatically purged in accordance with our data retention policy. Never shared or sold.',
+    title: 'Photo Privacy & Security',
+    desc: 'Photos are used solely for synthesis and auto-purged within 24 hours.',
     icon: Lock,
     linkText: 'Privacy Policy',
     href: '/privacy',
@@ -40,7 +40,7 @@ const TRUST_ITEMS = [
   {
     id: 'refunds',
     title: 'Automatic Failure Refunds',
-    desc: 'If an AI generation task fails due to server load, timeout, or backend errors, the credits consumed are automatically refunded back to your balance.',
+    desc: 'Server timeouts or failures trigger an instant 100% credit refund within 2s.',
     icon: RefreshCcw,
     linkText: 'Refund Policy',
     href: '/refund-policy',
@@ -48,7 +48,7 @@ const TRUST_ITEMS = [
   {
     id: 'support',
     title: 'Real Human Support',
-    desc: 'Dedicated creator support for billing inquiries, prompt advice, or API questions. We respond promptly to keep your content schedule moving.',
+    desc: 'Fast human response for billing, prompting, and technical assistance.',
     icon: Headphones,
     linkText: 'Contact Support',
     href: 'mailto:support@airap-video.net',
@@ -72,7 +72,8 @@ export function TrustSafetySection() {
             Create with Confidence
           </h2>
           <p className="mt-4 text-base leading-relaxed text-slate-300 sm:text-lg">
-            We are committed to transparent pricing, strict portrait privacy protection, and ethical creator standards.
+            Transparent pricing, strict portrait privacy, and ethical creator
+            standards.
           </p>
         </div>
 
@@ -96,10 +97,10 @@ export function TrustSafetySection() {
                     {item.desc}
                   </p>
                 </div>
-                <div className="mt-5 pt-3 border-t border-white/5">
+                <div className="mt-5 border-t border-white/5 pt-3">
                   <a
                     href={item.href}
-                    className="text-xs font-semibold text-emerald-400 hover:text-emerald-300 transition-colors"
+                    className="text-xs font-semibold text-emerald-400 transition-colors hover:text-emerald-300"
                   >
                     {item.linkText} ➔
                   </a>
@@ -118,13 +119,14 @@ export function TrustSafetySection() {
                 Responsible AI Guidelines
               </h3>
               <p className="mt-2 text-xs leading-relaxed text-slate-300 sm:text-sm">
-                Airap strictly prohibits unauthorized impersonation, non-consensual sexualized media, deceptive deepfakes, hate speech, or harassment. Always secure permission before animating photos of real individuals.
+                No non-consensual impersonation or deceptive deepfakes. Always
+                obtain portrait consent before animating real people.
               </p>
             </div>
             <div className="mt-5 flex items-center justify-between border-t border-white/5 pt-3">
               <a
                 href="/acceptable-use-policy"
-                className="text-xs font-semibold text-amber-400 hover:text-amber-300 transition-colors"
+                className="text-xs font-semibold text-amber-400 transition-colors hover:text-amber-300"
               >
                 Acceptable Use Policy (AUP) ➔
               </a>

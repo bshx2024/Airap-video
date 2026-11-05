@@ -1,13 +1,19 @@
 import { createFileRoute } from '@tanstack/react-router';
 
-import { scanPromptSafety } from '@/lib/content-safety';
 import { generateRapLyrics } from '@/modules/ai/rap-workflow';
+import { scanPromptSafety } from '@/lib/content-safety';
 import { respData, respErr } from '@/lib/resp';
 
 async function POST({ request }: { request: Request }) {
   try {
     const body = await request.json().catch(() => ({}));
-    const { topic = '', styleId = 'boom-bap', language = 'zh', model, vocalGender = 'auto' } = body;
+    const {
+      topic = '',
+      styleId = 'boom-bap',
+      language = 'zh',
+      model,
+      vocalGender = 'auto',
+    } = body;
 
     if (!topic || typeof topic !== 'string') {
       return respErr('Topic is required');

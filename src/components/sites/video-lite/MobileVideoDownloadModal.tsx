@@ -76,15 +76,21 @@ export function MobileVideoDownloadModal({
       } catch {
         // Fallback using client origin
         if (isMounted) {
-          const origin = typeof window !== 'undefined' ? window.location.origin : '';
+          const origin =
+            typeof window !== 'undefined' ? window.location.origin : '';
           const fallbackParams = new URLSearchParams({
             url: videoUrl,
             title,
             filename,
           });
-          setMobileDownloadUrl(`${origin}/mobile-video-download?${fallbackParams.toString()}`);
+          setMobileDownloadUrl(
+            `${origin}/mobile-video-download?${fallbackParams.toString()}`
+          );
           setDirectVideoUrl(videoUrl);
-          setIsLocalhost(typeof window !== 'undefined' && window.location.hostname === 'localhost');
+          setIsLocalhost(
+            typeof window !== 'undefined' &&
+              window.location.hostname === 'localhost'
+          );
         }
       } finally {
         if (isMounted) {
@@ -120,7 +126,8 @@ export function MobileVideoDownloadModal({
 
   if (!isOpen || !videoUrl) return null;
 
-  const currentQrTarget = activeTab === 'landing' ? mobileDownloadUrl : directVideoUrl;
+  const currentQrTarget =
+    activeTab === 'landing' ? mobileDownloadUrl : directVideoUrl;
 
   // QR providers fallback chain
   const qrProviders = currentQrTarget
@@ -168,22 +175,22 @@ export function MobileVideoDownloadModal({
     <div
       role="dialog"
       aria-modal="true"
-      className="fixed inset-0 z-[110] flex items-center justify-center p-4 sm:p-6 overflow-y-auto"
+      className="fixed inset-0 z-[110] flex items-center justify-center overflow-y-auto p-4 sm:p-6"
     >
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/85 backdrop-blur-md transition-opacity animate-in fade-in-0 duration-200"
+        className="animate-in fade-in-0 fixed inset-0 bg-black/85 backdrop-blur-md transition-opacity duration-200"
         onClick={onClose}
       />
 
       {/* Modal Card */}
-      <div className="relative z-10 w-full max-w-md rounded-3xl border border-amber-500/30 bg-gradient-to-b from-slate-900 via-slate-950 to-black p-6 text-center text-white shadow-2xl shadow-amber-500/20 animate-in zoom-in-95 duration-200">
+      <div className="animate-in zoom-in-95 relative z-10 w-full max-w-md rounded-3xl border border-amber-500/30 bg-gradient-to-b from-slate-900 via-slate-950 to-black p-6 text-center text-white shadow-2xl shadow-amber-500/20 duration-200">
         {/* Close Button */}
         <button
           type="button"
           onClick={onClose}
           aria-label="Close dialog"
-          className="absolute right-4 top-4 flex size-8 cursor-pointer items-center justify-center rounded-full bg-white/10 text-white/70 transition hover:bg-white/20 hover:text-white"
+          className="absolute top-4 right-4 flex size-8 cursor-pointer items-center justify-center rounded-full bg-white/10 text-white/70 transition hover:bg-white/20 hover:text-white"
         >
           <X className="size-4" />
         </button>
@@ -195,7 +202,7 @@ export function MobileVideoDownloadModal({
             <span>手机扫码保存视频</span>
           </div>
 
-          <h3 className="text-xl font-black text-white tracking-wide">
+          <h3 className="text-xl font-black tracking-wide text-white">
             {title}
           </h3>
 
@@ -248,7 +255,7 @@ export function MobileVideoDownloadModal({
           ) : qrFailed ? (
             <div className="flex flex-col items-center gap-2 p-2 text-slate-700">
               <QrCode className="size-10 text-amber-500" />
-              <p className="text-[11px] font-medium leading-relaxed">
+              <p className="text-[11px] leading-relaxed font-medium">
                 二维码预览受阻。点击下方按钮直接复制链接发送给手机：
               </p>
               <button
@@ -279,8 +286,11 @@ export function MobileVideoDownloadModal({
               <Wifi className="size-3 shrink-0" />
               <span>局域网联调：手机需连接电脑相同 Wi-Fi ({lanIp})</span>
             </div>
-            <p className="mt-1 text-[10px] text-white/70 leading-snug">
-              若手机 Chrome 无法打开：请暂时断开手机上的 <strong>VPN/代理</strong>（或开启绕过局域网），并确认是 <span className="font-mono text-amber-200">http://</span> 而非 https://。
+            <p className="mt-1 text-[10px] leading-snug text-white/70">
+              若手机 Chrome 无法打开：请暂时断开手机上的{' '}
+              <strong>VPN/代理</strong>（或开启绕过局域网），并确认是{' '}
+              <span className="font-mono text-amber-200">http://</span> 而非
+              https://。
             </p>
           </div>
         )}

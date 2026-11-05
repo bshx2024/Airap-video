@@ -151,22 +151,22 @@ export function MobileQrUploadModal({
     <div
       role="dialog"
       aria-modal="true"
-      className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 overflow-y-auto"
+      className="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto p-4 sm:p-6"
     >
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/85 backdrop-blur-md transition-opacity animate-in fade-in-0 duration-200"
+        className="animate-in fade-in-0 fixed inset-0 bg-black/85 backdrop-blur-md transition-opacity duration-200"
         onClick={onClose}
       />
 
       {/* Modal Dialog Card */}
-      <div className="relative z-10 w-full max-w-md rounded-3xl border border-amber-500/30 bg-gradient-to-b from-slate-900 via-slate-950 to-black p-6 text-center text-white shadow-2xl shadow-amber-500/20 animate-in zoom-in-95 duration-200">
+      <div className="animate-in zoom-in-95 relative z-10 w-full max-w-md rounded-3xl border border-amber-500/30 bg-gradient-to-b from-slate-900 via-slate-950 to-black p-6 text-center text-white shadow-2xl shadow-amber-500/20 duration-200">
         {/* Close Button */}
         <button
           type="button"
           onClick={onClose}
           aria-label="Close dialog"
-          className="absolute right-4 top-4 flex size-8 cursor-pointer items-center justify-center rounded-full bg-white/10 text-white/70 transition hover:bg-white/20 hover:text-white"
+          className="absolute top-4 right-4 flex size-8 cursor-pointer items-center justify-center rounded-full bg-white/10 text-white/70 transition hover:bg-white/20 hover:text-white"
         >
           <X className="size-4" />
         </button>
@@ -178,7 +178,7 @@ export function MobileQrUploadModal({
             <span>Beam Photo from Phone</span>
           </div>
 
-          <h3 className="text-xl font-black text-white tracking-wide">
+          <h3 className="text-xl font-black tracking-wide text-white">
             Upload for {roleName}
           </h3>
 
@@ -195,21 +195,24 @@ export function MobileQrUploadModal({
               <span className="text-xs font-bold">Generating QR Code...</span>
             </div>
           ) : isReceived ? (
-            <div className="flex flex-col items-center justify-center text-emerald-600 animate-in zoom-in-95">
+            <div className="animate-in zoom-in-95 flex flex-col items-center justify-center text-emerald-600">
               <CheckCircle2 className="size-16 animate-bounce" />
               <span className="mt-2 text-xs font-black">Sync Complete!</span>
-              <span className="text-[10px] text-slate-500">Applying to studio...</span>
+              <span className="text-[10px] text-slate-500">
+                Applying to studio...
+              </span>
             </div>
           ) : qrFailed ? (
-            <div className="flex flex-col items-center gap-2 text-slate-700 p-2">
+            <div className="flex flex-col items-center gap-2 p-2 text-slate-700">
               <QrCode className="size-10 text-amber-500" />
-              <p className="text-[11px] text-center font-medium">
-                QR preview unavailable. Click below to copy or open link directly:
+              <p className="text-center text-[11px] font-medium">
+                QR preview unavailable. Click below to copy or open link
+                directly:
               </p>
               <button
                 type="button"
                 onClick={handleCopyLink}
-                className="rounded-lg bg-amber-500 px-3 py-1.5 text-xs font-bold text-black hover:bg-amber-400 transition"
+                className="rounded-lg bg-amber-500 px-3 py-1.5 text-xs font-bold text-black transition hover:bg-amber-400"
               >
                 Copy Mobile Link
               </button>
@@ -224,7 +227,7 @@ export function MobileQrUploadModal({
                 className="size-full object-contain"
               />
               {/* Radar Scanner Line */}
-              <div className="pointer-events-none absolute inset-x-0 h-1 bg-gradient-to-r from-transparent via-amber-400 to-transparent shadow-[0_0_8px_#f59e0b] animate-[bounce_2.5s_infinite]" />
+              <div className="pointer-events-none absolute inset-x-0 h-1 animate-[bounce_2.5s_infinite] bg-gradient-to-r from-transparent via-amber-400 to-transparent shadow-[0_0_8px_#f59e0b]" />
             </div>
           )}
         </div>
@@ -238,14 +241,16 @@ export function MobileQrUploadModal({
             </span>
           ) : (
             <span className="flex items-center gap-1.5 text-amber-300/90">
-              <span className="size-2 rounded-full bg-amber-400 animate-ping" />
-              <span className="text-[11px]">Waiting for mobile phone scan...</span>
+              <span className="size-2 animate-ping rounded-full bg-amber-400" />
+              <span className="text-[11px]">
+                Waiting for mobile phone scan...
+              </span>
             </span>
           )}
         </div>
 
         {/* Link Actions */}
-        <div className="flex items-center justify-center gap-2 border-t border-white/10 pt-3 mt-3">
+        <div className="mt-3 flex items-center justify-center gap-2 border-t border-white/10 pt-3">
           <button
             type="button"
             onClick={handleCopyLink}
@@ -279,19 +284,27 @@ export function MobileQrUploadModal({
         </div>
 
         {/* Wi-Fi & LAN Notice */}
-        <div className="mt-3 rounded-xl border border-amber-500/20 bg-amber-500/[0.06] p-2.5 text-left text-[11px] text-amber-200/90 leading-relaxed">
-          <p className="font-bold flex items-center gap-1 text-amber-300">
+        <div className="mt-3 rounded-xl border border-amber-500/20 bg-amber-500/[0.06] p-2.5 text-left text-[11px] leading-relaxed text-amber-200/90">
+          <p className="flex items-center gap-1 font-bold text-amber-300">
             <Wifi className="size-3 text-amber-400" />
             <span>手机扫码提示：</span>
           </p>
           <p className="mt-1 text-[10px] text-white/75">
-            1. 请确保手机与电脑在<strong>同一 Wi-Fi 网络</strong>（勿用手机 4G/5G 流量）。
+            1. 请确保手机与电脑在<strong>同一 Wi-Fi 网络</strong>（勿用手机
+            4G/5G 流量）。
           </p>
           <p className="mt-0.5 text-[10px] text-white/75">
-            2. <strong>若 Chrome 打不开</strong>：请关闭手机上的 <strong>VPN/代理软件</strong>（或在代理中开启【绕过局域网】），并确保网址为 <span className="text-amber-300 font-mono">http://</span> 而非 https://。
+            2. <strong>若 Chrome 打不开</strong>：请关闭手机上的{' '}
+            <strong>VPN/代理软件</strong>
+            （或在代理中开启【绕过局域网】），并确保网址为{' '}
+            <span className="font-mono text-amber-300">http://</span> 而非
+            https://。
           </p>
-          <p className="mt-0.5 text-[10px] text-white/60 truncate">
-            3. 直连地址：<code className="rounded bg-black/40 px-1 py-0.5 text-amber-300 font-mono text-[9px]">{uploadUrl || 'http://192.168.1.2:3000/...'}</code>
+          <p className="mt-0.5 truncate text-[10px] text-white/60">
+            3. 直连地址：
+            <code className="rounded bg-black/40 px-1 py-0.5 font-mono text-[9px] text-amber-300">
+              {uploadUrl || 'http://192.168.1.2:3000/...'}
+            </code>
           </p>
         </div>
       </div>

@@ -94,7 +94,7 @@ const BOT_TYPE_OPTIONS = [
 
 function getBotBadge(botType: string, isVerified?: number) {
   const verifiedBadge = isVerified ? (
-    <span className="inline-flex items-center text-[10px] bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-bold px-1 rounded ml-1 border border-emerald-500/30">
+    <span className="ml-1 inline-flex items-center rounded border border-emerald-500/30 bg-emerald-500/20 px-1 text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
       VERIFIED
     </span>
   ) : null;
@@ -103,74 +103,120 @@ function getBotBadge(botType: string, isVerified?: number) {
     case 'googlebot':
       return (
         <div className="flex items-center">
-          <Badge className="bg-blue-500/15 text-blue-500 border-blue-500/30">Googlebot</Badge>
+          <Badge className="border-blue-500/30 bg-blue-500/15 text-blue-500">
+            Googlebot
+          </Badge>
           {verifiedBadge}
         </div>
       );
     case 'bingbot':
       return (
         <div className="flex items-center">
-          <Badge className="bg-teal-500/15 text-teal-500 border-teal-500/30">Bingbot</Badge>
+          <Badge className="border-teal-500/30 bg-teal-500/15 text-teal-500">
+            Bingbot
+          </Badge>
           {verifiedBadge}
         </div>
       );
     case 'openai':
       return (
         <div className="flex items-center">
-          <Badge className="bg-emerald-500/15 text-emerald-500 border-emerald-500/30">OpenAI</Badge>
+          <Badge className="border-emerald-500/30 bg-emerald-500/15 text-emerald-500">
+            OpenAI
+          </Badge>
           {verifiedBadge}
         </div>
       );
     case 'claude':
       return (
         <div className="flex items-center">
-          <Badge className="bg-amber-500/15 text-amber-500 border-amber-500/30">ClaudeBot</Badge>
+          <Badge className="border-amber-500/30 bg-amber-500/15 text-amber-500">
+            ClaudeBot
+          </Badge>
           {verifiedBadge}
         </div>
       );
     case 'apple':
       return (
         <div className="flex items-center">
-          <Badge className="bg-sky-500/15 text-sky-500 border-sky-500/30">Applebot</Badge>
+          <Badge className="border-sky-500/30 bg-sky-500/15 text-sky-500">
+            Applebot
+          </Badge>
           {verifiedBadge}
         </div>
       );
     case 'perplexity':
       return (
         <div className="flex items-center">
-          <Badge className="bg-indigo-500/15 text-indigo-500 border-indigo-500/30">Perplexity</Badge>
+          <Badge className="border-indigo-500/30 bg-indigo-500/15 text-indigo-500">
+            Perplexity
+          </Badge>
           {verifiedBadge}
         </div>
       );
     case 'ahrefs':
-      return <Badge className="bg-orange-500/15 text-orange-500 border-orange-500/30">AhrefsBot</Badge>;
+      return (
+        <Badge className="border-orange-500/30 bg-orange-500/15 text-orange-500">
+          AhrefsBot
+        </Badge>
+      );
     case 'semrush':
-      return <Badge className="bg-purple-500/15 text-purple-500 border-purple-500/30">Semrush</Badge>;
+      return (
+        <Badge className="border-purple-500/30 bg-purple-500/15 text-purple-500">
+          Semrush
+        </Badge>
+      );
     case 'bytespider':
       return (
         <div className="flex items-center">
-          <Badge className="bg-cyan-500/15 text-cyan-500 border-cyan-500/30">ByteSpider</Badge>
+          <Badge className="border-cyan-500/30 bg-cyan-500/15 text-cyan-500">
+            ByteSpider
+          </Badge>
           {verifiedBadge}
         </div>
       );
     case 'scanner':
-      return <Badge className="bg-rose-500/15 text-rose-500 border-rose-500/30">Scanner</Badge>;
+      return (
+        <Badge className="border-rose-500/30 bg-rose-500/15 text-rose-500">
+          Scanner
+        </Badge>
+      );
     default:
-      return <Badge variant="outline" className="text-muted-foreground">{botType}</Badge>;
+      return (
+        <Badge variant="outline" className="text-muted-foreground">
+          {botType}
+        </Badge>
+      );
   }
 }
 
 function getStatusBadge(status: number) {
   if (status >= 200 && status < 300) {
-    return <span className="font-mono text-xs font-semibold text-emerald-500">{status}</span>;
+    return (
+      <span className="font-mono text-xs font-semibold text-emerald-500">
+        {status}
+      </span>
+    );
   }
   if (status >= 300 && status < 400) {
-    return <span className="font-mono text-xs font-semibold text-blue-500">{status}</span>;
+    return (
+      <span className="font-mono text-xs font-semibold text-blue-500">
+        {status}
+      </span>
+    );
   }
   if (status >= 400 && status < 500) {
-    return <span className="font-mono text-xs font-semibold text-amber-500">{status}</span>;
+    return (
+      <span className="font-mono text-xs font-semibold text-amber-500">
+        {status}
+      </span>
+    );
   }
-  return <span className="font-mono text-xs font-semibold text-rose-500">{status}</span>;
+  return (
+    <span className="font-mono text-xs font-semibold text-rose-500">
+      {status}
+    </span>
+  );
 }
 
 export function CrawlerLogsPage() {
@@ -182,23 +228,29 @@ export function CrawlerLogsPage() {
   const [search, setSearch] = useState('');
   const [searchInput, setSearchInput] = useState('');
 
-  const { data, isLoading, isFetching, refetch } = useQuery<CrawlerLogsResponse>({
-    queryKey: ['admin-crawler-logs', { page, pageSize, botType, search, onlyContent, onlyVerified }],
-    queryFn: async () => {
-      const params = new URLSearchParams({
-        page: String(page),
-        pageSize: String(pageSize),
-      });
-      if (botType && botType !== 'all') params.set('botType', botType);
-      if (search) params.set('search', search);
-      if (onlyContent) params.set('onlyContent', 'true');
-      if (onlyVerified) params.set('onlyVerified', 'true');
+  const { data, isLoading, isFetching, refetch } =
+    useQuery<CrawlerLogsResponse>({
+      queryKey: [
+        'admin-crawler-logs',
+        { page, pageSize, botType, search, onlyContent, onlyVerified },
+      ],
+      queryFn: async () => {
+        const params = new URLSearchParams({
+          page: String(page),
+          pageSize: String(pageSize),
+        });
+        if (botType && botType !== 'all') params.set('botType', botType);
+        if (search) params.set('search', search);
+        if (onlyContent) params.set('onlyContent', 'true');
+        if (onlyVerified) params.set('onlyVerified', 'true');
 
-      const res = await apiGet<CrawlerLogsResponse>(`/api/admin/crawler-logs?${params.toString()}`);
-      return res;
-    },
-    placeholderData: keepPreviousData,
-  });
+        const res = await apiGet<CrawlerLogsResponse>(
+          `/api/admin/crawler-logs?${params.toString()}`
+        );
+        return res;
+      },
+      placeholderData: keepPreviousData,
+    });
 
   const stats = data?.stats || {
     totalAll: 0,
@@ -228,11 +280,11 @@ export function CrawlerLogsPage() {
         {/* Header */}
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-              <Bot className="size-6 text-primary" />
+            <h1 className="flex items-center gap-2 text-2xl font-bold tracking-tight">
+              <Bot className="text-primary size-6" />
               爬虫与蜘蛛日志 (Crawler Logs)
             </h1>
-            <p className="text-muted-foreground text-sm mt-1">
+            <p className="text-muted-foreground mt-1 text-sm">
               实时监测搜索引擎抓取频次、SEO商业爬虫轨迹及恶意扫描探针
             </p>
           </div>
@@ -243,7 +295,9 @@ export function CrawlerLogsPage() {
             disabled={isFetching}
             className="flex items-center gap-2"
           >
-            <RefreshCw className={`size-4 ${isFetching ? 'animate-spin' : ''}`} />
+            <RefreshCw
+              className={`size-4 ${isFetching ? 'animate-spin' : ''}`}
+            />
             刷新
           </Button>
         </div>
@@ -252,25 +306,33 @@ export function CrawlerLogsPage() {
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">今日爬取总数</CardTitle>
-              <Activity className="size-4 text-primary" />
+              <CardTitle className="text-muted-foreground text-sm font-medium">
+                今日爬取总数
+              </CardTitle>
+              <Activity className="text-primary size-4" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.todayHits.toLocaleString()}</div>
-              <p className="text-xs text-muted-foreground mt-1">历史累计: {stats.totalAll.toLocaleString()}</p>
+              <div className="text-2xl font-bold">
+                {stats.todayHits.toLocaleString()}
+              </div>
+              <p className="text-muted-foreground mt-1 text-xs">
+                历史累计: {stats.totalAll.toLocaleString()}
+              </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">搜索引擎蜘蛛</CardTitle>
+              <CardTitle className="text-muted-foreground text-sm font-medium">
+                搜索引擎蜘蛛
+              </CardTitle>
               <Globe className="size-4 text-emerald-500" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-emerald-500">
                 {(stats.googleHits + stats.bingHits).toLocaleString()}
               </div>
-              <p className="text-xs text-muted-foreground mt-1">
+              <p className="text-muted-foreground mt-1 text-xs">
                 Google: {stats.googleHits} · Bing: {stats.bingHits}
               </p>
             </CardContent>
@@ -278,14 +340,16 @@ export function CrawlerLogsPage() {
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">AI 搜索与索引</CardTitle>
+              <CardTitle className="text-muted-foreground text-sm font-medium">
+                AI 搜索与索引
+              </CardTitle>
               <Sparkles className="size-4 text-cyan-500" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-cyan-500">
                 {(stats.openaiHits + stats.claudeHits).toLocaleString()}
               </div>
-              <p className="text-xs text-muted-foreground mt-1">
+              <p className="text-muted-foreground mt-1 text-xs">
                 OpenAI: {stats.openaiHits} · Claude: {stats.claudeHits}
               </p>
             </CardContent>
@@ -293,36 +357,51 @@ export function CrawlerLogsPage() {
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">实质页面抓取</CardTitle>
+              <CardTitle className="text-muted-foreground text-sm font-medium">
+                实质页面抓取
+              </CardTitle>
               <Bot className="size-4 text-indigo-500" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-indigo-500">
                 {stats.contentHits.toLocaleString()}
               </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                Verified 认证率: {stats.totalAll > 0 ? Math.round((stats.verifiedHits / stats.totalAll) * 100) : 0}%
+              <p className="text-muted-foreground mt-1 text-xs">
+                Verified 认证率:{' '}
+                {stats.totalAll > 0
+                  ? Math.round((stats.verifiedHits / stats.totalAll) * 100)
+                  : 0}
+                %
               </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">安全与探针拦截</CardTitle>
+              <CardTitle className="text-muted-foreground text-sm font-medium">
+                安全与探针拦截
+              </CardTitle>
               <ShieldAlert className="size-4 text-rose-500" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-rose-500">{stats.scannerHits.toLocaleString()}</div>
-              <p className="text-xs text-muted-foreground mt-1">.env / php / 漏洞探针</p>
+              <div className="text-2xl font-bold text-rose-500">
+                {stats.scannerHits.toLocaleString()}
+              </div>
+              <p className="text-muted-foreground mt-1 text-xs">
+                .env / php / 漏洞探针
+              </p>
             </CardContent>
           </Card>
         </div>
 
         {/* Filter & Search Bar */}
         <div className="flex flex-wrap items-center justify-between gap-4">
-          <form onSubmit={handleSearchSubmit} className="flex flex-1 items-center gap-2 max-w-md">
+          <form
+            onSubmit={handleSearchSubmit}
+            className="flex max-w-md flex-1 items-center gap-2"
+          >
             <div className="relative flex-1">
-              <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
+              <Search className="text-muted-foreground absolute top-2.5 left-2.5 size-4" />
               <Input
                 placeholder="搜索 IP、请求路径或 User-Agent..."
                 value={searchInput}
@@ -377,7 +456,7 @@ export function CrawlerLogsPage() {
             </Button>
 
             <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">类型:</span>
+              <span className="text-muted-foreground text-sm">类型:</span>
               <Select
                 value={botType}
                 onValueChange={(val) => {
@@ -418,23 +497,31 @@ export function CrawlerLogsPage() {
                 {isLoading ? (
                   Array.from({ length: 5 }).map((_, i) => (
                     <TableRow key={i}>
-                      <TableCell colSpan={6} className="h-12 text-center text-muted-foreground animate-pulse">
+                      <TableCell
+                        colSpan={6}
+                        className="text-muted-foreground h-12 animate-pulse text-center"
+                      >
                         加载中...
                       </TableCell>
                     </TableRow>
                   ))
                 ) : data?.data && data.data.length > 0 ? (
                   data.data.map((item) => (
-                    <TableRow key={item.id} className="hover:bg-muted/50 transition-colors">
-                      <TableCell className="font-mono text-xs text-muted-foreground whitespace-nowrap">
+                    <TableRow
+                      key={item.id}
+                      className="hover:bg-muted/50 transition-colors"
+                    >
+                      <TableCell className="text-muted-foreground font-mono text-xs whitespace-nowrap">
                         {formatDateTime(item.createdAt)}
                       </TableCell>
-                      <TableCell>{getBotBadge(item.botType, item.isVerified)}</TableCell>
+                      <TableCell>
+                        {getBotBadge(item.botType, item.isVerified)}
+                      </TableCell>
                       <TableCell>{getStatusBadge(item.statusCode)}</TableCell>
                       <TableCell>
                         <div className="flex items-center gap-1.5 font-mono text-xs">
                           {item.country && (
-                            <span className="bg-muted px-1.5 py-0.5 rounded text-[10px] text-muted-foreground font-semibold">
+                            <span className="bg-muted text-muted-foreground rounded px-1.5 py-0.5 text-[10px] font-semibold">
                               {item.country}
                             </span>
                           )}
@@ -444,20 +531,25 @@ export function CrawlerLogsPage() {
                       <TableCell>
                         <div className="flex items-center gap-1.5">
                           {item.isContent === 1 ? (
-                            <span className="inline-flex items-center text-[9px] bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-semibold px-1 rounded">
+                            <span className="inline-flex items-center rounded bg-emerald-500/15 px-1 text-[9px] font-semibold text-emerald-600 dark:text-emerald-400">
                               页面
                             </span>
                           ) : (
-                            <span className="inline-flex items-center text-[9px] bg-muted text-muted-foreground px-1 rounded">
+                            <span className="bg-muted text-muted-foreground inline-flex items-center rounded px-1 text-[9px]">
                               探针
                             </span>
                           )}
                           <Tooltip>
-                            <TooltipTrigger className="font-mono text-xs text-left block truncate max-w-[300px] hover:text-primary transition-colors cursor-pointer">
-                              <span className="text-muted-foreground mr-1.5 font-semibold">{item.method}</span>
+                            <TooltipTrigger className="hover:text-primary block max-w-[300px] cursor-pointer truncate text-left font-mono text-xs transition-colors">
+                              <span className="text-muted-foreground mr-1.5 font-semibold">
+                                {item.method}
+                              </span>
                               {item.path}
                             </TooltipTrigger>
-                            <TooltipContent side="top" className="max-w-md break-all font-mono text-xs">
+                            <TooltipContent
+                              side="top"
+                              className="max-w-md font-mono text-xs break-all"
+                            >
                               {item.method} {item.path}
                             </TooltipContent>
                           </Tooltip>
@@ -465,10 +557,13 @@ export function CrawlerLogsPage() {
                       </TableCell>
                       <TableCell>
                         <Tooltip>
-                          <TooltipTrigger className="font-mono text-xs text-muted-foreground/80 block truncate max-w-[200px] text-left">
+                          <TooltipTrigger className="text-muted-foreground/80 block max-w-[200px] truncate text-left font-mono text-xs">
                             {item.userAgent}
                           </TooltipTrigger>
-                          <TooltipContent side="left" className="max-w-md break-all font-mono text-xs">
+                          <TooltipContent
+                            side="left"
+                            className="max-w-md font-mono text-xs break-all"
+                          >
                             {item.userAgent}
                           </TooltipContent>
                         </Tooltip>
@@ -477,7 +572,10 @@ export function CrawlerLogsPage() {
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={6} className="h-32 text-center text-muted-foreground">
+                    <TableCell
+                      colSpan={6}
+                      className="text-muted-foreground h-32 text-center"
+                    >
                       暂无爬虫抓取记录
                     </TableCell>
                   </TableRow>
@@ -488,9 +586,13 @@ export function CrawlerLogsPage() {
         </Card>
 
         {/* Pagination Footer */}
-        <div className="flex items-center justify-between text-sm text-muted-foreground">
+        <div className="text-muted-foreground flex items-center justify-between text-sm">
           <div>
-            共 <span className="font-semibold text-foreground">{data?.total || 0}</span> 条记录
+            共{' '}
+            <span className="text-foreground font-semibold">
+              {data?.total || 0}
+            </span>{' '}
+            条记录
           </div>
           <div className="flex items-center gap-2">
             <Button

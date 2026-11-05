@@ -9,21 +9,18 @@ import { getLocale, locales, localizeUrl } from '@/paraglide/runtime.js';
 import { Pricing } from '@/blocks/pricing';
 import { SupportWidget } from '@/blocks/support-widget';
 import { AiRapHeroGenerator } from '@/components/sites/video-lite/AiRapHeroGenerator';
-import { VideoShowcaseEvidence } from '@/components/sites/video-lite/VideoShowcaseEvidence';
-import { VideoHowItWorks } from '@/components/sites/video-lite/VideoHowItWorks';
-import { VideoFeatures } from '@/components/sites/video-lite/VideoFeatures';
 import { TechTransparencySection } from '@/components/sites/video-lite/TechTransparencySection';
-import { VideoCompetitorComparison } from '@/components/sites/video-lite/VideoCompetitorComparison';
-import { VideoUseCases } from '@/components/sites/video-lite/VideoUseCases';
-import { VideoCostCalculator } from '@/components/sites/video-lite/VideoCostCalculator';
 import { TrustSafetySection } from '@/components/sites/video-lite/TrustSafetySection';
+import { VideoCompetitorComparison } from '@/components/sites/video-lite/VideoCompetitorComparison';
 import { VideoCta } from '@/components/sites/video-lite/VideoCta';
 import { VideoFaq } from '@/components/sites/video-lite/VideoFaq';
+import { VideoFeatures } from '@/components/sites/video-lite/VideoFeatures';
 import { VideoFooter } from '@/components/sites/video-lite/VideoFooter';
 import { VideoHeader } from '@/components/sites/video-lite/VideoHeader';
 import { VideoHeroGenerator } from '@/components/sites/video-lite/VideoHeroGenerator';
+import { VideoHowItWorks } from '@/components/sites/video-lite/VideoHowItWorks';
 import { VideoMarquee } from '@/components/sites/video-lite/VideoMarquee';
-import { VideoPromptInspirations } from '@/components/sites/video-lite/VideoPromptInspirations';
+import { VideoShowcaseEvidence } from '@/components/sites/video-lite/VideoShowcaseEvidence';
 
 function HomePage() {
   const [generatorMode, setGeneratorMode] = useState<'rap' | 'classic'>('rap');
@@ -110,10 +107,7 @@ function HomePage() {
         <VideoFeatures />
         <TechTransparencySection />
         <VideoCompetitorComparison />
-        <VideoUseCases />
-        <VideoPromptInspirations onUsePrompt={handleUsePrompt} />
         <div className="text-foreground bg-white transition-colors dark:bg-[#060a13]">
-          <VideoCostCalculator />
           <Pricing isSection showFaq={false} />
         </div>
         <TrustSafetySection />
@@ -294,7 +288,7 @@ export const Route = createFileRoute('/')({
         {
           name: 'keywords',
           content:
-            'ai rap video generator, ai rap video, turn photos into rap video, ai rap video maker, ai rap battle video, migos ai rap video, orange studio rap battle, ai rap duo video, ai rap video trend, ai rap video online free, ai rap video tiktok, hotel lobby ai, ai rap battle generator, ai rap video free',
+            'ai rap battle generator, turn two photos into rap video, orange studio rap battle, ai rap video generator, ai rap battle video, two photos to rap video, ai rap duo video, hotel lobby ai rap, ai rap video maker, ai rap generator free, rap battle generator, tiktok rap video maker',
         },
         { property: 'og:site_name', content: appName },
         { property: 'og:title', content: title },

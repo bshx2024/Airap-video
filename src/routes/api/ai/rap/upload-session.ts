@@ -1,5 +1,6 @@
 import os from 'node:os';
 import { createFileRoute } from '@tanstack/react-router';
+
 import { respData, respErr } from '@/lib/resp';
 
 interface UploadSession {
@@ -38,7 +39,10 @@ function getLocalLanIp(): string {
     for (const name of Object.keys(nets)) {
       for (const net of nets[name] || []) {
         if (net.family === 'IPv4' && !net.internal) {
-          if (net.address.startsWith('192.168.') || net.address.startsWith('10.')) {
+          if (
+            net.address.startsWith('192.168.') ||
+            net.address.startsWith('10.')
+          ) {
             return net.address;
           }
         }

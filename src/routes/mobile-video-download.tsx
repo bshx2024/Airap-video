@@ -65,7 +65,9 @@ function MobileVideoDownloadPage() {
 
     // In WeChat, prompt user to open in browser
     if (isWeChat) {
-      alert('微信内置浏览器禁止直接保存视频。\n请点击右上角【···】选择【在浏览器中打开】后即可一键保存！');
+      alert(
+        '微信内置浏览器禁止直接保存视频。\n请点击右上角【···】选择【在浏览器中打开】后即可一键保存！'
+      );
       return;
     }
 
@@ -138,9 +140,14 @@ function MobileVideoDownloadPage() {
       {/* WeChat Alert Banner */}
       {isWeChat && (
         <div className="sticky top-0 z-50 flex items-center gap-2.5 border-b border-amber-500/40 bg-gradient-to-r from-amber-600 via-rose-600 to-amber-700 px-4 py-3 text-xs font-bold text-white shadow-lg">
-          <AlertTriangle className="size-4 shrink-0 text-amber-200 animate-pulse" />
+          <AlertTriangle className="size-4 shrink-0 animate-pulse text-amber-200" />
           <p className="flex-1 leading-snug">
-            微信内受限：请点击右上角 <span className="underline decoration-wavy">【···】</span> 选择 <span className="bg-black/30 px-1 py-0.5 rounded text-amber-200">【在浏览器中打开】</span> 即可保存视频！
+            微信内受限：请点击右上角{' '}
+            <span className="underline decoration-wavy">【···】</span> 选择{' '}
+            <span className="rounded bg-black/30 px-1 py-0.5 text-amber-200">
+              【在浏览器中打开】
+            </span>{' '}
+            即可保存视频！
           </p>
         </div>
       )}
@@ -182,13 +189,16 @@ function MobileVideoDownloadPage() {
             <div className="flex aspect-[9/16] max-h-[50vh] w-full flex-col items-center justify-center gap-3 p-6 text-center text-slate-400">
               <Film className="size-12 text-slate-600" />
               <p className="text-sm font-medium">未检测到有效视频链接</p>
-              <p className="text-xs text-slate-500">请确认从电脑端重新扫码打开</p>
+              <p className="text-xs text-slate-500">
+                请确认从电脑端重新扫码打开
+              </p>
             </div>
           )}
 
           {/* Quick overlay hint */}
           <div className="border-t border-white/10 bg-slate-900/90 px-3 py-2 text-center text-[11px] text-amber-300/90 backdrop-blur-md">
-            💡 提示：在 iPhone 或安卓手机上，也可<strong>长按上方视频</strong>直接存入相册
+            💡 提示：在 iPhone 或安卓手机上，也可<strong>长按上方视频</strong>
+            直接存入相册
           </div>
         </div>
 
@@ -204,17 +214,23 @@ function MobileVideoDownloadPage() {
             {isDownloading ? (
               <>
                 <Loader2 className="size-5 animate-spin text-white" />
-                <span className="text-sm sm:text-base">正在准备高清下载...</span>
+                <span className="text-sm sm:text-base">
+                  正在准备高清下载...
+                </span>
               </>
             ) : downloadSuccess ? (
               <>
                 <CheckCircle2 className="size-5 text-white" />
-                <span className="text-sm sm:text-base">已开始下载，请查看通知栏/相册</span>
+                <span className="text-sm sm:text-base">
+                  已开始下载，请查看通知栏/相册
+                </span>
               </>
             ) : (
               <>
                 <ArrowDownToLine className="size-5 text-white" />
-                <span className="text-sm sm:text-base">一键保存视频到手机 (MP4)</span>
+                <span className="text-sm sm:text-base">
+                  一键保存视频到手机 (MP4)
+                </span>
               </>
             )}
           </button>
@@ -273,18 +289,25 @@ function MobileVideoDownloadPage() {
 
           <div className="space-y-2 text-slate-300">
             <div className="rounded-lg bg-black/40 p-2.5">
-              <span className="font-semibold text-white">🍎 iPhone / iPad 用户：</span>
+              <span className="font-semibold text-white">
+                🍎 iPhone / iPad 用户：
+              </span>
               <p className="mt-0.5 text-[11px] leading-relaxed text-slate-400">
-                • 方法 1：直接<strong>长按播放画面</strong>，选择【存储到“照片”】。<br />
-                • 方法 2：点击上方【一键保存】，Safari 会弹出下载确认，下载后在【文件】应用中找到并分享存储到相册。
+                • 方法 1：直接<strong>长按播放画面</strong>
+                ，选择【存储到“照片”】。
+                <br />• 方法 2：点击上方【一键保存】，Safari
+                会弹出下载确认，下载后在【文件】应用中找到并分享存储到相册。
               </p>
             </div>
 
             <div className="rounded-lg bg-black/40 p-2.5">
-              <span className="font-semibold text-white">🤖 安卓 (Android) 用户：</span>
+              <span className="font-semibold text-white">
+                🤖 安卓 (Android) 用户：
+              </span>
               <p className="mt-0.5 text-[11px] leading-relaxed text-slate-400">
-                • 点击上方【一键保存视频】，系统将自动开启下载。<br />
-                • 下载完成后可在【系统相册】或【文件管理器 &gt; Download】目录中查看。
+                • 点击上方【一键保存视频】，系统将自动开启下载。
+                <br />• 下载完成后可在【系统相册】或【文件管理器 &gt;
+                Download】目录中查看。
               </p>
             </div>
           </div>

@@ -112,8 +112,7 @@ async function GET({ request }: { request: Request }) {
           return null;
         }
 
-        let itemMode =
-          !t.scene?.startsWith('ai_') ? t.scene : undefined;
+        let itemMode = !t.scene?.startsWith('ai_') ? t.scene : undefined;
         if (!itemMode) {
           if (t.mediaType === 'video') {
             itemMode = 'image-to-video';

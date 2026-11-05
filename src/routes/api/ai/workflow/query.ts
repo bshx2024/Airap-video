@@ -1,6 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router';
 
-import { AITaskStatus, extractAudioUrl, extractMediaUrl } from '@/core/ai/types';
+import {
+  AITaskStatus,
+  extractAudioUrl,
+  extractMediaUrl,
+} from '@/core/ai/types';
 import { getAIProvider } from '@/modules/ai/service';
 import { respData, respErr } from '@/lib/resp';
 
@@ -32,15 +36,22 @@ async function GET({ request }: { request: Request }) {
     // Support Alibaba Cloud Model Studio tasks (UUID with dashes)
     const isAlibabaTask =
       url.searchParams.get('provider') === 'alibaba' ||
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(taskId);
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+        taskId
+      );
 
     if (isAlibabaTask) {
       const { getAllConfigs } = await import('@/modules/config/service');
       const { envConfigs } = await import('@/config');
       const configs = await getAllConfigs();
-      const alibabaApiKey = configs.alibaba_api_key || envConfigs.alibaba_api_key;
-      const alibabaBaseUrl = configs.alibaba_base_url || envConfigs.alibaba_base_url;
-      const origin = new URL(alibabaBaseUrl || 'https://ws-2txa9apyfxruykae.us-east-1.maas.aliyuncs.com').origin;
+      const alibabaApiKey =
+        configs.alibaba_api_key || envConfigs.alibaba_api_key;
+      const alibabaBaseUrl =
+        configs.alibaba_base_url || envConfigs.alibaba_base_url;
+      const origin = new URL(
+        alibabaBaseUrl ||
+          'https://ws-2txa9apyfxruykae.us-east-1.maas.aliyuncs.com'
+      ).origin;
       const queryEndpoint = `${origin}/api/v1/tasks/${taskId}`;
 
       const res = await fetch(queryEndpoint, {
@@ -54,7 +65,10 @@ async function GET({ request }: { request: Request }) {
         return respData({
           taskId,
           status: 'failed',
-          error: json.message || json.output?.message || `阿里百炼任务查询失败 (HTTP ${res.status})`,
+          error:
+            json.message ||
+            json.output?.message ||
+            `阿里百炼任务查询失败 (HTTP ${res.status})`,
           raw: json,
         });
       }
@@ -123,18 +137,26 @@ async function GET({ request }: { request: Request }) {
     let videoUrl = extractMediaUrl(queryRes);
 
     // If audio is successfully generated from Suno (temp URL), attempt background archive to R2
-    if (isSuccess && audioUrl && (audioUrl.includes('tempfile') || audioUrl.includes('aiquickdraw'))) {
+    if (
+      isSuccess &&
+      audioUrl &&
+      (audioUrl.includes('tempfile') || audioUrl.includes('aiquickdraw'))
+    ) {
       try {
         const { getStorage } = await import('@/modules/storage/service');
         const storage = await getStorage();
         if (storage) {
           const objectKey = `workflow/audio_${taskId}.mp3`;
-          const exists = await storage.exists({ key: objectKey }).catch(() => false);
+          const exists = await storage
+            .exists({ key: objectKey })
+            .catch(() => false);
           if (exists) {
             const publicUrl = storage.getPublicUrl({ key: objectKey });
             if (publicUrl) audioUrl = publicUrl;
           } else {
-            const fetchRes = await fetch(audioUrl, { signal: AbortSignal.timeout(6000) });
+            const fetchRes = await fetch(audioUrl, {
+              signal: AbortSignal.timeout(6000),
+            });
             if (fetchRes.ok) {
               const buf = Buffer.from(await fetchRes.arrayBuffer());
               const upRes = await storage.uploadFile({
@@ -150,7 +172,10 @@ async function GET({ request }: { request: Request }) {
           }
         }
       } catch (e: any) {
-        console.warn('[Workflow Query] Non-critical: Failed to archive audio to R2:', e.message);
+        console.warn(
+          '[Workflow Query] Non-critical: Failed to archive audio to R2:',
+          e.message
+        );
       }
     }
 

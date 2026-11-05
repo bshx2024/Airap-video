@@ -1,4 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router';
+
 import { envConfigs } from '@/config';
 import { getAllConfigs } from '@/modules/config/service';
 import { respData, respErr } from '@/lib/resp';
@@ -48,11 +49,21 @@ async function POST({ request }: { request: Request }) {
 
         if (resp.ok) {
           const json = await resp.json();
-          const text = (json?.choices?.[0]?.message?.content || '').toLowerCase().trim();
-          if (text.includes('female') || text.includes('woman') || text.includes('girl')) {
+          const text = (json?.choices?.[0]?.message?.content || '')
+            .toLowerCase()
+            .trim();
+          if (
+            text.includes('female') ||
+            text.includes('woman') ||
+            text.includes('girl')
+          ) {
             return respData({ gender: 'female', confidence: 0.95 });
           }
-          if (text.includes('male') || text.includes('man') || text.includes('boy')) {
+          if (
+            text.includes('male') ||
+            text.includes('man') ||
+            text.includes('boy')
+          ) {
             return respData({ gender: 'male', confidence: 0.95 });
           }
         }

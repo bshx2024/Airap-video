@@ -11,6 +11,7 @@ import { getLocalPosts, mergePosts } from '@/content/posts';
 const STATIC_PATHS = [
   '',
   '/pricing',
+  '/compare',
   '/blog',
   '/text-to-image',
   '/image-to-image',

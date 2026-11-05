@@ -39,10 +39,13 @@ export function VideoHeroGenerator({
         <div className="pointer-events-none relative z-30 mx-auto flex max-w-5xl flex-col items-center">
           {/* Today's Free Quota Badge */}
           <div className="pointer-events-auto mb-4 inline-flex items-center gap-2 rounded-full border border-amber-400/30 bg-amber-400/10 px-4 py-1.5 text-xs font-semibold text-amber-300 shadow-[0_0_20px_rgba(251,191,36,0.15)] backdrop-blur-md transition hover:bg-amber-400/15">
-            <span className="flex size-2 rounded-full bg-amber-400 animate-pulse" />
+            <span className="flex size-2 animate-pulse rounded-full bg-amber-400" />
             <span>
               {m['landing.hero.today_free_credits']({
-                remaining: hero.userBalance != null ? Math.min(hero.userBalance, 120) : 120,
+                remaining:
+                  hero.userBalance != null
+                    ? Math.min(hero.userBalance, 120)
+                    : 120,
                 total: 120,
               })}
             </span>

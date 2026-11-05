@@ -6,26 +6,26 @@ import { Camera, CheckCircle2, Film, Mic, Sparkles, Wand2 } from 'lucide-react';
 const HOW_TO_STEPS = [
   {
     step: '01',
-    title: 'Step 1: Choose Your Rap Video Style',
-    desc: 'Select the Orange Studio, Duo Rap Battle, Solo Rap, or Pet Rap preset.',
+    title: 'Step 1: Choose Your Style',
+    desc: 'Select Orange Studio, Duo Rap Battle, Solo, or Pet preset.',
     icon: Sparkles,
   },
   {
     step: '02',
-    title: 'Step 2: Upload Your Photos',
-    desc: 'Upload one or two clear portrait photos. For a duo battle, you can use two separate selfies.',
+    title: 'Step 2: Upload Photos',
+    desc: 'Upload one or two clear portrait photos or selfies.',
     icon: Camera,
   },
   {
     step: '03',
     title: 'Step 3: Create Your Rap',
-    desc: 'Enter a topic, joke, birthday message, or roast idea. Choose your preferred music style and customize the lyrics.',
+    desc: 'Enter a topic, joke, or roast idea and pick your music beat.',
     icon: Mic,
   },
   {
     step: '04',
-    title: 'Step 4: Generate and Share',
-    desc: 'Generate your AI rap video, preview the result, and export it in a supported format for TikTok, Instagram Reels, or YouTube Shorts.',
+    title: 'Step 4: Generate & Share',
+    desc: 'Generate in 60s and export ready-to-post 9:16 videos for TikTok.',
     icon: Film,
   },
 ];
@@ -46,8 +46,7 @@ export function VideoHowItWorks() {
             How to Make an AI Rap Video from Photos
           </h2>
           <p className="mx-auto mt-4 text-base leading-relaxed text-slate-300 sm:text-lg">
-            No filming, singing, or professional editing required. Turn selfies
-            into viral TikTok rap battles in four simple steps.
+            Turn selfies into viral TikTok rap battles in four simple steps.
           </p>
         </header>
 

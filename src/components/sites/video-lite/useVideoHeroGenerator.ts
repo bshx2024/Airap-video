@@ -5,7 +5,6 @@ import { toast } from 'sonner';
 
 import { useSession } from '@/core/auth/client';
 import { tDynamic } from '@/core/i18n/dynamic';
-import { apiGet } from '@/lib/api-client';
 import {
   clampVideoDuration,
   getVideoModelAspectRatios,
@@ -18,6 +17,7 @@ import {
 import { HERO_PRESETS } from '@/config/video-landing-data';
 import { pollPendingCreationTasks } from '@/modules/creations/polling';
 import type { CreationItem } from '@/modules/creations/types';
+import { apiGet } from '@/lib/api-client';
 import {
   isLocalMediaUrl,
   publishLocalMediaSources,
@@ -565,7 +565,10 @@ export function useVideoHeroGenerator({
         throw new Error(data?.message || m['landing.hero.upload_failed']());
       }
 
-      if (slot === 'last' && (!selectedModel?.supportsFirstLastFrame || frameLimit < 2)) {
+      if (
+        slot === 'last' &&
+        (!selectedModel?.supportsFirstLastFrame || frameLimit < 2)
+      ) {
         const duoModel = VIDEO_MODELS.find(
           (m) => m.supportsFirstLastFrame && (m.maxImages ?? 1) >= 2
         );

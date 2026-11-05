@@ -85,7 +85,7 @@ function InspirationCard({
   return (
     <div
       ref={containerRef}
-      className="group relative w-[240px] sm:w-[260px] 2xl:w-[275px] shrink-0 aspect-[9/16] snap-start overflow-hidden rounded-2xl border border-slate-200/80 bg-slate-900 shadow-xl transition-all duration-300 hover:-translate-y-1 hover:border-amber-500/50 hover:shadow-2xl hover:shadow-amber-500/10 dark:border-white/10 dark:bg-[#0a0f1d]"
+      className="group relative aspect-[9/16] w-[240px] shrink-0 snap-start overflow-hidden rounded-2xl border border-slate-200/80 bg-slate-900 shadow-xl transition-all duration-300 hover:-translate-y-1 hover:border-amber-500/50 hover:shadow-2xl hover:shadow-amber-500/10 sm:w-[260px] 2xl:w-[275px] dark:border-white/10 dark:bg-[#0a0f1d]"
     >
       {/* 9:16 Video Background */}
       <video
@@ -100,8 +100,8 @@ function InspirationCard({
       />
 
       {/* Top 9:16 Vertical badge */}
-      <div className="absolute top-3 left-3 z-10 flex items-center gap-1.5 rounded-full border border-white/20 bg-black/60 px-2.5 py-1 text-[11px] font-medium text-amber-300 backdrop-blur-md shadow-sm">
-        <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
+      <div className="absolute top-3 left-3 z-10 flex items-center gap-1.5 rounded-full border border-white/20 bg-black/60 px-2.5 py-1 text-[11px] font-medium text-amber-300 shadow-sm backdrop-blur-md">
+        <span className="size-1.5 animate-pulse rounded-full bg-emerald-400" />
         <span>9:16 Short</span>
       </div>
 
@@ -110,10 +110,10 @@ function InspirationCard({
 
       {/* Bottom Info & Action */}
       <div className="absolute inset-x-0 bottom-0 p-4 transition-transform duration-300 group-hover:translate-y-[-2px]">
-        <h3 className="text-base font-bold leading-tight text-white line-clamp-1 drop-shadow-md">
+        <h3 className="line-clamp-1 text-base leading-tight font-bold text-white drop-shadow-md">
           {title}
         </h3>
-        <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-slate-300/90 group-hover:line-clamp-4 transition-all">
+        <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-slate-300/90 transition-all group-hover:line-clamp-4">
           {prompt}
         </p>
 
@@ -201,9 +201,9 @@ export function VideoPromptInspirations({
           ref={scrollRef}
           onScroll={updateScrollButtons}
           aria-busy="false"
-          className="flex w-full snap-x snap-mandatory gap-5 overflow-x-auto px-4 py-4 sm:px-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="flex w-full snap-x snap-mandatory gap-5 overflow-x-auto px-4 py-4 [scrollbar-width:none] sm:px-6 [&::-webkit-scrollbar]:hidden"
         >
-          <div className="flex min-w-full items-center justify-start xl:justify-center gap-5">
+          <div className="flex min-w-full items-center justify-start gap-5 xl:justify-center">
             {INSPIRATION_ITEMS.map((item) => {
               const title = tDynamic(`video.clone.prompts.${item.key}`);
               const prompt = tDynamic(`video.clone.prompts.${item.key}_text`);

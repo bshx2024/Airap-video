@@ -83,13 +83,13 @@ const OCCASION_CHIPS: OccasionChipItem[] = [
   {
     id: 'hotel-lobby',
     label: '🔥 Hotel Lobby · Orange Studio',
-    tag: 'Viral Duo Trend',
-    title: 'Hotel Lobby · Orange Studio Stage',
-    desc: 'The viral orange studio rap aesthetic: 2 rappers trading punchy roast bars on a hanging mic, heavy 808 Trap beat, vertical video framing.',
+    tag: 'Duo Trend',
+    title: 'Orange Studio Stage',
+    desc: 'Two rappers trading roast bars on a hanging mic with heavy 808 trap beats.',
     image: '/imgs/scenes/hotel-lobby-studio.jpg',
     video: '/videos/showcase/duo-generated-demo.mp4?v=2',
     prompt:
-      'Two rappers in an iconic bright orange studio with a single hanging microphone, inspired by viral orange studio trends, trading punchy roast bars, heavy 808 trap beat, rhythmic head nods, hip-hop hand gestures, viral rap music video style',
+      'Two rappers in an orange booth trading roast bars on a hanging mic with heavy 808 trap beats.',
     styleId: 'trap-808',
     lyrics:
       '[Intro]\nYeah, check the mic in the orange room!\nOrange studio vibe, let us get it!\n[Verse 1]\nYou always talking big but you showed up late\nI drop the heavy 808 to seal your fate\nLook at your drip, man, it expired in 08\nWe run the lobby while you hesitate\n[Chorus]\nHotel Lobby with the hanging mic swing\nHeavy 808s make the whole booth ring\nWho is the real king running this thing!',
@@ -98,8 +98,8 @@ const OCCASION_CHIPS: OccasionChipItem[] = [
     id: 'on-the-radar',
     label: '🟩 On The Radar · Green Booth',
     tag: 'UK Drill',
-    title: 'On The Radar · Underground Cypher Stage',
-    desc: 'The iconic NYC dark radio booth with neon green tube lighting, standing mic, sliding 808 drill bass, and aggressive hand gestures.',
+    title: 'On The Radar Stage',
+    desc: 'Dark studio booth with green tube lights and sliding 808 drill beats.',
     image: '/imgs/scenes/on-the-radar-booth.jpg',
     video: '/videos/ontheradar15_vertical.mp4',
     prompt:
@@ -111,9 +111,9 @@ const OCCASION_CHIPS: OccasionChipItem[] = [
   {
     id: 'friends-roast',
     label: '🥊 Friends Roast Battle',
-    tag: 'Cypher Battle',
-    title: 'Underground Cypher Roast Battle',
-    desc: 'Two best friends roasting bar-for-bar in neon street alleyway, fast witty punchlines, crowd hype.',
+    tag: 'Cypher',
+    title: 'Friends Roast Cypher',
+    desc: 'Two friends trading punchlines in an underground neon alleyway.',
     image: '/imgs/scenes/friends-roast-cypher.jpg',
     video: '/videos/friendsroast15_vertical.mp4',
     prompt:
@@ -125,9 +125,9 @@ const OCCASION_CHIPS: OccasionChipItem[] = [
   {
     id: 'pet-rap',
     label: '🐶 Cute Pet Chopper Flow',
-    tag: 'Meme Rap',
-    title: 'Gold Chain Pet Rap Flow',
-    desc: 'Cute pet wearing sunglasses and heavy chain spitting hypersonic chopper flow to bouncy trap drums.',
+    tag: 'Pet MC',
+    title: 'Pet Chopper Flow',
+    desc: 'Cute pet spitting fast chopper flow to bouncy trap drums.',
     image: '/imgs/scenes/cute-pet-rap.jpg',
     video: '/videos/cutepet15_vertical.mp4',
     prompt:
@@ -140,8 +140,8 @@ const OCCASION_CHIPS: OccasionChipItem[] = [
     id: 'birthday-hype',
     label: '🎂 Birthday Roast & Hype',
     tag: 'Party Hype',
-    title: 'Birthday Concert Hype Stage',
-    desc: 'The legendary 50 Cent "In Da Club" birthday vibe: iconic "Go shorty, it is your birthday" hook, party hype, heavy 808 club beat.',
+    title: 'Birthday Concert Hype',
+    desc: 'High-energy birthday party rap with club 808 beats.',
     image: '/imgs/scenes/hotel-lobby-studio.jpg',
     video: '/videos/birthday15_vertical.mp4',
     prompt:
@@ -798,20 +798,19 @@ export function AiRapHeroGenerator() {
         <div className="inline-flex items-center gap-2 rounded-full border border-amber-500/30 bg-amber-500/10 px-4 py-1.5 text-xs font-semibold text-amber-300 shadow-[0_0_25px_rgba(245,158,11,0.2)] backdrop-blur-md">
           <Flame className="size-4 animate-pulse text-amber-400" />
           <span>
-            Iconic Orange Studio Preset · Two Rappers · One Hanging Microphone
+            #1 AI Rap Battle Generator · Orange Studio Preset · 120 Free Credits
           </span>
         </div>
         <h1 className="mt-4 text-3xl font-extrabold tracking-tight text-white sm:text-5xl lg:text-6xl">
-          Turn Two Photos into a{' '}
+          AI Rap Battle Generator:{' '}
           <span className="bg-gradient-to-r from-amber-400 via-rose-500 to-purple-500 bg-clip-text text-transparent">
-            Viral AI Rap Video
+            Turn Two Photos into Rap Battles
           </span>
         </h1>
         <p className="mx-auto mt-4 max-w-3xl text-sm leading-relaxed text-slate-300 sm:text-base lg:text-lg">
-          Create your own viral orange studio rap battle with just two photos.
-          Airap turns selfies into animated rap performances with AI-generated
-          lyrics, rap vocals, 808 beats, synchronized lip movements, and hip-hop
-          gestures.
+          Create viral orange studio rap battles with just two photos. Airap
+          turns selfies into dual-character rap videos with rhyming lyrics, rap
+          vocals, 808 beats, and auto lip-sync.
         </p>
         <p className="mt-2 text-xs font-semibold tracking-wide text-amber-300/90 sm:text-sm">
           No filming. No recording. No editing skills required.
@@ -851,19 +850,15 @@ export function AiRapHeroGenerator() {
         <div className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-slate-300">
           <span className="flex items-center gap-1.5">
             <CheckCircle2 className="size-3.5 text-amber-400" />
-            <span>Upload Two Separate Photos</span>
+            <span>Two Photos</span>
           </span>
           <span className="flex items-center gap-1.5">
             <CheckCircle2 className="size-3.5 text-amber-400" />
-            <span>AI-Generated Rap Lyrics & Music</span>
+            <span>AI Lyrics & 808 Beats</span>
           </span>
           <span className="flex items-center gap-1.5">
             <CheckCircle2 className="size-3.5 text-amber-400" />
-            <span>9:16 Social Video Export</span>
-          </span>
-          <span className="flex items-center gap-1.5">
-            <CheckCircle2 className="size-3.5 text-amber-400" />
-            <span>Free Credits to Try</span>
+            <span>9:16 Social Export</span>
           </span>
         </div>
       </div>
@@ -884,9 +879,6 @@ export function AiRapHeroGenerator() {
                 </span>
                 <span className="text-xs font-bold text-white/90">
                   Select Rap Mode:
-                </span>
-                <span className="hidden text-[11px] font-medium text-amber-300/80 sm:inline-block">
-                  (P0 Core: 2-Photo Rap Battle · P1: Solo/Pet · P2: MV Studio)
                 </span>
               </div>
               <div className="inline-flex rounded-xl border border-white/10 bg-white/[0.06] p-1">
@@ -981,48 +973,43 @@ export function AiRapHeroGenerator() {
                   {studioMode === 'duo' && (
                     <>
                       <strong className="font-bold text-amber-300">
-                        Default Mode: Duo Cypher (2 Photos Rap Battle)
+                        Duo Cypher (2 Photos Rap Battle)
                       </strong>{' '}
-                      — Directs two people into split-screen bars, turn-based
-                      punchlines, and 808 beat drops.
+                      — Directs two people into split-screen bars and 808 beat
+                      drops.
                     </>
                   )}
                   {studioMode === 'group' && (
                     <>
                       <strong className="font-bold text-amber-300">
-                        Group Rap Mode (3-4 Avatars)
+                        Group Rap (3-4 Avatars)
                       </strong>{' '}
-                      — Synchronized crew cypher with multi-vocal hype and stage
-                      camera movement.
+                      — Synchronized crew cypher with dynamic stage camera
+                      moves.
                     </>
                   )}
                   {studioMode === 'solo' && (
                     <>
                       <strong className="font-bold text-amber-300">
-                        Solo / Pet MC Mode
+                        Solo / Pet MC
                       </strong>{' '}
-                      — Single portrait or cute pet spitting hypersonic chopper
-                      flow to bouncy trap drums.
+                      — Rapid chopper flow locked to bouncy trap drums.
                     </>
                   )}
                   {studioMode === 'mimic' && (
                     <>
                       <strong className="font-bold text-amber-300">
-                        Upload Master Video Mode
+                        Master Video Mimic
                       </strong>{' '}
-                      — Upload your own reference rap video and replace avatars
-                      with custom photos.
+                      — Replaces reference performers with custom photos.
                     </>
                   )}
                 </span>
               </div>
-              <span className="hidden text-[11px] font-semibold text-amber-400/90 sm:inline-block">
-                Auto-Synchronized 808 Beat
-              </span>
             </div>
 
-            {/* Master Video Reference Banner / Control */}
-            {(customVideoUrl || studioMode === 'mimic') && (
+            {/* Master Video Reference Banner / Control (Only in mimic mode) */}
+            {studioMode === 'mimic' && (
               <div className="mb-4 rounded-2xl border border-rose-500/30 bg-gradient-to-r from-rose-950/40 via-purple-950/30 to-slate-900/60 p-3.5 shadow-lg backdrop-blur-md">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div className="flex items-center gap-3">
@@ -1527,8 +1514,8 @@ export function AiRapHeroGenerator() {
                           {style.bpm} BPM
                         </span>
                       </div>
-                      <p className="mt-0.5 line-clamp-1 text-[10px] text-slate-400">
-                        {style.description}
+                      <p className="mt-0.5 truncate text-[10px] text-slate-400">
+                        {style.tags.split(',')[0]?.trim()}
                       </p>
                     </button>
                   );
@@ -2424,73 +2411,19 @@ export function AiRapHeroGenerator() {
                     <div className="pointer-events-none absolute inset-x-3 bottom-3 rounded-xl border border-white/15 bg-black/85 p-2.5 shadow-lg backdrop-blur-md">
                       <div className="flex items-center justify-between">
                         <p className="truncate text-xs font-bold text-white">
-                          {monitorMode === 'reference' && customVideoUrl
-                            ? customVideoName
-                              ? `Master: ${customVideoName}`
-                              : 'Hotel Lobby 15s Master'
-                            : `${currentChip.title} · Generated Showcase`}
+                          {currentChip.title} · Live Demo
                         </p>
-                        <span className="rounded border border-amber-500/30 bg-amber-500/20 px-1.5 py-0.5 text-[9px] font-semibold text-amber-300">
-                          {monitorMode === 'reference'
-                            ? 'REFERENCE MASTER'
-                            : 'DEMO SHOWCASE'}
-                        </span>
-                      </div>
-                      <p className="mt-0.5 line-clamp-2 text-[10px] leading-relaxed text-white/70">
-                        {monitorMode === 'reference'
-                          ? 'Active master video loaded. Your uploaded portrait photos will mimic all movements, flow and expressions from this clip.'
-                          : 'Demonstrating AI Rap video generation output with high-fidelity sync, expressions, and 808 trap flow.'}
-                      </p>
-                      <div className="mt-1.5 flex items-center justify-between border-t border-white/10 pt-1.5 text-[9px] text-amber-300/80">
-                        <span>Photos in → Viral Rap Video out</span>
-                        <span className="font-mono text-white/40">
-                          1080P · 9:16
+                        <span className="rounded bg-amber-500/20 px-1.5 py-0.5 text-[9px] font-semibold text-amber-300">
+                          1080P HD
                         </span>
                       </div>
                     </div>
                   </div>
                 )}
               </div>
-
-              {/* Monitor Footer Hint */}
-              <p className="mt-2 text-center text-[10px] text-white/45">
-                Click any scenario chip on the left to switch studio stage &
-                beat
-              </p>
             </div>
           </div>
           {/* End of Right Column */}
-        </div>
-      </div>
-
-      {/* Trust & De-Risking Guarantee Footer */}
-      <div className="mt-4 grid grid-cols-2 gap-2 px-1 text-xs sm:grid-cols-4 sm:gap-3">
-        <div className="flex items-center gap-2 rounded-xl border border-white/5 bg-white/[0.02] px-3 py-2 text-white/70">
-          <Gift className="size-3.5 shrink-0 text-amber-400" />
-          <span className="truncate text-[11px] font-medium">
-            120 Free Credits (1 Free Battle Video)
-          </span>
-        </div>
-
-        <div className="flex items-center gap-2 rounded-xl border border-white/5 bg-white/[0.02] px-3 py-2 text-white/70">
-          <ShieldCheck className="size-3.5 shrink-0 text-emerald-400" />
-          <span className="truncate text-[11px] font-medium">
-            100% Refund on Error
-          </span>
-        </div>
-
-        <div className="flex items-center gap-2 rounded-xl border border-white/5 bg-white/[0.02] px-3 py-2 text-white/70">
-          <Clock className="size-3.5 shrink-0 text-blue-400" />
-          <span className="truncate text-[11px] font-medium">
-            ~60s Fast Cloud Pipeline
-          </span>
-        </div>
-
-        <div className="flex items-center gap-2 rounded-xl border border-white/5 bg-white/[0.02] px-3 py-2 text-white/70">
-          <Sparkles className="size-3.5 shrink-0 text-purple-400" />
-          <span className="truncate text-[11px] font-medium">
-            100% Encrypted & Private
-          </span>
         </div>
       </div>
 

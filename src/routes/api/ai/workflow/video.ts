@@ -1,18 +1,15 @@
+import { Buffer } from 'node:buffer';
+import fs from 'node:fs';
+import path from 'node:path';
 import { createFileRoute } from '@tanstack/react-router';
 
 import { envConfigs } from '@/config';
+import { ensurePublicMediaUrl } from '@/modules/ai/public-media';
 import { getAIProvider } from '@/modules/ai/service';
 import { isMockMode } from '@/modules/config/service';
-import { getUuid } from '@/lib/hash';
-import { respData, respErr } from '@/lib/resp';
-
-import fs from 'node:fs';
-import path from 'node:path';
-import { Buffer } from 'node:buffer';
 import { getStorage } from '@/modules/storage/service';
-import { md5 } from '@/lib/hash';
-
-import { ensurePublicMediaUrl } from '@/modules/ai/public-media';
+import { getUuid, md5 } from '@/lib/hash';
+import { respData, respErr } from '@/lib/resp';
 
 async function POST({ request }: { request: Request }) {
   try {
@@ -33,7 +30,8 @@ async function POST({ request }: { request: Request }) {
       mock: reqMock,
     } = body;
 
-    const rawImages = imageUrls.length > 0 ? imageUrls : imageUrl ? [imageUrl] : [];
+    const rawImages =
+      imageUrls.length > 0 ? imageUrls : imageUrl ? [imageUrl] : [];
     if (rawImages.length === 0) {
       return respErr('Portrait image URL is required');
     }
@@ -74,9 +72,14 @@ async function POST({ request }: { request: Request }) {
     // Pre-flight check: ensure the audio URL is alive and not 404
     try {
       if (/^https?:\/\//i.test(publicAudioUrl)) {
-        const headCheck = await fetch(publicAudioUrl, { method: 'HEAD', signal: AbortSignal.timeout(4000) });
+        const headCheck = await fetch(publicAudioUrl, {
+          method: 'HEAD',
+          signal: AbortSignal.timeout(4000),
+        });
         if (headCheck.status === 404) {
-          return respErr('伴奏音频链接已失效或过期 (HTTP 404)。请在第2步「Suno 编曲」节点重新点击单步调试生成最新音频。');
+          return respErr(
+            '伴奏音频链接已失效或过期 (HTTP 404)。请在第2步「Suno 编曲」节点重新点击单步调试生成最新音频。'
+          );
         }
       }
     } catch (e: any) {
@@ -84,47 +87,75 @@ async function POST({ request }: { request: Request }) {
     }
 
     // Extract first 2-3 lines of clean lyrics to steer the character mouth articulation
-    const cleanLyricsSnippet = typeof lyrics === 'string'
-      ? lyrics
-          .replace(/\[.*?\]/g, '')
-          .split('\n')
-          .map((s) => s.trim())
-          .filter((s) => s.length > 0 && !s.startsWith('#'))
-          .slice(0, 3)
-          .join(', ')
-      : '';
+    const cleanLyricsSnippet =
+      typeof lyrics === 'string'
+        ? lyrics
+            .replace(/\[.*?\]/g, '')
+            .split('\n')
+            .map((s) => s.trim())
+            .filter((s) => s.length > 0 && !s.startsWith('#'))
+            .slice(0, 3)
+            .join(', ')
+        : '';
 
     // If happyhorse or wan model is selected, dispatch directly to Alibaba Cloud Model Studio International
-    if (model.toLowerCase().includes('happyhorse') || model.toLowerCase().includes('wan')) {
+    if (
+      model.toLowerCase().includes('happyhorse') ||
+      model.toLowerCase().includes('wan')
+    ) {
       const { getAllConfigs } = await import('@/modules/config/service');
       const configs = await getAllConfigs();
-      const alibabaApiKey = (configs.alibaba_api_key || envConfigs.alibaba_api_key || '').trim();
-      const alibabaBaseUrl = (configs.alibaba_base_url || envConfigs.alibaba_base_url || '').trim();
+      const alibabaApiKey = (
+        configs.alibaba_api_key ||
+        envConfigs.alibaba_api_key ||
+        ''
+      ).trim();
+      const alibabaBaseUrl = (
+        configs.alibaba_base_url ||
+        envConfigs.alibaba_base_url ||
+        ''
+      ).trim();
       if (!alibabaApiKey) {
-        return respErr('未配置阿里百炼 API Key。请在后台管理 [Settings -> AI -> Alibaba Cloud Model Studio] 中填入 Key 并保存。');
+        return respErr(
+          '未配置阿里百炼 API Key。请在后台管理 [Settings -> AI -> Alibaba Cloud Model Studio] 中填入 Key 并保存。'
+        );
       }
 
-      const origin = new URL(alibabaBaseUrl || 'https://ws-2txa9apyfxruykae.us-east-1.maas.aliyuncs.com').origin;
+      const origin = new URL(
+        alibabaBaseUrl ||
+          'https://ws-2txa9apyfxruykae.us-east-1.maas.aliyuncs.com'
+      ).origin;
       const endpoint = `${origin}/api/v1/services/aigc/video-generation/video-synthesis`;
 
-      const selectedResolution = (resolution || configs.alibaba_video_resolution || '480p').toUpperCase();
-      const validResolution = ['480P', '720P', '1080P'].includes(selectedResolution)
+      const selectedResolution = (
+        resolution ||
+        configs.alibaba_video_resolution ||
+        '480p'
+      ).toUpperCase();
+      const validResolution = ['480P', '720P', '1080P'].includes(
+        selectedResolution
+      )
         ? selectedResolution
         : '480P';
 
-      const selectedDuration = Number(duration) || Number(configs.alibaba_video_duration) || 5;
-      let selectedModel = model || configs.alibaba_video_model || 'wan3.0-video';
+      const selectedDuration =
+        Number(duration) || Number(configs.alibaba_video_duration) || 5;
+      let selectedModel =
+        model || configs.alibaba_video_model || 'wan3.0-video';
 
       // DashScope International Maas (us-east-1) uses happyhorse-1.1-i2v for single-image and happyhorse-1.1-r2v for duo
       if (selectedModel.toLowerCase().includes('wan2.1')) {
-        selectedModel = publicImages.length > 1 ? 'happyhorse-1.1-r2v' : 'happyhorse-1.1-i2v';
+        selectedModel =
+          publicImages.length > 1 ? 'happyhorse-1.1-r2v' : 'happyhorse-1.1-i2v';
       }
 
       const firstImage = publicImages[0];
       let effectivePrompt = prompt;
 
       // Check whether reference video motion transfer should be active
-      let useReferenceVideo = Boolean(motionSyncEnabled !== false && publicReferenceVideoUrl);
+      let useReferenceVideo = Boolean(
+        motionSyncEnabled !== false && publicReferenceVideoUrl
+      );
 
       // Auto-switch model based on motion mode:
       if (useReferenceVideo) {
@@ -137,8 +168,14 @@ async function POST({ request }: { request: Request }) {
         // Wan 3.0 requires reference_video; for free generation, automatically switch to HappyHorse:
         // - Multiple images (Duo): happyhorse-1.1-r2v
         // - Single image (Solo): happyhorse-1.1-i2v
-        if (selectedModel.toLowerCase().includes('wan') || selectedModel === 'happyhorse-1.1-i2v') {
-          selectedModel = publicImages.length > 1 ? 'happyhorse-1.1-r2v' : 'happyhorse-1.1-i2v';
+        if (
+          selectedModel.toLowerCase().includes('wan') ||
+          selectedModel === 'happyhorse-1.1-i2v'
+        ) {
+          selectedModel =
+            publicImages.length > 1
+              ? 'happyhorse-1.1-r2v'
+              : 'happyhorse-1.1-i2v';
         }
       }
 
@@ -151,9 +188,18 @@ async function POST({ request }: { request: Request }) {
       // sanitize any leftover "[Video 1]" references that would confuse the model
       if (!useReferenceVideo && effectivePrompt.includes('[Video 1]')) {
         effectivePrompt = effectivePrompt
-          .replace(/Replace the left rapper in \[Video 1\] with the character (?:from|shown in) \[Image 1\],? and replace the right rapper in \[Video 1\] with the character (?:from|shown in) \[Image 2\]\.?/gi, 'Two high-energy hip-hop rappers, [Image 1] on the left and [Image 2] on the right, perform together in the recording studio around a hanging microphone.')
-          .replace(/Replace the left rapper in \[Video 1\] with the character shown in \[Image 1\]\.?/gi, 'The energetic hip-hop rapper shown in [Image 1] performs dynamically in the recording studio into the hanging microphone.')
-          .replace(/Replace the right rapper in \[Video 1\] with the character shown in \[Image 2\]\.?/gi, 'The energetic hip-hop rapper shown in [Image 2] performs dynamically in the recording studio into the hanging microphone.')
+          .replace(
+            /Replace the left rapper in \[Video 1\] with the character (?:from|shown in) \[Image 1\],? and replace the right rapper in \[Video 1\] with the character (?:from|shown in) \[Image 2\]\.?/gi,
+            'Two high-energy hip-hop rappers, [Image 1] on the left and [Image 2] on the right, perform together in the recording studio around a hanging microphone.'
+          )
+          .replace(
+            /Replace the left rapper in \[Video 1\] with the character shown in \[Image 1\]\.?/gi,
+            'The energetic hip-hop rapper shown in [Image 1] performs dynamically in the recording studio into the hanging microphone.'
+          )
+          .replace(
+            /Replace the right rapper in \[Video 1\] with the character shown in \[Image 2\]\.?/gi,
+            'The energetic hip-hop rapper shown in [Image 2] performs dynamically in the recording studio into the hanging microphone.'
+          )
           .replace(/\[Video 1\]/g, 'the studio session');
       }
 
@@ -164,16 +210,23 @@ async function POST({ request }: { request: Request }) {
         } else {
           effectivePrompt = `Replace the left rapper in [Video 1] with the character shown in [Image 1]. The new character [Image 1] actively delivers energetic rap singing into the hanging mic with wide pronounced mouth articulation, while strictly replicating the exact body motions, head nods, arm gestures, and hanging microphone rap battle choreography from [Video 1]. Keep the studio and right character unchanged: ${effectivePrompt}`;
         }
-      } else if (publicImages.length > 1 && /right character strictly unchanged/i.test(effectivePrompt)) {
+      } else if (
+        publicImages.length > 1 &&
+        /right character strictly unchanged/i.test(effectivePrompt)
+      ) {
         // When user uploaded 2 photos for Duo mode, auto-upgrade single replacement to dual replacement
         effectivePrompt = effectivePrompt.replace(
           /Keep the (?:orange cyclorama studio, lighting, camera framing, and )?right character strictly unchanged\.?/gi,
           'Replace the right rapper in [Video 1] with the character from [Image 2]. Both characters [Image 1] on the left and [Image 2] on the right perform high-energy rap cypher.'
         );
-      } else if (selectedModel.includes('r2v') && !effectivePrompt.includes('[Image 1]')) {
-        effectivePrompt = publicImages.length > 1
-          ? `The two rappers from [Image 1] and [Image 2] perform high-energy rap battle, rhythmic head nods, mouth lip sync`
-          : `The rapper from [Image 1] performs high-energy rap singing, wide mouth articulation, rhythmic head nods, mouth lip sync`;
+      } else if (
+        selectedModel.includes('r2v') &&
+        !effectivePrompt.includes('[Image 1]')
+      ) {
+        effectivePrompt =
+          publicImages.length > 1
+            ? `The two rappers from [Image 1] and [Image 2] perform high-energy rap battle, rhythmic head nods, mouth lip sync`
+            : `The rapper from [Image 1] performs high-energy rap singing, wide mouth articulation, rhythmic head nods, mouth lip sync`;
       }
 
       // Inject clean lyrics and strong mouth articulation directives for phoneme lip-syncing
@@ -182,7 +235,10 @@ async function POST({ request }: { request: Request }) {
       }
 
       const mediaPayload: any[] = [];
-      const targetImages = selectedModel === 'happyhorse-1.1-i2v' ? publicImages.slice(0, 1) : publicImages;
+      const targetImages =
+        selectedModel === 'happyhorse-1.1-i2v'
+          ? publicImages.slice(0, 1)
+          : publicImages;
 
       if (useReferenceVideo) {
         mediaPayload.push({
@@ -216,13 +272,17 @@ async function POST({ request }: { request: Request }) {
         }
       }
 
-      const selectedAspect = ['9:16', '16:9', '1:1'].includes(aspectRatio) ? aspectRatio : '9:16';
+      const selectedAspect = ['9:16', '16:9', '1:1'].includes(aspectRatio)
+        ? aspectRatio
+        : '9:16';
 
       const payload: any = {
         model: selectedModel,
         input: {
           prompt: effectivePrompt,
-          ...(mediaPayload.length ? { media: mediaPayload } : { img_url: firstImage }),
+          ...(mediaPayload.length
+            ? { media: mediaPayload }
+            : { img_url: firstImage }),
           ...(publicAudioUrl ? { audio_url: publicAudioUrl } : {}),
         },
         parameters: {
@@ -240,7 +300,11 @@ async function POST({ request }: { request: Request }) {
         const sizeMap: Record<string, Record<string, string>> = {
           '480P': { '9:16': '480*832', '16:9': '832*480', '1:1': '624*624' },
           '720P': { '9:16': '720*1280', '16:9': '1280*720', '1:1': '960*960' },
-          '1080P': { '9:16': '1080*1920', '16:9': '1920*1080', '1:1': '1440*1440' },
+          '1080P': {
+            '9:16': '1080*1920',
+            '16:9': '1920*1080',
+            '1:1': '1440*1440',
+          },
         };
         const mappedSize = sizeMap[validResolution]?.[selectedAspect];
         if (mappedSize) {
@@ -262,7 +326,9 @@ async function POST({ request }: { request: Request }) {
         body: JSON.stringify(payload),
         signal: AbortSignal.timeout(30000),
       }).catch((fetchErr: any) => {
-        throw new Error(`连接阿里百炼生视频服务超时或网络中断: ${fetchErr.message}`);
+        throw new Error(
+          `连接阿里百炼生视频服务超时或网络中断: ${fetchErr.message}`
+        );
       });
 
       const json: any = await res.json().catch(() => ({}));
@@ -292,7 +358,9 @@ async function POST({ request }: { request: Request }) {
 
     const provider = await getAIProvider();
     if (!provider) {
-      return respErr('No AI Provider (APIMart / KIE) configured for video generation.');
+      return respErr(
+        'No AI Provider (APIMart / KIE) configured for video generation.'
+      );
     }
 
     const callbackUrl = `${envConfigs.app_url || 'https://airap.video'}/api/ai/task`;

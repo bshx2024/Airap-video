@@ -65,147 +65,145 @@ interface CaseStudyItem {
 const CASE_STUDIES: CaseStudyItem[] = [
   {
     id: 'orange-studio-battle',
-    tag: 'P0 Flagship Duo Battle',
-    tabTitle: '🎤 Case 1: Orange Studio (Duo Battle)',
-    badge: 'Real Production Generation · 2 Selfies to Rap Battle',
-    headline: 'Real Example: Two Selfies to Orange Studio Rap Battle',
+    tag: 'Duo Battle',
+    tabTitle: '🎤 Case 1: Orange Studio Cypher',
+    badge: 'Real Production · 2 Selfies to Rap Battle',
+    headline: 'Two Selfies to Orange Studio Rap Battle',
     description:
-      'Two separate individual selfies taken at different times and locations with casual lighting, transformed into an alternating orange studio rap cypher with swinging condenser microphone and 808 trap sub-bass.',
+      'Two selfies transformed into an alternating orange studio rap battle with hanging mic and 808 trap beat.',
     inputPhoto1: {
       url: '/imgs/showcase/selfie-input-1.jpg',
       label: 'Input Photo 1',
-      desc: 'Selfie portrait (Individual 1, indoor room)',
+      desc: 'Selfie (Person 1, indoor)',
     },
     inputPhoto2: {
       url: '/imgs/showcase/selfie-input-2.jpg',
       label: 'Input Photo 2',
-      desc: 'Selfie portrait (Individual 2, natural daylight)',
+      desc: 'Selfie (Person 2, outdoor)',
     },
     userInputPrompt: {
-      topic: 'Orange Studio Duo Rap Battle · 808 Trap Roasts',
+      topic: 'Orange Studio Rap Battle',
       lyricsPrompt:
-        'Two rappers in an orange booth trading witty roast bars on a hanging condenser mic, heavy 808 sub-bass, rhythmic head nods, 9:16 vertical TikTok battle flow',
+        'Two rappers in an orange booth trading roast bars on a hanging mic, 808 sub-bass, 9:16 battle flow',
     },
     videoSrc: '/videos/hotellobby15.mp4?v=2',
-    videoCaption: 'Generated Video — Iconic Orange Studio Rap Cypher',
+    videoCaption: 'Generated Video — Orange Studio Rap Cypher',
     specs: {
-      photoCount: '2 Photos (Separate Individual Selfies)',
-      mode: 'Duo Cypher (2 Photos Rap Battle · P0 Core)',
-      musicStyle: '808 Trap Rap (140 BPM, Triplet Flow, Heavy Sub-Bass)',
-      duration: '15 seconds (Full Verse & Chorus)',
-      resolution: '1080P Full HD (1080×1920 Vertical 9:16)',
-      credits: '360 Credits (Transparent Pricing · Zero Hidden Cost)',
-      audioFeatures:
-        'Dual-Vocal AI Alternating Rhymes with 44.1kHz Stereo Master',
-      videoModel: 'Kling 4.0 Studio (Cinema Multi-Character Lip-Sync)',
-      waitTime: '~45–65 seconds (Instant Cloud Rendering)',
+      photoCount: '2 Selfies',
+      mode: 'Duo Cypher (2 Photos)',
+      musicStyle: '808 Trap Rap (140 BPM)',
+      duration: '15 seconds',
+      resolution: '1080P Full HD (9:16)',
+      credits: '360 Credits',
+      audioFeatures: 'Alternating Rhymes',
+      videoModel: 'Kling 4.0 Studio',
+      waitTime: '~50s',
     },
   },
   {
     id: 'friends-roast-battle',
-    tag: 'Boom Bap Roast',
-    tabTitle: '🥊 Case 2: Friends Cypher Roast Battle',
-    badge: 'Bar-For-Bar Punchlines · Social Banter',
-    headline: 'Real Example: Two Friends into an Underground Cypher',
+    tag: 'Boom Bap',
+    tabTitle: '🥊 Case 2: Friends Roast Cypher',
+    badge: 'Bar-For-Bar Punchlines',
+    headline: 'Two Friends into an Underground Cypher',
     description:
-      'Two candid smartphone snapshots of friends roasting each other over hilarious everyday inside jokes, delivered with authentic boom bap head-bobs and underground neon lighting.',
+      'Two friends transformed into an underground cypher trading roast bars over 90s boom bap drums.',
     inputPhoto1: {
       url: '/imgs/showcase/friends-input-1.jpg',
       label: 'Input Photo 1',
-      desc: 'Candid friend portrait (Street daylight)',
+      desc: 'Friend portrait (Daylight)',
     },
     inputPhoto2: {
       url: '/imgs/showcase/friends-input-2.jpg',
       label: 'Input Photo 2',
-      desc: 'Candid friend selfie (Urban casual)',
+      desc: 'Friend selfie (Casual)',
     },
     userInputPrompt: {
       topic: 'Friends Roast Cypher · 90s Boom Bap Flow',
       lyricsPrompt:
-        'Two best friends roasting each other about always being late and ordering too much takeout, fast witty punchlines, underground cypher lighting, hyping crowd',
+        'Two best friends roasting each other about being late and ordering takeout, fast witty punchlines, underground cypher lighting',
     },
     videoSrc: '/videos/friendsroast15_vertical.mp4',
-    videoCaption: 'Generated Video — Underground Cypher Roast Battle',
+    videoCaption: 'Generated Video — Underground Cypher',
     specs: {
-      photoCount: '2 Photos (Camera Roll Candid Selfies)',
-      mode: 'Duo Cypher (Underground Roast Battle · P0 Core)',
-      musicStyle: '90s Boom Bap (92 BPM, Vinyl Scratches, Snappy Snares)',
-      duration: '15 seconds (Turn-based Roast Bars)',
-      resolution: '1080P Full HD (1080×1920 Vertical 9:16)',
-      credits: '360 Credits (15s Standard Duo Battle)',
-      audioFeatures: 'Dynamic Turn-Taking Vocal Cadence & Crowd Hype Sync',
-      videoModel: 'Kling 4.0 Studio (Facial Expression Realism)',
+      photoCount: '2 Camera Roll Selfies',
+      mode: 'Duo Cypher Roast Battle',
+      musicStyle: '90s Boom Bap (92 BPM)',
+      duration: '15 seconds',
+      resolution: '1080P Full HD (9:16)',
+      credits: '360 Credits',
+      audioFeatures: 'Turn-Taking Vocals & Crowd Hype',
+      videoModel: 'Kling 4.0 Studio',
       waitTime: '~50 seconds',
     },
   },
   {
     id: 'pet-rap-flow',
-    tag: 'Pet MC Chopper',
+    tag: 'Pet MC',
     tabTitle: '🐶 Case 3: Pet MC Gold Chain Chopper',
-    badge: 'Viral Meme Rap · 1 Photo Animation',
-    headline: 'Real Example: One Pet Photo to Hypersonic Chopper Flow',
+    badge: 'Viral Meme Rap',
+    headline: 'One Pet Photo to Hypersonic Chopper Flow',
     description:
-      'A single casual living room cat photo automatically styled with thick gold chains and sunglasses, spitting hypersonic chopper flow to energetic bouncy trap drums.',
+      'A living room pet photo styled with gold chains and sunglasses, spitting fast chopper flow to bouncy trap drums.',
     inputPhoto1: {
       url: '/imgs/showcase/pet-input.jpg',
       label: 'Input Photo 1',
-      desc: 'Living room domestic pet photo (Natural room light)',
+      desc: 'Domestic pet photo',
     },
     userInputPrompt: {
       topic: 'Pet MC Gold Chain Meme Rap · Chopper Flow',
       lyricsPrompt:
-        'Cute domestic cat wearing heavy gold chain and sunglasses, spitting fast chopper flow to upbeat trap drums, energetic head-bobbing, viral social media aesthetics',
+        'Cute domestic cat wearing heavy gold chain and sunglasses, spitting fast chopper flow to upbeat trap drums, energetic head-bobbing',
     },
     videoSrc: '/videos/cutepet15_vertical.mp4',
-    videoCaption: 'Generated Video — Pet MC Gold Chain Chopper Rap',
+    videoCaption: 'Generated Video — Pet MC Chopper Rap',
     specs: {
       photoCount: '1 Photo (Single Pet / Solo Avatar)',
-      mode: 'Solo / Pet MC Mode (P1 Extension)',
-      musicStyle: 'Chopper Flow Trap (155 BPM, Fast Double-Time Drums)',
-      duration: '10 seconds (High-Energy Viral Clip)',
-      resolution: '1080P Full HD (1080×1920 Vertical 9:16)',
-      credits: '160 Credits (Solo Mode 0.67x Base)',
-      audioFeatures: 'High-Speed Vocal Phoneme-to-Viseme Lip Sync Animation',
-      videoModel: 'Wan 2.6 Flash (Fast Motion Animation)',
-      waitTime: '~30 seconds',
+      mode: 'Solo / Pet MC Mode',
+      musicStyle: 'Chopper Flow Trap (155 BPM)',
+      duration: '10 seconds',
+      resolution: '1080P Full HD (9:16)',
+      credits: '160 Credits',
+      audioFeatures: 'Double-Time Rap Cadence',
+      videoModel: 'Wan 2.6 Flash / Kling 4.0',
+      waitTime: '~35 seconds',
     },
   },
   {
     id: 'drill-choreo-stage',
     tag: 'Brooklyn Drill',
     tabTitle: '⚡ Case 4: Brooklyn Drill Stage (Duo)',
-    badge: 'Heavy 808 Glides · Stage Dynamics',
-    headline: 'Real Example: Two Photos into Brooklyn Drill Stage Cypher',
+    badge: 'Heavy 808 Glides',
+    headline: 'Two Photos into Brooklyn Drill Stage Cypher',
     description:
-      'Two portrait photos placed in an On-The-Radar style dark studio booth, executing effortless drill footwork glides and energetic stage movement over sliding 808 sub-bass.',
+      'Two portrait photos placed in a dark booth, executing drill footwork glides and stage movement over sliding 808 bass.',
     inputPhoto1: {
       url: '/imgs/showcase/selfie-input-1.jpg',
       label: 'Input Photo 1',
-      desc: 'Front-facing portrait selfie',
+      desc: 'Portrait selfie',
     },
     inputPhoto2: {
       url: '/imgs/showcase/selfie-input-2.jpg',
       label: 'Input Photo 2',
-      desc: 'Front-facing portrait selfie',
+      desc: 'Portrait selfie',
     },
     userInputPrompt: {
       topic: 'Dark Studio Drill Stage · Sliding 808 Bass Drops',
       lyricsPrompt:
-        'Two rappers inside dark studio with neon green fluorescent tube lights, intense aggressive drill freestyle, sliding 808 bass, rapid rhythmic hand gestures and head nods',
+        'Two rappers in dark studio booth with green neon lights, aggressive drill freestyle, sliding 808 bass, rhythmic hand gestures',
     },
     videoSrc: '/videos/drill15_vertical.mp4',
-    videoCaption: 'Generated Video — Brooklyn Drill Stage Cypher',
+    videoCaption: 'Generated Video — Brooklyn Drill Cypher',
     specs: {
-      photoCount: '2 Photos (Full-Body / Portrait Selfies)',
-      mode: 'Duo Cypher (Choreography & Drill Battle · P0 Core)',
-      musicStyle:
-        'Brooklyn Drill (142 BPM, Sliding 808 Sub-Bass, Hi-Hat Rolls)',
-      duration: '15 seconds (Choreographed Dance & Rap Flow)',
-      resolution: '1080P Full HD (1080×1920 Vertical 9:16)',
-      credits: '360 Credits (15s Duo Performance)',
-      audioFeatures: 'Synchronized Bass Drop Gestures & Vocal Drill Ad-Libs',
-      videoModel: 'Seedance 2.5 Pro (Extreme Motion & Body Glide Dynamics)',
-      waitTime: '~60 seconds',
+      photoCount: '2 Photos',
+      mode: 'Duo Drill Performance',
+      musicStyle: 'Brooklyn Drill (142 BPM)',
+      duration: '15 seconds',
+      resolution: '1080P Full HD (9:16)',
+      credits: '360 Credits',
+      audioFeatures: 'Bass Drop Sync & Drill Ad-Libs',
+      videoModel: 'Seedance 2.5 Pro / Kling 4.0',
+      waitTime: '~50 seconds',
     },
   },
 ];
@@ -296,17 +294,14 @@ export function VideoShowcaseEvidence() {
         <div className="mx-auto max-w-3xl text-center">
           <div className="inline-flex items-center gap-2 rounded-full border border-amber-500/30 bg-amber-500/10 px-4 py-1.5 text-xs font-semibold text-amber-300 backdrop-blur-md">
             <Flame className="size-3.5 text-amber-400" />
-            <span>
-              Standardized 6-Element Production Showcases (经过核实的生成实证)
-            </span>
+            <span>Verified Production Showcases</span>
           </div>
           <h2 className="mt-4 text-3xl font-extrabold tracking-tight text-white sm:text-5xl lg:text-6xl">
             Real Production Examples & Verified Specs
           </h2>
           <p className="mt-4 text-base leading-relaxed text-slate-300 sm:text-lg">
-            See the exact pipeline: raw input photos, verified prompt text, full
-            1080P playable video with audio, turnaround time, credit cost, and
-            models used.
+            Verified production pipeline: raw photos, prompt, playable 1080P
+            video with audio, specs, and credits.
           </p>
         </div>
 
@@ -352,7 +347,7 @@ export function VideoShowcaseEvidence() {
               <div className="w-full">
                 <div className="mb-2 flex items-center justify-between text-xs text-slate-400">
                   <span className="font-bold tracking-wider text-amber-300 uppercase">
-                    Step 1: Raw Input Photo(s) (原始上传照片)
+                    Step 1: Raw Input Photo(s)
                   </span>
                   <span className="text-[11px] text-slate-400">
                     {activeCase.specs.photoCount}
@@ -424,9 +419,7 @@ export function VideoShowcaseEvidence() {
                 <div className="mb-1.5 flex items-center justify-between text-xs">
                   <span className="flex items-center gap-1.5 font-bold tracking-wider text-amber-300 uppercase">
                     <Wand2 className="size-3.5 text-amber-400" />
-                    <span>
-                      Step 2: User Input Prompt & Topic (用户输入提示词)
-                    </span>
+                    <span>Step 2: User Input Prompt & Topic</span>
                   </span>
                   <span className="rounded border border-amber-400/20 bg-amber-400/15 px-2 py-0.5 font-mono text-[10px] font-bold text-amber-300">
                     Verified User Input
@@ -556,7 +549,8 @@ export function VideoShowcaseEvidence() {
                 </div>
 
                 <p className="mt-2 text-center text-xs text-slate-400">
-                  真实生产生成视频：支持完整播放、声音切换与双人交替对嘴检查。
+                  Playable output: Complete video with sound and lip-sync
+                  articulation.
                 </p>
               </div>
             </div>
@@ -567,98 +561,98 @@ export function VideoShowcaseEvidence() {
                 <div className="flex items-center gap-2 border-b border-white/10 pb-3">
                   <ShieldCheck className="size-5 text-amber-400" />
                   <h4 className="text-base font-bold tracking-wider text-white uppercase">
-                    Verified Generation Specifications (核准参数规格)
+                    Verified Generation Specifications
                   </h4>
                 </div>
                 <p className="mt-2 text-xs text-slate-400">
-                  Each case is bound to verifiable system parameters, credit
-                  consumption, and output standards:
+                  Verifiable system parameters, credit consumption, and output
+                  standards:
                 </p>
 
                 {/* The 7 Detailed Spec Rows */}
                 <div className="mt-5 divide-y divide-white/10 rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-xs">
-                  {/* 1. 输入照片数量 */}
+                  {/* 1. Input Photos */}
                   <div className="flex items-start justify-between py-2.5">
                     <span className="flex items-center gap-1.5 font-semibold text-slate-400">
                       <Users className="size-3.5 text-amber-400" />
-                      <span>输入照片数量 (Input Photos):</span>
+                      <span>Photos:</span>
                     </span>
                     <strong className="max-w-[55%] text-right font-bold text-white">
                       {activeCase.specs.photoCount}
                     </strong>
                   </div>
 
-                  {/* 2. 生成模式 */}
+                  {/* 2. Mode */}
                   <div className="flex items-start justify-between py-2.5">
                     <span className="flex items-center gap-1.5 font-semibold text-slate-400">
                       <Mic className="size-3.5 text-amber-400" />
-                      <span>生成模式 (Mode):</span>
+                      <span>Mode:</span>
                     </span>
                     <strong className="max-w-[55%] text-right font-bold text-amber-300">
                       {activeCase.specs.mode}
                     </strong>
                   </div>
 
-                  {/* 3. 音乐风格 */}
+                  {/* 3. Music Style */}
                   <div className="flex items-start justify-between py-2.5">
                     <span className="flex items-center gap-1.5 font-semibold text-slate-400">
                       <Music className="size-3.5 text-amber-400" />
-                      <span>音乐风格 (Music Beat):</span>
+                      <span>Beat:</span>
                     </span>
                     <strong className="max-w-[55%] text-right font-bold text-white">
                       {activeCase.specs.musicStyle}
                     </strong>
                   </div>
 
-                  {/* 4. 实际生成时长 */}
+                  {/* 4. Duration */}
                   <div className="flex items-start justify-between py-2.5">
                     <span className="flex items-center gap-1.5 font-semibold text-slate-400">
                       <Clock className="size-3.5 text-amber-400" />
-                      <span>视频成品时长 (Duration):</span>
+                      <span>Duration:</span>
                     </span>
                     <strong className="max-w-[55%] text-right font-bold text-white">
                       {activeCase.specs.duration}
                     </strong>
                   </div>
 
-                  {/* 5. 输出分辨率 */}
+                  {/* 5. Resolution */}
                   <div className="flex items-start justify-between py-2.5">
                     <span className="flex items-center gap-1.5 font-semibold text-slate-400">
                       <Video className="size-3.5 text-amber-400" />
-                      <span>输出分辨率 (Resolution):</span>
+                      <span>Resolution:</span>
                     </span>
                     <strong className="max-w-[55%] text-right font-bold text-cyan-300">
                       {activeCase.specs.resolution}
                     </strong>
                   </div>
 
-                  {/* 6. 消耗积分 */}
+                  {/* 6. Credits */}
                   <div className="flex items-start justify-between py-2.5">
                     <span className="flex items-center gap-1.5 font-semibold text-slate-400">
                       <Coins className="size-3.5 text-amber-400" />
-                      <span>消耗积分 (Credits Used):</span>
+                      <span>Credits:</span>
                     </span>
                     <strong className="max-w-[55%] text-right text-sm font-black text-amber-400">
                       ⚡ {activeCase.specs.credits}
                     </strong>
                   </div>
 
-                  {/* 7. 完整视频播放与音画对齐 */}
+                  {/* 7. Vocal Features */}
                   <div className="flex items-start justify-between py-2.5">
                     <span className="flex items-center gap-1.5 font-semibold text-slate-400">
                       <Layers className="size-3.5 text-amber-400" />
-                      <span>人声与音画表现 (Vocal Features):</span>
+                      <span>Vocal Track:</span>
                     </span>
                     <strong className="max-w-[55%] text-right font-bold text-emerald-300">
                       {activeCase.specs.audioFeatures}
                     </strong>
                   </div>
 
-                  {/* 8. 视频引擎与等待时间 */}
+                  {/* 8. AI Model */}
                   <div className="flex items-start justify-between py-2.5">
                     <span className="flex items-center gap-1.5 font-semibold text-slate-400">
                       <Cpu className="size-3.5 text-amber-400" />
-                      <span>AI 模型与生成耗时:</span>
+                      <span>Model & Time:</span>
                     </span>
                     <div className="max-w-[55%] text-right">
                       <strong className="block font-bold text-cyan-300">
@@ -677,11 +671,10 @@ export function VideoShowcaseEvidence() {
                 <div className="flex items-center justify-between gap-3">
                   <div>
                     <h5 className="text-sm font-bold text-white">
-                      Ready to Make Your Own Rap Battle?
+                      Ready to Make Your Rap Battle?
                     </h5>
                     <p className="mt-1 text-xs text-slate-300">
-                      Upload two photos and hear your custom rap flow in ~50
-                      seconds.
+                      Upload two photos and hear your rap cypher in ~50s.
                     </p>
                   </div>
                   <button

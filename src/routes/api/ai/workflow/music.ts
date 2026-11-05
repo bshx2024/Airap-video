@@ -43,16 +43,19 @@ async function POST({ request }: { request: Request }) {
     const { getAllConfigs } = await import('@/modules/config/service');
     const configs = await getAllConfigs();
     const alibabaApiKey = configs.alibaba_api_key || envConfigs.alibaba_api_key;
-    const alibabaBaseUrl = configs.alibaba_base_url || envConfigs.alibaba_base_url;
+    const alibabaBaseUrl =
+      configs.alibaba_base_url || envConfigs.alibaba_base_url;
 
     const isAlibabaModel =
       model.toLowerCase().includes('fun-music') ||
       model.toLowerCase().includes('alibaba');
-    const shouldUseAlibaba = (isAlibabaModel || !provider) && Boolean(alibabaApiKey);
+    const shouldUseAlibaba =
+      (isAlibabaModel || !provider) && Boolean(alibabaApiKey);
 
     if (shouldUseAlibaba && alibabaApiKey) {
       const origin = new URL(
-        alibabaBaseUrl || 'https://ws-2txa9apyfxruykae.us-east-1.maas.aliyuncs.com'
+        alibabaBaseUrl ||
+          'https://ws-2txa9apyfxruykae.us-east-1.maas.aliyuncs.com'
       ).origin;
       const endpoint = `${origin}/api/v1/services/audio/music/generation`;
 
@@ -77,13 +80,14 @@ async function POST({ request }: { request: Request }) {
       if (!resp.ok) {
         throw new Error(
           json?.message ||
-          json?.output?.message ||
-          `阿里百炼 Fun-Music 编曲接口调用失败 (${resp.status})`
+            json?.output?.message ||
+            `阿里百炼 Fun-Music 编曲接口调用失败 (${resp.status})`
         );
       }
 
       // Check if output returned direct audio URL
-      const directAudioUrl = json?.output?.audio?.url || json?.output?.audio_url;
+      const directAudioUrl =
+        json?.output?.audio?.url || json?.output?.audio_url;
       if (directAudioUrl) {
         return respData({
           taskId: json.request_id || `ali_music_${Date.now()}`,
@@ -118,11 +122,20 @@ async function POST({ request }: { request: Request }) {
     const callbackUrl = `${envConfigs.app_url || 'https://airap.video'}/api/ai/task`;
 
     let finalStyle = style;
-    if (vocalGender === 'female' && !finalStyle.toLowerCase().includes('female vocal')) {
+    if (
+      vocalGender === 'female' &&
+      !finalStyle.toLowerCase().includes('female vocal')
+    ) {
       finalStyle = `female vocal, melodic rap flow, ${finalStyle}`;
-    } else if (vocalGender === 'duet' && !finalStyle.toLowerCase().includes('duet')) {
+    } else if (
+      vocalGender === 'duet' &&
+      !finalStyle.toLowerCase().includes('duet')
+    ) {
       finalStyle = `male and female rap duet, back and forth cypher, alternating vocalists, ${finalStyle}`;
-    } else if (vocalGender === 'male' && !finalStyle.toLowerCase().includes('male vocal')) {
+    } else if (
+      vocalGender === 'male' &&
+      !finalStyle.toLowerCase().includes('male vocal')
+    ) {
       finalStyle = `male vocal, aggressive rap flow, ${finalStyle}`;
     }
 
@@ -134,9 +147,13 @@ async function POST({ request }: { request: Request }) {
         callbackUrl,
         options: {
           customMode: true,
-          title: (title || 'Hotel Lobby Cypher')
-            .replace(/(quavo|takeoff|migos|drake|eminem|kanye|travis|carti|kendrick)/gi, 'MC')
-            .trim() || 'Hotel Lobby Cypher',
+          title:
+            (title || 'Hotel Lobby Cypher')
+              .replace(
+                /(quavo|takeoff|migos|drake|eminem|kanye|travis|carti|kendrick)/gi,
+                'MC'
+              )
+              .trim() || 'Hotel Lobby Cypher',
           style: finalStyle,
           lyrics,
           instrumental: Boolean(instrumental),

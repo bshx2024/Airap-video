@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { Calculator, CheckCircle2, Coins, Sparkles } from 'lucide-react';
+
 import { getRapCostCredits } from '@/config/rap-presets';
 
 export function VideoCostCalculator() {
@@ -10,10 +11,10 @@ export function VideoCostCalculator() {
   const [mode, setMode] = useState<'duo' | 'solo'>('duo');
 
   const baseCredits = getRapCostCredits(duration, mode);
-  // Estimate video yields across plans
-  const starterCredits = 600;
-  const proCredits = 1800;
-  const masterCredits = 4800;
+  // Estimate video yields across plans (Starter 1,800 · Pro 4,000 · Studio Master 11,000)
+  const starterCredits = 1800;
+  const proCredits = 4000;
+  const masterCredits = 11000;
 
   const starterVideos = Math.floor(starterCredits / baseCredits);
   const proVideos = Math.floor(proCredits / baseCredits);
@@ -31,7 +32,8 @@ export function VideoCostCalculator() {
             How Much Does One AI Rap Video Cost?
           </h3>
           <p className="mt-2 max-w-xl text-xs text-slate-300 sm:text-sm">
-            Calculate exact credit consumption and see estimated monthly video output for your chosen format.
+            Calculate exact credit consumption and see estimated monthly video
+            output for your chosen format.
           </p>
         </div>
 
@@ -39,7 +41,7 @@ export function VideoCostCalculator() {
         <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-3">
           {/* Duration Selector */}
           <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-            <label className="text-xs font-bold text-slate-300 uppercase tracking-wider block mb-2.5">
+            <label className="mb-2.5 block text-xs font-bold tracking-wider text-slate-300 uppercase">
               Video Duration:
             </label>
             <div className="grid grid-cols-3 gap-2">
@@ -50,7 +52,7 @@ export function VideoCostCalculator() {
                   onClick={() => setDuration(d)}
                   className={`rounded-xl py-2 text-xs font-bold transition-all ${
                     duration === d
-                      ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/25 ring-1 ring-amber-400'
+                      ? 'bg-amber-500 text-slate-950 shadow-md ring-1 shadow-amber-500/25 ring-amber-400'
                       : 'bg-white/5 text-white/70 hover:bg-white/10 hover:text-white'
                   }`}
                 >
@@ -62,7 +64,7 @@ export function VideoCostCalculator() {
 
           {/* Resolution Selector */}
           <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-            <label className="text-xs font-bold text-slate-300 uppercase tracking-wider block mb-2.5">
+            <label className="mb-2.5 block text-xs font-bold tracking-wider text-slate-300 uppercase">
               Resolution:
             </label>
             <div className="grid grid-cols-2 gap-2">
@@ -73,7 +75,7 @@ export function VideoCostCalculator() {
                   onClick={() => setResolution(r)}
                   className={`rounded-xl py-2 text-xs font-bold transition-all ${
                     resolution === r
-                      ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/25 ring-1 ring-amber-400'
+                      ? 'bg-amber-500 text-slate-950 shadow-md ring-1 shadow-amber-500/25 ring-amber-400'
                       : 'bg-white/5 text-white/70 hover:bg-white/10 hover:text-white'
                   }`}
                 >
@@ -85,7 +87,7 @@ export function VideoCostCalculator() {
 
           {/* Mode Selector */}
           <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-            <label className="text-xs font-bold text-slate-300 uppercase tracking-wider block mb-2.5">
+            <label className="mb-2.5 block text-xs font-bold tracking-wider text-slate-300 uppercase">
               Creation Mode:
             </label>
             <div className="grid grid-cols-2 gap-2">
@@ -94,7 +96,7 @@ export function VideoCostCalculator() {
                 onClick={() => setMode('duo')}
                 className={`rounded-xl py-2 text-xs font-bold transition-all ${
                   mode === 'duo'
-                    ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/25 ring-1 ring-amber-400'
+                    ? 'bg-amber-500 text-slate-950 shadow-md ring-1 shadow-amber-500/25 ring-amber-400'
                     : 'bg-white/5 text-white/70 hover:bg-white/10 hover:text-white'
                 }`}
               >
@@ -105,7 +107,7 @@ export function VideoCostCalculator() {
                 onClick={() => setMode('solo')}
                 className={`rounded-xl py-2 text-xs font-bold transition-all ${
                   mode === 'solo'
-                    ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/25 ring-1 ring-amber-400'
+                    ? 'bg-amber-500 text-slate-950 shadow-md ring-1 shadow-amber-500/25 ring-amber-400'
                     : 'bg-white/5 text-white/70 hover:bg-white/10 hover:text-white'
                 }`}
               >
@@ -117,7 +119,7 @@ export function VideoCostCalculator() {
 
         {/* Calculation Result Callout */}
         <div className="mt-8 rounded-2xl border border-amber-400/40 bg-gradient-to-r from-amber-500/10 via-purple-500/10 to-slate-900/40 p-6 text-center">
-          <div className="text-xs font-bold text-amber-300 uppercase tracking-wider">
+          <div className="text-xs font-bold tracking-wider text-amber-300 uppercase">
             Total Generation Cost:
           </div>
           <div className="mt-1 flex items-center justify-center gap-2">
@@ -128,25 +130,36 @@ export function VideoCostCalculator() {
             <span className="text-lg font-bold text-amber-300">Credits</span>
           </div>
           <p className="mt-2 text-xs text-slate-300">
-            For <strong>{duration} seconds</strong> · <strong>{resolution}</strong> · <strong>{mode === 'duo' ? 'Duo Rap Battle (2 Photos)' : 'Solo Rap'}</strong> (including AI lyrics, 808 beats, lip sync & video export)
+            For <strong>{duration} seconds</strong> ·{' '}
+            <strong>{resolution}</strong> ·{' '}
+            <strong>
+              {mode === 'duo' ? 'Duo Rap Battle (2 Photos)' : 'Solo Rap'}
+            </strong>{' '}
+            (including AI lyrics, 808 beats, lip sync & video export)
           </p>
 
           {/* Yields Breakdown across plans */}
           <div className="mt-6 grid grid-cols-3 gap-3 border-t border-white/10 pt-4 text-center">
             <div>
-              <span className="text-[11px] text-slate-400 block">Starter Plan:</span>
+              <span className="block text-[11px] text-slate-400">
+                Starter Plan:
+              </span>
               <strong className="text-sm font-bold text-white sm:text-base">
                 ~{starterVideos} Videos/mo
               </strong>
             </div>
             <div>
-              <span className="text-[11px] text-amber-300 block">Creator Pro (Best):</span>
+              <span className="block text-[11px] text-amber-300">
+                Creator Pro (Best):
+              </span>
               <strong className="text-sm font-bold text-amber-300 sm:text-base">
                 ~{proVideos} Videos/mo
               </strong>
             </div>
             <div>
-              <span className="text-[11px] text-purple-300 block">Studio Master:</span>
+              <span className="block text-[11px] text-purple-300">
+                Studio Master:
+              </span>
               <strong className="text-sm font-bold text-purple-300 sm:text-base">
                 ~{masterVideos} Videos/mo
               </strong>

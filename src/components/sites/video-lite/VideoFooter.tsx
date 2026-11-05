@@ -59,11 +59,20 @@ export function VideoFooter() {
       links: [
         { label: m['landing.footer.privacy'](), href: '/privacy-policy' },
         { label: m['landing.footer.terms'](), href: '/terms-of-service' },
-        { label: 'Acceptable Use Policy (AUP)', href: '/acceptable-use-policy' },
+        {
+          label: 'Acceptable Use Policy (AUP)',
+          href: '/acceptable-use-policy',
+        },
         { label: m['landing.footer.cookies'](), href: '/cookie-policy' },
         { label: m['landing.footer.refund'](), href: '/refund-policy' },
-        { label: 'Support: support@airap-video.net', href: 'mailto:support@airap-video.net' },
-        { label: 'Report Abuse: report@airap-video.net', href: 'mailto:report@airap-video.net' },
+        {
+          label: 'Support: support@airap-video.net',
+          href: 'mailto:support@airap-video.net',
+        },
+        {
+          label: 'Report Abuse: report@airap-video.net',
+          href: 'mailto:report@airap-video.net',
+        },
       ],
     },
   ];
@@ -134,7 +143,7 @@ export function VideoFooter() {
               <Mail className="size-4" />
               <span>support@airap-video.net</span>
             </a>
-            <span className="hidden sm:inline opacity-40">|</span>
+            <span className="hidden opacity-40 sm:inline">|</span>
             <a
               href="mailto:report@airap-video.net"
               className="inline-flex items-center gap-1.5 transition-colors hover:text-slate-900 dark:hover:text-[#f8fafc]"

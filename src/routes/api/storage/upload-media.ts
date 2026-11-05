@@ -38,8 +38,7 @@ function clientIp(request: Request): string {
 
 function isVideoFile(file: File): boolean {
   return (
-    file.type.startsWith('video/') ||
-    /\.(mp4|webm|mov|m4v)$/i.test(file.name)
+    file.type.startsWith('video/') || /\.(mp4|webm|mov|m4v)$/i.test(file.name)
   );
 }
 
@@ -122,10 +121,16 @@ export async function POST({ request }: { request: Request }) {
     for (const file of files) {
       const isVideo = isVideoFile(file);
       const isAudio = isAudioFile(file);
-      const maxSize = isVideo ? MAX_VIDEO_SIZE : isAudio ? 25 * 1024 * 1024 : MAX_IMAGE_SIZE;
+      const maxSize = isVideo
+        ? MAX_VIDEO_SIZE
+        : isAudio
+          ? 25 * 1024 * 1024
+          : MAX_IMAGE_SIZE;
 
       if (!isVideo && !isAudio && !isDeclaredImageType(file.type)) {
-        return respErr(`File ${file.name} is not an image, video, or audio file`);
+        return respErr(
+          `File ${file.name} is not an image, video, or audio file`
+        );
       }
       if (typeof file.size === 'number' && file.size > maxSize) {
         return respErr(

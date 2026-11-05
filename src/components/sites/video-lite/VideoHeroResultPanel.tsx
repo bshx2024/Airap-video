@@ -4,6 +4,7 @@ import { LoaderCircle, QrCode, Square, X } from 'lucide-react';
 import { Link } from '@/core/i18n/navigation';
 import { m } from '@/paraglide/messages.js';
 import { DownloadButton } from '@/components/download-button';
+
 import { MobileVideoDownloadModal } from './MobileVideoDownloadModal';
 
 export type VideoHeroGenerationResult = {
